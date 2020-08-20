@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CTLiteDemo.Blog.Presentation\CTLiteDemo.Presentation.csproj" />
+    <ProjectReference Include="..\CTLiteDemo.Service\CTLiteDemo.Service.csproj" />
+    <ProjectReference Include="..\CT\CTLite.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Update="BlogApplicationSettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

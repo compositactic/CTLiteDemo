@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CTLiteDemo.Blog.Model\CTLiteDemo.Model.csproj" />
+    <ProjectReference Include="..\CTLiteDemo.Blog.Presentation\CTLiteDemo.Presentation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="BlogApplications\Blogs\Posts\Attachments\" />
+    <Folder Include="BlogApplications\Blogs\Posts\Comments\" />
+  </ItemGroup>
+
+</Project>

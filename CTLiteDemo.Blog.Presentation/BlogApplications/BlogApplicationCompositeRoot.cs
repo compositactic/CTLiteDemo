@@ -1,5 +1,6 @@
 ﻿using CTLite;
 using CTLite.Data.MicrosoftSqlServer;
+using CTLiteDemo.Model.BlogApplications;
 using CTLiteDemo.Presentation.BlogApplications.Blogs;
 using CTLiteDemo.Presentation.Properties;
 using Newtonsoft.Json;
@@ -12,42 +13,54 @@ using System.Runtime.Serialization;
 
 namespace CTLiteDemo.Presentation.BlogApplications
 {
+    [DataContract]
+    [CompositeModel(nameof(BlogApplicationCompositeRoot.BlogApplicationModel))]
     public class BlogApplicationCompositeRoot : CompositeRoot
     {
-        public BlogApplicationCompositeRoot() : base()
+        internal BlogApplication BlogApplicationModel;
+
+        public BlogApplicationCompositeRoot(BlogApplication blogApplication) : base()
         {
-            Initialize();
+            Initialize(blogApplication);
         }
 
-        public BlogApplicationCompositeRoot(params IService[] services) : base(services)
+        public BlogApplicationCompositeRoot(BlogApplication blogApplication, params IService[] services) : base(services)
         {
-            Initialize();
+            Initialize(blogApplication);
         }
 
-        public BlogApplicationCompositeRoot(IEnumerable<Assembly> serviceAssemblies) : base(serviceAssemblies)
+        public BlogApplicationCompositeRoot(BlogApplication blogApplication, IEnumerable<Assembly> serviceAssemblies) : base(serviceAssemblies)
         {
-            Initialize();
+            Initialize(blogApplication);
         }
 
-        private void Initialize()
+        private void Initialize(BlogApplication blogApplication)
         {
-            var machineName = Environment.MachineName;
-            var blogApplicationSettings = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "BlogApplicationSettings.json")));
+            if (blogApplication == null)
+            {
+                BlogApplicationModel = new BlogApplication();
 
-            ConnectionString = blogApplicationSettings.TryGetValue($"{machineName}.MsSqlConnectionString", out string connectionString) ?
-                                connectionString :
-                                blogApplicationSettings["Local.MsSqlConnectionString"];
+                var machineName = Environment.MachineName;
+                var blogApplicationSettings = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "BlogApplicationSettings.json")));
 
-            MasterDbConnectionString = string.Format(ConnectionString, blogApplicationSettings.TryGetValue($"{machineName}.Database.Master", out string masterDbConnectionString) ? masterDbConnectionString : blogApplicationSettings["Local.Database.Master"]);
-            BlogDbConnectionString = string.Format(ConnectionString, blogApplicationSettings.TryGetValue($"{machineName}.Database.BlogDb", out string blogDbConnectionString) ? blogDbConnectionString : blogApplicationSettings["Local.Database.BlogDb"]);
+                BlogApplicationModel.ConnectionString = blogApplicationSettings.TryGetValue($"{machineName}.MsSqlConnectionString", out string connectionString) ?
+                                    connectionString :
+                                    blogApplicationSettings["Local.MsSqlConnectionString"];
+
+                BlogApplicationModel.MasterDbConnectionString = string.Format(ConnectionString, blogApplicationSettings.TryGetValue($"{machineName}.Database.Master", out string masterDbConnectionString) ? masterDbConnectionString : blogApplicationSettings["Local.Database.Master"]);
+                BlogApplicationModel.BlogDbConnectionString = string.Format(ConnectionString, blogApplicationSettings.TryGetValue($"{machineName}.Database.BlogDb", out string blogDbConnectionString) ? blogDbConnectionString : blogApplicationSettings["Local.Database.BlogDb"]);
+
+            }
+            else
+                BlogApplicationModel = blogApplication;
+
 
             AllBlogs = new BlogCompositeContainer(this);
         }
 
-        internal string BlogDbConnectionString { get; private set; }
-        internal string MasterDbConnectionString { get; private set; }
-        internal string ConnectionString { get; private set; }
-
+        internal string BlogDbConnectionString { get { return BlogApplicationModel.BlogDbConnectionString; } }
+        internal string MasterDbConnectionString { get { return BlogApplicationModel.MasterDbConnectionString; } }
+        internal string ConnectionString { get { return BlogApplicationModel.ConnectionString; } }
 
 
         [DataMember]
