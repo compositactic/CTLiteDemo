@@ -19,28 +19,28 @@ namespace CTLiteDemo.Presentation.BlogApplications
     {
         internal BlogApplication BlogApplicationModel;
 
-        public BlogApplicationCompositeRoot(BlogApplication blogApplication) : base()
+        public BlogApplicationCompositeRoot() : base()
         {
-            Initialize(blogApplication);
+            Initialize();
         }
 
-        public BlogApplicationCompositeRoot(BlogApplication blogApplication, params IService[] services) : base(services)
+        public BlogApplicationCompositeRoot(params IService[] services) : base(services)
         {
-            Initialize(blogApplication);
+            Initialize();
         }
 
-        public BlogApplicationCompositeRoot(BlogApplication blogApplication, IEnumerable<Assembly> serviceAssemblies) : base(serviceAssemblies)
+        public BlogApplicationCompositeRoot(IEnumerable<Assembly> serviceAssemblies) : base(serviceAssemblies)
         {
-            Initialize(blogApplication);
+            Initialize();
         }
 
-        private void Initialize(BlogApplication blogApplication)
+        private void Initialize()
         {
-            if (blogApplication == null)
-            {
-                BlogApplicationModel = new BlogApplication();
+            BlogApplicationModel = new BlogApplication();
+            AllBlogs = new BlogCompositeContainer(this);
+        }
 
-                var machineName = Environment.MachineName;
+        /*                 var machineName = Environment.MachineName;
                 var blogApplicationSettings = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "BlogApplicationSettings.json")));
 
                 BlogApplicationModel.ConnectionString = blogApplicationSettings.TryGetValue($"{machineName}.MsSqlConnectionString", out string connectionString) ?
@@ -50,13 +50,7 @@ namespace CTLiteDemo.Presentation.BlogApplications
                 BlogApplicationModel.MasterDbConnectionString = string.Format(ConnectionString, blogApplicationSettings.TryGetValue($"{machineName}.Database.Master", out string masterDbConnectionString) ? masterDbConnectionString : blogApplicationSettings["Local.Database.Master"]);
                 BlogApplicationModel.BlogDbConnectionString = string.Format(ConnectionString, blogApplicationSettings.TryGetValue($"{machineName}.Database.BlogDb", out string blogDbConnectionString) ? blogDbConnectionString : blogApplicationSettings["Local.Database.BlogDb"]);
 
-            }
-            else
-                BlogApplicationModel = blogApplication;
-
-
-            AllBlogs = new BlogCompositeContainer(this);
-        }
+*/
 
         internal string BlogDbConnectionString { get { return BlogApplicationModel.BlogDbConnectionString; } }
         internal string MasterDbConnectionString { get { return BlogApplicationModel.MasterDbConnectionString; } }

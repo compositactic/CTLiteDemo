@@ -13,9 +13,6 @@ namespace CTLite
         internal CompositeRootHttpRequestContext() { }
 
         [DataMember]
-        public string UserName { get; internal set; }
-
-        [DataMember]
         public string SessionToken { get; internal set; }
 
         [DataMember]

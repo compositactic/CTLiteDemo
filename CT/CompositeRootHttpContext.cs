@@ -44,9 +44,7 @@ namespace CTLite
                                                 IEnumerable<CompositeUploadedFile> uploadedFiles,
                                                 X509Certificate2 clientCertificate,
                                                 int clientCertificateError,
-                                                IEnumerable<string> userLanguages,
-                                                string userName,
-                                                string sessionToken)
+                                                IEnumerable<string> userLanguages)
         {
             Request = new CompositeRootHttpRequestContext
             {
@@ -73,8 +71,6 @@ namespace CTLite
                 UserAgent = userAgent,
                 UserHostAddress = userHostAddress,
                 UserHostName = userHostName,
-                UserName = userName,
-                SessionToken = sessionToken,
                 userLanguages = userLanguages?.ToList(),
                 cookies = requestCookies?.ToList(),
                 headers = new Dictionary<string, string>(requestHeaders),
@@ -89,7 +85,7 @@ namespace CTLite
             };
         }
 
-        internal CompositeRootHttpContext(HttpListenerContext context, IEnumerable<CompositeUploadedFile> uploadedFiles, string userName, string sessionToken)
+        internal CompositeRootHttpContext(HttpListenerContext context, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
             if (context == null)
                 return;
@@ -98,8 +94,6 @@ namespace CTLite
 
             Request = new CompositeRootHttpRequestContext
             {
-                UserName = userName,
-                SessionToken = sessionToken,
                 acceptTypes = request.AcceptTypes?.ToList(),
                 ClientCertificate = request.GetClientCertificate(),
                 ClientCertificateError = request.ClientCertificateError,

@@ -11,6 +11,8 @@ using System.Text;
 
 namespace CTLiteDemo.WebApi
 {
+    [ApiController]
+    [Route("[controller]")]
     public abstract class CompositeRootControllerBase<TCompositeRoot> : ControllerBase where TCompositeRoot : CompositeRoot, new()
     {
         public CompositeRootControllerBase()
@@ -56,7 +58,7 @@ namespace CTLiteDemo.WebApi
             var compositeRootModelJson = GetCache(sessionToken);
             compositeRootModelField.SetValue(compositeRoot, JsonConvert.DeserializeObject(compositeRootModelJson, compositeRootModelFieldType));
 
-            var commandResponses = compositeRoot.Execute(commandRequests, compositeRootHttpContext, string.Empty, sessionToken, uploadedFiles);
+            var commandResponses = compositeRoot.Execute(commandRequests, compositeRootHttpContext, uploadedFiles);
             SetCache(sessionToken, JsonConvert.SerializeObject(compositeRootModelField.GetValue(compositeRoot)));
             if (commandResponses.First().ReturnValue is byte[])
             {
@@ -107,9 +109,7 @@ namespace CTLiteDemo.WebApi
                 uploadedFiles: uploadedFiles,
                 clientCertificate: HttpContext.Connection.ClientCertificate,
                 clientCertificateError: 0,
-                userLanguages: Request.Headers["Accept-Language"],
-                userName: string.Empty,
-                sessionToken: string.Empty
+                userLanguages: Request.Headers["Accept-Language"]
             );
 
             return compositeRootHttpContext;

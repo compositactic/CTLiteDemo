@@ -370,17 +370,17 @@ namespace CTLite
             return positions;
         }
 
-        public static IEnumerable<CompositeRootCommandResponse> Execute(this CompositeRoot compositeRoot, IEnumerable<CompositeRootCommandRequest> commandRequests, CompositeRootHttpContext compositeRootHttpContext, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        public static IEnumerable<CompositeRootCommandResponse> Execute(this CompositeRoot compositeRoot, IEnumerable<CompositeRootCommandRequest> commandRequests, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
-            return ExecuteCommands(compositeRoot, commandRequests, null, compositeRootHttpContext, userName, sessionToken, uploadedFiles);
+            return ExecuteCommands(compositeRoot, commandRequests, null, compositeRootHttpContext, uploadedFiles);
         }
 
-        public static IEnumerable<CompositeRootCommandResponse> Execute(this CompositeRoot compositeRoot, IEnumerable<CompositeRootCommandRequest> commandRequests, HttpListenerContext context, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        public static IEnumerable<CompositeRootCommandResponse> Execute(this CompositeRoot compositeRoot, IEnumerable<CompositeRootCommandRequest> commandRequests, HttpListenerContext context, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
-            return ExecuteCommands(compositeRoot, commandRequests, context, null, userName, sessionToken, uploadedFiles);
+            return ExecuteCommands(compositeRoot, commandRequests, context, null, uploadedFiles);
         }
 
-        private static IEnumerable<CompositeRootCommandResponse> ExecuteCommands(CompositeRoot compositeRoot, IEnumerable<CompositeRootCommandRequest> commandRequests, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        private static IEnumerable<CompositeRootCommandResponse> ExecuteCommands(CompositeRoot compositeRoot, IEnumerable<CompositeRootCommandRequest> commandRequests, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
             var commandResponses = new List<CompositeRootCommandResponse>();
             var returnValue = new object();
@@ -398,7 +398,7 @@ namespace CTLite
                     var returnValuePlaceholder = commandRequest.CommandPath.Substring(commandResponseReturnValuePlaceholderMatch.Index, commandResponseReturnValuePlaceholderMatch.Length);
                     if (commandResponseReturnValueComposite != null && !string.IsNullOrEmpty(commandResponseReturnValuePath))
                     {
-                        var valueForPlaceholder = commandResponseReturnValueComposite.Execute(commandResponseReturnValuePath, context, null, string.Empty, sessionToken, uploadedFiles);
+                        var valueForPlaceholder = commandResponseReturnValueComposite.Execute(commandResponseReturnValuePath, context, null, uploadedFiles);
                         if (!valueForPlaceholder.ReturnValue.GetType().IsConvertable())
                             throw new ArgumentException(
                                 string.Format(CultureInfo.CurrentCulture, Resources.PlaceholderValueConversionError,
@@ -414,8 +414,8 @@ namespace CTLite
                         commandRequest.CommandPath = commandRequest.CommandPath.Replace(returnValuePlaceholder, commandResponseReturnValue.ToString());
                 }
 
-                var commandResponse = context != null ? compositeRoot.Execute(commandRequest.CommandPath, context, userName, sessionToken, uploadedFiles) :
-                                                        compositeRoot.Execute(commandRequest.CommandPath, compositeRootHttpContext, userName, sessionToken, uploadedFiles);
+                var commandResponse = context != null ? compositeRoot.Execute(commandRequest.CommandPath, context, uploadedFiles) :
+                                                        compositeRoot.Execute(commandRequest.CommandPath, compositeRootHttpContext, uploadedFiles);
 
                 ctContext = commandResponse.Context;
                 returnValue = commandResponse.ReturnValue;
@@ -425,22 +425,22 @@ namespace CTLite
             return commandResponses;
         }
 
-        public static CommandResponse Execute(this CompositeRoot compositeRoot, string commandPath, HttpListenerContext context, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        public static CommandResponse Execute(this CompositeRoot compositeRoot, string commandPath, HttpListenerContext context, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
-            return Execute(compositeRoot, commandPath, context, null, userName, sessionToken, uploadedFiles);
+            return Execute(compositeRoot, commandPath, context, null, uploadedFiles);
         }
 
-        public static CommandResponse Execute(this CompositeRoot compositeRoot, string commandPath, CompositeRootHttpContext compositeRootHttpContext, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        public static CommandResponse Execute(this CompositeRoot compositeRoot, string commandPath, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
-            return Execute(compositeRoot, commandPath, null, compositeRootHttpContext, userName, sessionToken, uploadedFiles);
+            return Execute(compositeRoot, commandPath, null, compositeRootHttpContext, uploadedFiles);
         }
 
-        public static CommandResponse Execute(this Composite composite, string commandPath, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        public static CommandResponse Execute(this Composite composite, string commandPath, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
-            return Execute(composite, new CompositePath(commandPath), 1, context, compositeRootHttpContext, userName, sessionToken, uploadedFiles);
+            return Execute(composite, new CompositePath(commandPath), 1, context, compositeRootHttpContext, uploadedFiles);
         }
 
-        private static CommandResponse Execute(object composite, CompositePath compositePath, int commandPathSegmentIndex, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        private static CommandResponse Execute(object composite, CompositePath compositePath, int commandPathSegmentIndex, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
             if (composite == null && commandPathSegmentIndex == 1)
                 throw new ArgumentNullException(nameof(composite));
@@ -449,7 +449,7 @@ namespace CTLite
                 return new CommandResponse
                 {
                     ReturnValue = null,
-                    Context = compositeRootHttpContext ?? (context == null ? null : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken))
+                    Context = compositeRootHttpContext ?? (context == null ? null : new CompositeRootHttpContext(context, uploadedFiles))
                 };
 
             if (composite == null && commandPathSegmentIndex < compositePath.Segments.Length)
@@ -472,7 +472,7 @@ namespace CTLite
                     return new CommandResponse
                     {
                         ReturnValue = lastComposite.GetCompositeMemberInfo(),
-                        Context = context == null ? compositeRootHttpContext : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken)
+                        Context = context == null ? compositeRootHttpContext : new CompositeRootHttpContext(context, uploadedFiles)
                     };
                 }
                 else if ((badUrlMatch = Regex.Match(compositePath.PathAndQuery, @"\?.*$")).Success)
@@ -482,7 +482,7 @@ namespace CTLite
                 else return new CommandResponse
                 {
                     ReturnValue = isDictionary ? (compositeType.GetProperty("Values").GetValue(composite) as IEnumerable<object>).ToList() : composite,
-                    Context = context == null ? compositeRootHttpContext : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken)
+                    Context = context == null ? compositeRootHttpContext : new CompositeRootHttpContext(context, uploadedFiles)
                 };
             }
 
@@ -500,21 +500,21 @@ namespace CTLite
                 switch (member.MemberType)
                 {
                     case MemberTypes.Property:
-                        var executePropertyResult = ExecuteProperty(ref composite, compositePath, commandPathSegmentIndex, context, compositeRootHttpContext, userName, sessionToken, uploadedFiles, member);
+                        var executePropertyResult = ExecuteProperty(ref composite, compositePath, commandPathSegmentIndex, context, compositeRootHttpContext, uploadedFiles, member);
                         if (executePropertyResult != null)
                             return executePropertyResult;
                         break;
                     case MemberTypes.Method:
-                        return ExecuteMethod(composite, compositePath, commandPathSegmentIndex, context, compositeRootHttpContext, userName, sessionToken, uploadedFiles, member);
+                        return ExecuteMethod(composite, compositePath, commandPathSegmentIndex, context, compositeRootHttpContext, uploadedFiles, member);
                     default:
                         break;
                 }
             }
 
-            return Execute(composite, compositePath, ++commandPathSegmentIndex, context, compositeRootHttpContext, userName, sessionToken, uploadedFiles);
+            return Execute(composite, compositePath, ++commandPathSegmentIndex, context, compositeRootHttpContext, uploadedFiles);
         }
 
-        private static CommandResponse ExecuteProperty(ref object composite, CompositePath compositePath, int commandPathSegmentIndex, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles, MemberInfo member)
+        private static CommandResponse ExecuteProperty(ref object composite, CompositePath compositePath, int commandPathSegmentIndex, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles, MemberInfo member)
         {
             var memberPropertyInfo = ((PropertyInfo)member);
             if (memberPropertyInfo.PropertyType.IsConvertable() && (commandPathSegmentIndex == compositePath.Segments.Length - 1))
@@ -533,7 +533,7 @@ namespace CTLite
                     return new CommandResponse
                     {
                         ReturnValue = null,
-                        Context = context == null ? compositeRootHttpContext : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken)
+                        Context = context == null ? compositeRootHttpContext : new CompositeRootHttpContext(context, uploadedFiles)
                     };
                 }
                 else
@@ -545,7 +545,7 @@ namespace CTLite
             return null;
         }
 
-        private static CommandResponse ExecuteMethod(object composite, CompositePath compositePath, int commandPathSegmentIndex, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext, string userName, string sessionToken, IEnumerable<CompositeUploadedFile> uploadedFiles, MemberInfo member)
+        private static CommandResponse ExecuteMethod(object composite, CompositePath compositePath, int commandPathSegmentIndex, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles, MemberInfo member)
         {
             if (commandPathSegmentIndex != compositePath.Segments.Length - 1)
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", CommandRequestError.InvalidPropertyOrCommand, compositePath.Segments[commandPathSegmentIndex + 1]));
@@ -574,7 +574,7 @@ namespace CTLite
             {
                 if (methodParameter.ParameterType == typeof(CompositeRootHttpContext))
                 {
-                    ctContext = context == null ? compositeRootHttpContext : new CompositeRootHttpContext(context, uploadedFiles, userName, sessionToken);
+                    ctContext = context == null ? compositeRootHttpContext : new CompositeRootHttpContext(context, uploadedFiles);
                     parameterValues[parameterValuesIndex] = ctContext;
                 }
                 else
@@ -686,7 +686,6 @@ namespace CTLite
 
     public enum CommandRequestError
     {
-        InvalidSessionToken,
         InvalidParameter,
         InvalidPropertyOrCommand,
         MissingParameter,
