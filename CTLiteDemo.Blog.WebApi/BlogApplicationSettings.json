@@ -1,0 +1,12 @@
+{
+
+  // This section will contain some documentation.
+
+  "Local.MsSqlConnectionString": "Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog={0};Integrated Security=SSPI;",
+  "Local.Database.Master": "master",
+  "Local.Database.BlogDb": "BlogDb",
+
+  "QA.ConnectionString": "Data Source=QA_DATA_SOURCE_HERE;Initial Catalog={0};Integrated Security=SSPI;",
+  "QA.Database.Master": "master",
+  "QA.Database.BlogDb": "BlogDb"
+}

@@ -1,0 +1,2 @@
+﻿DELETE FROM Blog
+INSERT INTO Blog (Name) VALUES ('CT Blog')
