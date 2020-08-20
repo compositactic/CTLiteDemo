@@ -30,6 +30,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="000-BlogServerDatabase.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="BlogApplications\Blogs\000-Table-Blog.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

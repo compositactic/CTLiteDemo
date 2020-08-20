@@ -9,37 +9,32 @@ using System.Runtime.Serialization;
 namespace CTLite
 {
     [DataContract]
-    [KeyProperty(nameof(Id))]
     public abstract class CompositeRoot : Composite, IDisposable
     {
         protected CompositeRoot()
         {
-            Id = Guid.NewGuid().ToString();
             var assemblies = GetServiceAssemblyNames().Select(ca => Assembly.Load(ca.FullName));
             InitializeServices(assemblies);
         }
 
         protected CompositeRoot(IEnumerable<Assembly> serviceAssemblies)
         {
-            Id = Guid.NewGuid().ToString();
             InitializeServices(serviceAssemblies);
         }
 
         protected CompositeRoot(params IService[] services)
         {
-            Id = Guid.NewGuid().ToString();
             _services = new Collection<IService>(services.ToList());
             SetCompositeRoots();
         }
 
-        [DataMember]
-        public string Id { get; internal set; }
+        public abstract long Id { get; } 
 
         private static IEnumerable<AssemblyName> GetServiceAssemblyNames()
         {
             var serviceAssemblyNames = new Collection<AssemblyName>();
             var dirInfo = new DirectoryInfo(Environment.CurrentDirectory);
-            foreach (var file in dirInfo.EnumerateFiles().Where(f => f.Extension.ToUpperInvariant() == ".DLL"))
+            foreach (var file in dirInfo.EnumerateFiles("", SearchOption.AllDirectories).Where(f => f.Extension.ToUpperInvariant() == ".DLL"))
             {
                 try
                 {

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace CTLiteDemo.WebApi
 {
@@ -20,13 +21,13 @@ namespace CTLiteDemo.WebApi
 
         }
 
-        protected virtual void SetCache(string sessionToken, string jsonValue)
+        protected virtual void SetCache(long id, string jsonValue)
         {
             //var memoryCache = MemoryCache.Default;
             //memoryCache.Set(sessionToken, jsonValue, DateTime.Now.Add(TimeSpan.FromMinutes(20)));
         }
 
-        protected virtual string GetCache(string sessionToken)
+        protected virtual string GetCache(long id)
         {
             //var memoryCache = MemoryCache.Default;
             //return memoryCache.Get(sessionToken) as string;
@@ -35,6 +36,7 @@ namespace CTLiteDemo.WebApi
 
         [HttpGet]
         [HttpPost]
+        [Route("{**catchAll}")]
         public object ReceiveRequest([FromForm] object _)
         {
             var request = Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty;
@@ -46,6 +48,11 @@ namespace CTLiteDemo.WebApi
             if (requestBody == null && Request.ContentLength.HasValue)
                 requestBody = Request.Body.GetRequest(Encoding.UTF8, Request.ContentType, string.Empty, CultureInfo.CurrentCulture, out uploadedFiles, out commandRequests);
 
+            commandRequests ??= new CompositeRootCommandRequest[]
+            { 
+                CompositeRootCommandRequest.Create(1, Regex.Replace($"{Request.Path.Value}{Request.QueryString.Value}", $"^/{ControllerContext.ActionDescriptor.ControllerName}/?", string.Empty ))
+            };
+
             var compositeRootHttpContext = GetContext(requestBody, uploadedFiles);
 
             var compositeRoot = new TCompositeRoot();
@@ -53,13 +60,15 @@ namespace CTLiteDemo.WebApi
             var compositeRootModelField = compositeRoot.GetType().GetField(compositeRootModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
             var compositeRootModelFieldType = compositeRootModelField.FieldType;
 
-            var sessionToken = requestParts[1].Split('/')[0];
-
-            var compositeRootModelJson = GetCache(sessionToken);
-            compositeRootModelField.SetValue(compositeRoot, JsonConvert.DeserializeObject(compositeRootModelJson, compositeRootModelFieldType));
+            var compositeRootModelJson = GetCache(compositeRoot.Id);
+            if (!string.IsNullOrWhiteSpace(compositeRootModelJson))
+                compositeRootModelField.SetValue(compositeRoot, JsonConvert.DeserializeObject(compositeRootModelJson, compositeRootModelFieldType));
+            else
+                SetCache(compositeRoot.Id, JsonConvert.SerializeObject(compositeRootModelField.GetValue(compositeRoot)));
 
             var commandResponses = compositeRoot.Execute(commandRequests, compositeRootHttpContext, uploadedFiles);
-            SetCache(sessionToken, JsonConvert.SerializeObject(compositeRootModelField.GetValue(compositeRoot)));
+            SetCache(compositeRoot.Id, JsonConvert.SerializeObject(compositeRootModelField.GetValue(compositeRoot)));
+
             if (commandResponses.First().ReturnValue is byte[])
             {
                 Response.ContentType = compositeRootHttpContext.Response.ContentType;

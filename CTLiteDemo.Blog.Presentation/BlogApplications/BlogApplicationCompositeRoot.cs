@@ -3,7 +3,6 @@ using CTLite.Data.MicrosoftSqlServer;
 using CTLiteDemo.Model.BlogApplications;
 using CTLiteDemo.Presentation.BlogApplications.Blogs;
 using CTLiteDemo.Presentation.Properties;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,6 +32,8 @@ namespace CTLiteDemo.Presentation.BlogApplications
         {
             Initialize();
         }
+
+        public override long Id => BlogApplicationModel.Id;
 
         private void Initialize()
         {
@@ -79,7 +80,7 @@ namespace CTLiteDemo.Presentation.BlogApplications
         {
             var repository = GetService<IMicrosoftSqlServerRepository>();
 
-            var createDatabaseSqlScriptFile = Path.Combine(Environment.CurrentDirectory, "000-BlogServerDatabase.sql");
+            var createDatabaseSqlScriptFile = Path.Combine(Environment.CurrentDirectory, "BlogApplications", "000-BlogServerDatabase.sql");
 
             using (var connection = repository.OpenConnection(MasterDbConnectionString))
             {

@@ -280,7 +280,7 @@ namespace CTLite
 
                 using (var requestStream = new MemoryStream())
                 {
-                    stream.CopyTo(requestStream);
+                    stream.CopyToAsync(requestStream).Wait();
                     requestEncoding = contentEncoding;
                     requestContentType = string.IsNullOrEmpty(contentType) ? "application/x-www-form-urlencoded" : contentType;
                     requestContent = requestStream.ToArray();
@@ -514,6 +514,29 @@ namespace CTLite
             return Execute(composite, compositePath, ++commandPathSegmentIndex, context, compositeRootHttpContext, uploadedFiles);
         }
 
+        private static object ExecuteGetCompositeDictionaryElement(object composite, Type type, string segment, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext)
+        {
+            Match keyMatch;
+            if ((keyMatch = Regex.Match(segment, @"^\[(?'key'.*?)\]$")).Success)
+            {
+                var key = TypeDescriptor.GetConverter(type.GetGenericArguments()[0]).ConvertFrom(null, GetCultureInfo(context != null ? context.Request.UserLanguages : compositeRootHttpContext.Request.UserLanguages.ToArray()), Regex.Replace(Regex.Replace(keyMatch.Groups["key"].Value, @"\[{2}", @"["), @"\]{2}", @"]"));
+                if ((bool)type.GetMethod("ContainsKey").Invoke(composite, new[] { key }))
+                    composite = type.GetProperty("Item").GetValue(composite, new[] { key });
+                else
+                    throw new KeyNotFoundException(string.Format(CultureInfo.CurrentCulture, Resources.KeyNotFound, key));
+            }
+            else if ((keyMatch = Regex.Match(segment, @"^(?'index'\d+)$")).Success)
+            {
+                var index = int.Parse(keyMatch.Groups["index"].Value, CultureInfo.InvariantCulture);
+                var elements = type.GetProperty("Values").GetValue(composite) as IEnumerable<object>;
+                composite = elements.ElementAt(index);
+            }
+            else
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", CommandRequestError.InvalidParameter, segment));
+
+            return composite;
+        }
+
         private static CommandResponse ExecuteProperty(ref object composite, CompositePath compositePath, int commandPathSegmentIndex, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles, MemberInfo member)
         {
             var memberPropertyInfo = ((PropertyInfo)member);
@@ -652,29 +675,6 @@ namespace CTLite
                 return Enum.GetNames(parameterType.GenericTypeArguments[0]);
             else
                 return null;
-        }
-
-        private static object ExecuteGetCompositeDictionaryElement(object composite, Type type, string segment, HttpListenerContext context, CompositeRootHttpContext compositeRootHttpContext)
-        {
-            Match keyMatch;
-            if ((keyMatch = Regex.Match(segment, @"^\[(?'key'.*?)\]$")).Success)
-            {
-                var key = TypeDescriptor.GetConverter(type.GetGenericArguments()[0]).ConvertFrom(null, GetCultureInfo(context != null ? context.Request.UserLanguages : compositeRootHttpContext.Request.UserLanguages.ToArray()), Regex.Replace(Regex.Replace(keyMatch.Groups["key"].Value, @"\[{2}", @"["), @"\]{2}", @"]"));
-                if ((bool)type.GetMethod("ContainsKey").Invoke(composite, new[] { key }))
-                    composite = type.GetProperty("Item").GetValue(composite, new[] { key });
-                else
-                    throw new KeyNotFoundException(string.Format(CultureInfo.CurrentCulture, Resources.KeyNotFound, key));
-            }
-            else if ((keyMatch = Regex.Match(segment, @"^(?'index'\d+)$")).Success)
-            {
-                var index = int.Parse(keyMatch.Groups["index"].Value, CultureInfo.InvariantCulture);
-                var elements = type.GetProperty("Values").GetValue(composite) as IEnumerable<object>;
-                composite = elements.ElementAt(index);
-            }
-            else
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", CommandRequestError.InvalidParameter, segment));
-
-            return composite;
         }
 
         internal static bool IsConvertable(this Type type)
