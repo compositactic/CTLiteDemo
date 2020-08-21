@@ -17,8 +17,7 @@ namespace CTLiteDemo.WebApi
     public abstract class CompositeRootControllerBase<TCompositeRoot> : ControllerBase where TCompositeRoot : CompositeRoot, new()
     {
         public CompositeRootControllerBase()
-        {
-
+        {  
         }
 
         protected virtual void SetCache(long id, string jsonValue)
@@ -32,6 +31,11 @@ namespace CTLiteDemo.WebApi
             //var memoryCache = MemoryCache.Default;
             //return memoryCache.Get(sessionToken) as string;
             return string.Empty;
+        }
+
+        protected virtual TCompositeRoot CreateCompositeRoot()
+        {
+            return new TCompositeRoot();
         }
 
         [HttpGet]
@@ -55,7 +59,7 @@ namespace CTLiteDemo.WebApi
 
             var compositeRootHttpContext = GetContext(requestBody, uploadedFiles);
 
-            var compositeRoot = new TCompositeRoot();
+            var compositeRoot = CreateCompositeRoot();
             var compositeRootModelFieldName = compositeRoot.GetType().GetCustomAttribute<CompositeModelAttribute>()?.ModelFieldName;
             var compositeRootModelField = compositeRoot.GetType().GetField(compositeRootModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
             var compositeRootModelFieldType = compositeRootModelField.FieldType;
