@@ -6,10 +6,10 @@ namespace CTLite
     public class CompositeRootCommandResponse
     {
         [DataMember]
-        public bool Success { get; internal set; }
+        public bool Success { get; set; }
 
         [DataMember]
-        public IEnumerable<string> Errors { get; internal set; }
+        public IEnumerable<string> Errors { get; set; }
 
         [DataMember]
         public object ReturnValue { get; set; }

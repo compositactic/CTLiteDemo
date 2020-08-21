@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CTLiteDemo.Service", "CTLit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CTLiteDemo.Test", "CTLiteDemo.Test\CTLiteDemo.Test.csproj", "{5A141E02-1779-45BD-A9FB-528862FEAA4A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CTLite.AspNetCore", "CTLite.AspNetCore\CTLite.AspNetCore.csproj", "{809C0D4C-22E4-4882-AC53-9246ADE11D56}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{5A141E02-1779-45BD-A9FB-528862FEAA4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A141E02-1779-45BD-A9FB-528862FEAA4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A141E02-1779-45BD-A9FB-528862FEAA4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{809C0D4C-22E4-4882-AC53-9246ADE11D56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{809C0D4C-22E4-4882-AC53-9246ADE11D56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{809C0D4C-22E4-4882-AC53-9246ADE11D56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{809C0D4C-22E4-4882-AC53-9246ADE11D56}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

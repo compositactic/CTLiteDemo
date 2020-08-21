@@ -17,11 +17,6 @@ namespace CTLite
             InitializeServices(assemblies);
         }
 
-        protected CompositeRoot(IEnumerable<Assembly> serviceAssemblies)
-        {
-            InitializeServices(serviceAssemblies);
-        }
-
         protected CompositeRoot(params IService[] services)
         {
             _services = new Collection<IService>(services.ToList());

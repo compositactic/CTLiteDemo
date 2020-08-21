@@ -2,7 +2,7 @@
 
   // This section will contain some documentation.
 
-  "Local.MsSqlConnectionString": "Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog={0};Integrated Security=SSPI;",
+  "Local.ConnectionString": "Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog={0};Integrated Security=SSPI;",
   "Local.Database.Master": "master",
   "Local.Database.BlogDb": "BlogDb",
 

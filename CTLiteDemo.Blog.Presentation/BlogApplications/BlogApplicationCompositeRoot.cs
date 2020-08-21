@@ -3,6 +3,7 @@ using CTLite.Data.MicrosoftSqlServer;
 using CTLiteDemo.Model.BlogApplications;
 using CTLiteDemo.Presentation.BlogApplications.Blogs;
 using CTLiteDemo.Presentation.Properties;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,11 +29,6 @@ namespace CTLiteDemo.Presentation.BlogApplications
             Initialize();
         }
 
-        public BlogApplicationCompositeRoot(IEnumerable<Assembly> serviceAssemblies) : base(serviceAssemblies)
-        {
-            Initialize();
-        }
-
         public override long Id => BlogApplicationModel.Id;
 
         private void Initialize()
@@ -40,23 +36,6 @@ namespace CTLiteDemo.Presentation.BlogApplications
             BlogApplicationModel = new BlogApplication();
             AllBlogs = new BlogCompositeContainer(this);
         }
-
-        /*                 var machineName = Environment.MachineName;
-                var blogApplicationSettings = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "BlogApplicationSettings.json")));
-
-                BlogApplicationModel.ConnectionString = blogApplicationSettings.TryGetValue($"{machineName}.MsSqlConnectionString", out string connectionString) ?
-                                    connectionString :
-                                    blogApplicationSettings["Local.MsSqlConnectionString"];
-
-                BlogApplicationModel.MasterDbConnectionString = string.Format(ConnectionString, blogApplicationSettings.TryGetValue($"{machineName}.Database.Master", out string masterDbConnectionString) ? masterDbConnectionString : blogApplicationSettings["Local.Database.Master"]);
-                BlogApplicationModel.BlogDbConnectionString = string.Format(ConnectionString, blogApplicationSettings.TryGetValue($"{machineName}.Database.BlogDb", out string blogDbConnectionString) ? blogDbConnectionString : blogApplicationSettings["Local.Database.BlogDb"]);
-
-*/
-
-        internal string BlogDbConnectionString { get { return BlogApplicationModel.BlogDbConnectionString; } }
-        internal string MasterDbConnectionString { get { return BlogApplicationModel.MasterDbConnectionString; } }
-        internal string ConnectionString { get { return BlogApplicationModel.ConnectionString; } }
-
 
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.BlogApplicationCompositeRoot_AllBlogs))]
@@ -75,12 +54,55 @@ namespace CTLiteDemo.Presentation.BlogApplications
             }
         }
 
+        private string _blogDbConnectionString;
+        internal string BlogDbConnectionString
+        {
+            get
+            {
+                if(string.IsNullOrEmpty(_blogDbConnectionString))
+                {
+                    var applicationPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    var blogApplicationSettings = GetSettings(applicationPath);
+                    var sqlConnectionString = blogApplicationSettings.TryGetValue($"{Environment.MachineName}.ConnectionString", out string connectionString) ? connectionString : blogApplicationSettings["Local.ConnectionString"];
+                    _blogDbConnectionString = string.Format(sqlConnectionString, blogApplicationSettings.TryGetValue($"{Environment.MachineName}.Database.BlogDb", out string blogDbConnString) ? blogDbConnString : blogApplicationSettings["Local.Database.BlogDb"]);
+                }
+
+                return _blogDbConnectionString;
+            }
+        }
+
+        private string _masterDbConnectionString;
+        internal string MasterDbConnectionString
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_masterDbConnectionString))
+                {
+                    var applicationPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    var blogApplicationSettings = GetSettings(applicationPath);
+                    var sqlConnectionString = blogApplicationSettings.TryGetValue($"{Environment.MachineName}.ConnectionString", out string connectionString) ? connectionString : blogApplicationSettings["Local.ConnectionString"];
+                    _masterDbConnectionString = string.Format(sqlConnectionString, blogApplicationSettings.TryGetValue($"{Environment.MachineName}.Database.Master", out string masterDbConnString) ? masterDbConnString : blogApplicationSettings["Local.Database.Master"]);
+                }
+
+                return _masterDbConnectionString;
+            }
+        }
+
         [Command]
         public void SetupDatabase()
         {
-            var repository = GetService<IMicrosoftSqlServerRepository>();
 
-            var createDatabaseSqlScriptFile = Path.Combine(Environment.CurrentDirectory, "BlogApplications", "000-BlogServerDatabase.sql");
+            var applicationPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            var blogApplicationSettings = GetSettings(applicationPath);
+
+            var sqlConnectionString = blogApplicationSettings.TryGetValue($"{Environment.MachineName}.ConnectionString", out string connectionString) ? connectionString : blogApplicationSettings["Local.ConnectionString"];
+            var masterDbConnectionString = string.Format(sqlConnectionString, blogApplicationSettings.TryGetValue($"{Environment.MachineName}.Database.Master", out string masterDbConnString) ? masterDbConnString : blogApplicationSettings["Local.Database.Master"]);
+            var blogDbConnectionString = string.Format(sqlConnectionString, blogApplicationSettings.TryGetValue($"{Environment.MachineName}.Database.BlogDb", out string blogDbConnString) ? blogDbConnString : blogApplicationSettings["Local.Database.BlogDb"]);
+
+            var createDatabaseSqlScriptFile = Path.Combine(applicationPath, "BlogApplications", "000-BlogServerDatabase.sql");
+
+            var repository = GetService<IMicrosoftSqlServerRepository>();
 
             using (var connection = repository.OpenConnection(MasterDbConnectionString))
             {
@@ -99,7 +121,7 @@ namespace CTLiteDemo.Presentation.BlogApplications
             using (var transaction = repository.BeginTransaction(connection))
             {
                 var directories = Directory
-                    .GetDirectories(Path.Combine(Environment.CurrentDirectory, "BlogApplications"), string.Empty, SearchOption.AllDirectories)
+                    .GetDirectories(Path.Combine(applicationPath, "BlogApplications"), string.Empty, SearchOption.AllDirectories)
                     .GroupBy(d => new { Depth = d.Split(Path.DirectorySeparatorChar).Count(), Directory = d })
                     .OrderBy(g => g.Key.Depth).ThenBy(g => g.Key.Directory)
                     .Select(g => g.Key.Directory);
@@ -115,6 +137,11 @@ namespace CTLiteDemo.Presentation.BlogApplications
 
                 repository.CommitTransaction(transaction);
             }
+        }
+
+        public static Dictionary<string, string> GetSettings(string applicationPath)
+        {
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(applicationPath, "BlogApplicationSettings.json")));
         }
     }
 }

@@ -29,13 +29,6 @@ namespace CTLiteDemo.Model.BlogApplications
             get { return _blogs; }
         }
 
-        [DataMember]
-        public string BlogDbConnectionString { get; set; }
-        [DataMember]
-        public string MasterDbConnectionString { get; set; }
-        [DataMember]
-        public string ConnectionString { get; set; }
-
         public Blog CreateNewBlog()
         {
             return new Blog(this);

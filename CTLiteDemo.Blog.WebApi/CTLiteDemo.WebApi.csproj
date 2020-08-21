@@ -5,7 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.7" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\CT.Data.MicrosoftSqlServer\CTLite.Data.MicrosoftSqlServer.csproj" />
+    <ProjectReference Include="..\CTLite.AspNetCore\CTLite.AspNetCore.csproj" />
     <ProjectReference Include="..\CTLiteDemo.Blog.Presentation\CTLiteDemo.Presentation.csproj" />
     <ProjectReference Include="..\CTLiteDemo.Service\CTLiteDemo.Service.csproj" />
     <ProjectReference Include="..\CT\CTLite.csproj" />
