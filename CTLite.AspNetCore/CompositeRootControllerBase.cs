@@ -40,7 +40,7 @@ namespace CTLite.AspNetCore
         [HttpGet]
         [HttpPost]
         [Route("{**catchAll}")]
-        public object ReceiveRequest([FromForm] object _)
+        public object ReceiveRequest()
         {
             var commandResponses = new List<CompositeRootCommandResponse>();
 

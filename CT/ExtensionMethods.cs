@@ -467,7 +467,7 @@ namespace CTLite
                 member = compositeType.GetMember(segment, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).FirstOrDefault();
                 Match badUrlMatch;
 
-                if (composite is Composite lastComposite && compositePath.PathAndQuery.EndsWith("/?", StringComparison.OrdinalIgnoreCase))
+                if (composite is Composite lastComposite && compositePath.PathAndQuery.EndsWith("/??", StringComparison.OrdinalIgnoreCase))
                 {
                     return new CommandResponse
                     {
