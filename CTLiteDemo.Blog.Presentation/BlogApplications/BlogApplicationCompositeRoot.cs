@@ -94,12 +94,6 @@ namespace CTLiteDemo.Presentation.BlogApplications
 
             var applicationPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var blogApplicationSettings = GetSettings(applicationPath);
-
-            var sqlConnectionString = blogApplicationSettings.TryGetValue($"{Environment.MachineName}.ConnectionString", out string connectionString) ? connectionString : blogApplicationSettings["Local.ConnectionString"];
-            var masterDbConnectionString = string.Format(sqlConnectionString, blogApplicationSettings.TryGetValue($"{Environment.MachineName}.Database.Master", out string masterDbConnString) ? masterDbConnString : blogApplicationSettings["Local.Database.Master"]);
-            var blogDbConnectionString = string.Format(sqlConnectionString, blogApplicationSettings.TryGetValue($"{Environment.MachineName}.Database.BlogDb", out string blogDbConnString) ? blogDbConnString : blogApplicationSettings["Local.Database.BlogDb"]);
-
             var createDatabaseSqlScriptFile = Path.Combine(applicationPath, "BlogApplications", "000-BlogServerDatabase.sql");
 
             var repository = GetService<IMicrosoftSqlServerRepository>();
