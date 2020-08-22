@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CT\CTLite.csproj" />
+    <ProjectReference Include="..\CTLite\CTLite.csproj" />
   </ItemGroup>
 
 </Project>
