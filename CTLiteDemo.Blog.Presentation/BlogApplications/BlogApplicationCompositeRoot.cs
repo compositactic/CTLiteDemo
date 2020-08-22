@@ -34,12 +34,18 @@ namespace CTLiteDemo.Presentation.BlogApplications
         private void Initialize()
         {
             BlogApplicationModel = new BlogApplication();
-            AllBlogs = new BlogCompositeContainer(this);
+            Blogs = new BlogCompositeContainer(this);
+        }
+
+        public override void Initialize(object model)
+        {
+            BlogApplicationModel = model as BlogApplication;
+            Blogs = new BlogCompositeContainer(this);
         }
 
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.BlogApplicationCompositeRoot_AllBlogs))]
-        public BlogCompositeContainer AllBlogs { get; private set; }
+        public BlogCompositeContainer Blogs { get; private set; }
 
         private string _errorMessage;
         [DataMember]
@@ -88,6 +94,11 @@ namespace CTLiteDemo.Presentation.BlogApplications
             }
         }
 
+        public static Dictionary<string, string> GetSettings(string applicationPath)
+        {
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(applicationPath, "BlogApplicationSettings.json")));
+        }
+
         [Command]
         public void SetupDatabase()
         {
@@ -131,11 +142,6 @@ namespace CTLiteDemo.Presentation.BlogApplications
 
                 repository.CommitTransaction(transaction);
             }
-        }
-
-        public static Dictionary<string, string> GetSettings(string applicationPath)
-        {
-            return JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(applicationPath, "BlogApplicationSettings.json")));
         }
     }
 }

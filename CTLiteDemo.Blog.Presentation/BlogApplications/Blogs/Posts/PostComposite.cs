@@ -8,20 +8,20 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
 {
     [DataContract]
     [KeyProperty(nameof(PostComposite.Id))]
-    [ParentProperty(nameof(PostComposite.AllPosts))]
+    [ParentProperty(nameof(PostComposite.Posts))]
     [CompositeModel(nameof(PostComposite.PostModel))]
     public class PostComposite : Composite
     {
         internal PostComposite(Post post, PostCompositeContainer postCompositeContainer)
         {
             PostModel = post;
-            AllPosts = postCompositeContainer;
+            Posts = postCompositeContainer;
 
-            AllComments = new CommentCompositeContainer(this);
-            AllAttachments = new AttachmentCompositeContainer(this);
+            Comments = new CommentCompositeContainer(this);
+            Attachments = new AttachmentCompositeContainer(this);
         }
 
-        public PostCompositeContainer AllPosts { get; }
+        public PostCompositeContainer Posts { get; }
 
         internal Post PostModel;
 
@@ -54,15 +54,15 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
         }
 
         [DataMember]
-        public CommentCompositeContainer AllComments { get; }
+        public CommentCompositeContainer Comments { get; }
 
         [DataMember]
-        public AttachmentCompositeContainer AllAttachments { get; }
+        public AttachmentCompositeContainer Attachments { get; }
 
         [Command]
         public void Remove()
         {
-            AllPosts.posts.Remove(Id);
+            Posts.posts.Remove(Id);
         }
     }
 }

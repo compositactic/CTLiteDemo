@@ -6,18 +6,18 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
 {
     [DataContract]
     [KeyProperty(nameof(CommentComposite.Id))]
-    [ParentProperty(nameof(CommentComposite.AllComments))]
+    [ParentProperty(nameof(CommentComposite.Comments))]
     [CompositeModel(nameof(CommentComposite.CommentModel))]
     public class CommentComposite : Composite
     {
         internal CommentComposite(Comment comment, CommentCompositeContainer commentCompositeContainer)
         {
             CommentModel = comment;
-            AllComments = commentCompositeContainer;
+            Comments = commentCompositeContainer;
         }
 
 
-        public CommentCompositeContainer AllComments { get; private set; }
+        public CommentCompositeContainer Comments { get; private set; }
 
         public Comment CommentModel { get; }
 
@@ -42,7 +42,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
         [Command]
         public void Remove()
         {
-            AllComments.comments.Remove(Id);
+            Comments.comments.Remove(Id);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System;
@@ -22,19 +23,24 @@ namespace CTLite.AspNetCore
             _cache = cache;
         }
 
-        protected virtual void SetCache(long id, string jsonValue)
+        protected virtual void SetCache(long cacheId, string jsonValue)
         {
-            _cache.Set(id, jsonValue);
+            _cache.Set(cacheId, jsonValue);
         }
 
-        protected virtual string GetCache(long id)
+        protected virtual string GetCache(long cacheId)
         {
-            return _cache.Get(id) as string;
+            return _cache.Get(cacheId) as string;
         }
 
         protected virtual TCompositeRoot CreateCompositeRoot()
         {
             return new TCompositeRoot();
+        }
+
+        protected virtual void Authenticate(HttpContext httpContext) 
+        {
+            //throw new UnauthorizedAccessException();
         }
 
         [HttpGet]
@@ -46,6 +52,8 @@ namespace CTLite.AspNetCore
 
             try
             {
+                Authenticate(HttpContext);
+
                 var request = Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty;
                 IEnumerable<CompositeUploadedFile> uploadedFiles = null;
                 IEnumerable<CompositeRootCommandRequest> commandRequests = null;
@@ -55,9 +63,20 @@ namespace CTLite.AspNetCore
                 if (requestBody == null && Request.ContentLength.HasValue)
                     requestBody = Request.Body.GetRequest(Encoding.UTF8, Request.ContentType, string.Empty, CultureInfo.CurrentCulture, out uploadedFiles, out commandRequests);
 
+                var pathAndQuery = $"{Request.Path.Value}{Request.QueryString.Value}";
+                var controllerName = ControllerContext.ActionDescriptor.ControllerName;
+                var requestPattern = $"^/{controllerName}/?(?'cacheId'[0-9]+)?/?";
+                Match cacheIdMatch;
+                var cacheId = 0L;
+                if ((cacheIdMatch = Regex.Match(pathAndQuery, requestPattern)).Success) 
+                {
+                    var cacheIdValue = cacheIdMatch.Groups["cacheId"].Value;
+                    cacheId = string.IsNullOrEmpty(cacheIdValue) ? 0 : long.Parse(cacheIdValue);
+                }
+
                 commandRequests ??= new CompositeRootCommandRequest[]
                 {
-                    CompositeRootCommandRequest.Create(1, Regex.Replace($"{Request.Path.Value}{Request.QueryString.Value}", $"^/{ControllerContext.ActionDescriptor.ControllerName}/", string.Empty ))
+                    CompositeRootCommandRequest.Create(1, Regex.Replace(pathAndQuery, requestPattern, string.Empty ))
                 };
 
                 var compositeRootHttpContext = GetContext(requestBody, uploadedFiles);
@@ -67,11 +86,16 @@ namespace CTLite.AspNetCore
                 var compositeRootModelField = compositeRoot.GetType().GetField(compositeRootModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
                 var compositeRootModelFieldType = compositeRootModelField.FieldType;
 
-                var compositeRootModelJson = GetCache(compositeRoot.Id);
+                var compositeRootModelJson = GetCache(cacheId);
                 if (!string.IsNullOrWhiteSpace(compositeRootModelJson))
-                    compositeRootModelField.SetValue(compositeRoot, JsonConvert.DeserializeObject(compositeRootModelJson, compositeRootModelFieldType));
+                    compositeRoot.Initialize(JsonConvert.DeserializeObject(compositeRootModelJson, compositeRootModelFieldType));
                 else
-                    SetCache(compositeRoot.Id, JsonConvert.SerializeObject(compositeRootModelField.GetValue(compositeRoot)));
+                {
+                    if (cacheId == 0)
+                        SetCache(compositeRoot.Id, JsonConvert.SerializeObject(compositeRootModelField.GetValue(compositeRoot)));
+                    else
+                        throw new UnauthorizedAccessException();
+                }
 
                 commandResponses = compositeRoot.Execute(commandRequests, compositeRootHttpContext, uploadedFiles).ToList();
                 SetCache(compositeRoot.Id, JsonConvert.SerializeObject(compositeRootModelField.GetValue(compositeRoot)));

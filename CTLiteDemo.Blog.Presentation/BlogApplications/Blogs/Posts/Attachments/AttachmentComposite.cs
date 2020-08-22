@@ -7,17 +7,17 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
 {
     [DataContract]
     [KeyProperty(nameof(AttachmentComposite.Id))]
-    [ParentProperty(nameof(AttachmentComposite.AllAttachments))]
+    [ParentProperty(nameof(AttachmentComposite.Attachments))]
     [CompositeModel(nameof(AttachmentComposite.AttachmentModel))]
     public class AttachmentComposite : Composite
     {
         public Attachment AttachmentModel { get; }
-        public AttachmentCompositeContainer AllAttachments { get; private set; }
+        public AttachmentCompositeContainer Attachments { get; private set; }
 
         internal AttachmentComposite(Attachment attachment, AttachmentCompositeContainer attachmentCompositeContainer)
         {
             AttachmentModel = attachment;
-            AllAttachments = attachmentCompositeContainer;
+            Attachments = attachmentCompositeContainer;
         }
 
         [DataMember]
@@ -40,7 +40,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
         [Command]
         public void Remove()
         {
-            AllAttachments.attachments.Remove(Id);
+            Attachments.attachments.Remove(Id);
         }
     }
 }

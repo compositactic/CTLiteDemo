@@ -6,7 +6,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
 {
     [DataContract]
     [ParentProperty(nameof(BlogCompositeContainer.BlogApplication))]
-    [CompositeContainer(nameof(BlogCompositeContainer.Blogs))]
+    [CompositeContainer(nameof(BlogCompositeContainer.Blogs), nameof(Model.BlogApplications.BlogApplication.Blogs))]
     public class BlogCompositeContainer : Composite
     {
         public BlogApplicationCompositeRoot BlogApplication { get; private set; }
@@ -20,5 +20,18 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
         internal CompositeDictionary<long, BlogComposite> blogs;
         [DataMember]
         public ReadOnlyCompositeDictionary<long, BlogComposite> Blogs { get; private set; }
+
+        [Command]
+        public BlogComposite CreateNewBlog()
+        {
+            var newBlog = new BlogComposite(BlogApplication.BlogApplicationModel.CreateNewBlog(), this)
+            {
+                State = CompositeState.New
+            };
+
+            blogs.Add(newBlog.Id, newBlog);
+
+            return newBlog;
+        }
     }
 }

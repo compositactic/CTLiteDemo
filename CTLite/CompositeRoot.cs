@@ -23,6 +23,9 @@ namespace CTLite
             SetCompositeRoots();
         }
 
+        public abstract void Initialize(object model); 
+
+        [DataMember]
         public abstract long Id { get; } 
 
         private static IEnumerable<AssemblyName> GetServiceAssemblyNames()

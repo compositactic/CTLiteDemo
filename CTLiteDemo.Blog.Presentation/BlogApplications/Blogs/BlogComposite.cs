@@ -8,23 +8,23 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
 {
     [DataContract]
     [KeyProperty(nameof(BlogComposite.Id))]
-    [ParentProperty(nameof(BlogComposite.AllBlogs))]
+    [ParentProperty(nameof(BlogComposite.Blogs))]
     [CompositeModel(nameof(BlogModel))]
     public class BlogComposite : Composite
     {
-        public BlogCompositeContainer AllBlogs { get; }
+        public BlogCompositeContainer Blogs { get; }
 
         internal Blog BlogModel;
 
         internal BlogComposite(Blog blog, BlogCompositeContainer blogCompositeContainer)
         {
             BlogModel = blog;
-            AllBlogs = blogCompositeContainer;
-            AllPosts = new PostCompositeContainer(this);
+            Blogs = blogCompositeContainer;
+            Posts = new PostCompositeContainer(this);
         }
 
         [DataMember]
-        public PostCompositeContainer AllPosts { get; }
+        public PostCompositeContainer Posts { get; }
 
         [DataMember]
         public long Id
@@ -46,7 +46,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
         [Command]
         public void Remove()
         {
-            AllBlogs.blogs.Remove(Id);
+            Blogs.blogs.Remove(Id);
         }
 
         [Command]

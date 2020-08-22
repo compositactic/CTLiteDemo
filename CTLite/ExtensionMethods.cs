@@ -260,7 +260,7 @@ namespace CTLite
                         throw new InvalidOperationException();
 
                     var idValue = modelKeyPropertyInfo.GetValue(model);
-                    compositeContainerDictionary.Add((TKey)idValue, Activator.CreateInstance(typeof(TComposite), new object[] { model, compositeContainer }) as TComposite);
+                    compositeContainerDictionary.Add((TKey)idValue, typeof(TComposite).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { model.GetType(), compositeContainer.GetType() }, null).Invoke(new object[] { model, compositeContainer }) as TComposite);
                 }
             }
         }
