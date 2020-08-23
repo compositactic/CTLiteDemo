@@ -37,7 +37,7 @@ namespace CTLiteDemo.Presentation.BlogApplications
             Blogs = new BlogCompositeContainer(this);
         }
 
-        public override void Initialize(object model)
+        public override void InitializeCompositeModel(object model)
         {
             BlogApplicationModel = model as BlogApplication;
             Blogs = new BlogCompositeContainer(this);
@@ -105,7 +105,7 @@ namespace CTLiteDemo.Presentation.BlogApplications
 
             var applicationPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var createDatabaseSqlScriptFile = Path.Combine(applicationPath, "BlogApplications", "000-BlogServerDatabase.sql");
+            var createDatabaseSqlScriptFile = Path.Combine(applicationPath, "000-BlogServerDatabase.sql");
 
             var repository = GetService<IMicrosoftSqlServerRepository>();
 

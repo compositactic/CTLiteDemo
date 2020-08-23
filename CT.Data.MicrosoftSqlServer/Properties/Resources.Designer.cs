@@ -59,5 +59,206 @@ namespace CTLite.Data.MicrosoftSqlServer.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE dbo.CreateCheckConstraint
+        ///	@tableName NVARCHAR(MAX),
+        ///	@constraintName NVARCHAR(MAX),
+        ///	@constraintExpression NVARCHAR(MAX)
+        ///AS
+        ///	DECLARE @sql NVARCHAR(MAX)
+        ///	DECLARE @indexName NVARCHAR(MAX)
+        ///
+        ///	SET @sql = &apos;IF OBJECT_ID(&apos;&apos;&apos; + @constraintName + &apos;&apos;&apos;) IS NULL AND EXISTS (SELECT * FROM sys.tables WHERE name = &apos;&apos;&apos; + @tableName + &apos;&apos;&apos;)
+        ///		BEGIN
+        ///			ALTER TABLE &quot;&apos; + @tableName + &apos;&quot; ADD CONSTRAINT &quot;&apos; + @constraintName + &apos;&quot; CHECK (&apos; + @constraintExpression + &apos;) 
+        ///			PRINT &apos;&apos;Check constrain [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string CreateCheckConstraint {
+            get {
+                return ResourceManager.GetString("CreateCheckConstraint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE dbo.CreateForeignKeyConstraint
+        ///	@tableName NVARCHAR(MAX),
+        ///	@parentTableName NVARCHAR(MAX),
+        ///	@keyColumnName NVARCHAR(MAX),
+        ///	@parentKeyColumnName NVARCHAR(MAX),
+        ///	@constraintName NVARCHAR(MAX) = null
+        ///
+        ///AS
+        ///	DECLARE @sql NVARCHAR(MAX)
+        ///	DECLARE @indexName NVARCHAR(MAX)
+        ///
+        ///	IF @constraintName IS NULL
+        ///		SET @constraintName = &apos;FK_&apos; + @tableName + @keyColumnName + &apos;_To_&apos; + @parentTableName + @parentKeyColumnName
+        ///
+        ///
+        ///	SET @sql = &apos;IF OBJECT_ID(&apos;&apos;&apos; + @constraintName + &apos;&apos;&apos;) IS NULL AND [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string CreateForeignKeyConstraint {
+            get {
+                return ResourceManager.GetString("CreateForeignKeyConstraint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE dbo.CreateIndex
+        ///	@tableName NVARCHAR(MAX),
+        ///	@columnName NVARCHAR(MAX)
+        ///AS
+        ///	DECLARE @sql NVARCHAR(MAX)
+        ///	DECLARE @indexName NVARCHAR(MAX)
+        ///
+        ///	SET @indexName = &apos;IDX_&apos; + @tableName + @columnName
+        ///
+        ///	SET @sql = &apos;IF NOT EXISTS(SELECT * FROM sys.indexes WHERE name = &apos;&apos;&apos; + @indexName + &apos;&apos;&apos; AND object_id = OBJECT_ID(&apos;&apos;&apos; + @tableName + &apos;&apos;&apos;))
+        ///		BEGIN
+        ///			CREATE INDEX &quot;&apos; + @indexName + &apos;&quot; ON &quot;&apos; + @tableName + &apos;&quot; (&apos; + @columnName + &apos;)
+        ///			PRINT &apos;&apos;Created index: &apos; + @indexName + &apos; ON &apos; + @t [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string CreateIndex {
+            get {
+                return ResourceManager.GetString("CreateIndex", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE dbo.CreateOrModifyColumn
+        ///	@tableName NVARCHAR(MAX),
+        ///	@columnName NVARCHAR(MAX),
+        ///	@columnType NVARCHAR(MAX)
+        ///AS
+        ///	DECLARE @sql NVARCHAR(MAX)
+        ///
+        ///	SET @sql = &apos;IF COL_LENGTH(&apos;&apos;&apos; + @tableName + &apos;&apos;&apos;,&apos;&apos;&apos; + @columnName + &apos;&apos;&apos;) IS NULL
+        ///					BEGIN
+        ///						ALTER TABLE &quot;&apos; + @tableName + &apos;&quot; ADD &quot;&apos; + @columnName + &apos;&quot; &apos; + @columnType + &apos;
+        ///						PRINT &apos;&apos;Added column: &apos; + @tableName + &apos;.&apos; + @columnName + &apos; &apos; + @columnType + &apos;&apos;&apos;
+        ///					END
+        ///				 ELSE 
+        ///					BEGIN
+        ///						ALTER TABLE &quot;&apos; + @tableName  [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string CreateOrModifyColumn {
+            get {
+                return ResourceManager.GetString("CreateOrModifyColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE dbo.CreateTable 
+        ///    @tableName NVARCHAR(MAX),
+        ///	@parentTableName NVARCHAR(MAX) = &apos;&apos;,
+        ///	@baseTableName NVARCHAR(MAX) = &apos;&apos;
+        ///AS
+        ///	DECLARE @sql NVARCHAR(MAX)
+        ///
+        ///	SET @sql = &apos;IF NOT EXISTS (SELECT * FROM sys.tables WHERE Name = &apos;&apos;&apos; + @tableName + &apos;&apos;&apos;)
+        ///		BEGIN
+        ///			CREATE TABLE &quot;&apos; + @tableName + &apos;&quot; ( [Id] INT NOT NULL PRIMARY KEY IDENTITY &apos;
+        ///	IF @parentTableName = &apos;&apos;
+        ///		SET @sql = @sql + &apos;)
+        ///			PRINT &apos;&apos;Created table: &apos; + @tableName + &apos;&apos;&apos;
+        ///		END&apos;
+        ///	ELSE
+        ///		SET @sql = @sql + &apos;, [&apos; + @par [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string CreateTable {
+            get {
+                return ResourceManager.GetString("CreateTable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE dbo.DropColumn
+        ///	@tableName NVARCHAR(MAX),
+        ///	@columnName NVARCHAR(MAX)
+        ///AS
+        ///	DECLARE @sql NVARCHAR(MAX)
+        ///
+        ///	SET @sql = &apos;IF COL_LENGTH(&apos;&apos;&apos; + @tableName + &apos;&apos;&apos;,&apos;&apos;&apos; + @columnName + &apos;&apos;&apos;) IS NOT NULL
+        ///					BEGIN
+        ///						ALTER TABLE &quot;&apos; + @tableName + &apos;&quot; DROP COLUMN &quot;&apos; + @columnName + &apos;&quot;
+        ///						PRINT &apos;&apos;Dropped column: &apos;&apos;&apos; + @columnName + &apos;, &apos; + @tableName + &apos;
+        ///					END&apos;
+        ///	PRINT @sql
+        ///	EXEC sp_executesql @sql.
+        /// </summary>
+        internal static string DropColumn {
+            get {
+                return ResourceManager.GetString("DropColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE dbo.DropConstraint
+        ///	@tableName NVARCHAR(MAX),
+        ///	@constraintName NVARCHAR(MAX)
+        ///AS
+        ///	DECLARE @sql NVARCHAR(MAX)
+        ///	DECLARE @indexName NVARCHAR(MAX)
+        ///
+        ///	SET @sql = &apos;IF OBJECT_ID(&apos;&apos;&apos; + @constraintName + &apos;&apos;&apos;) IS NOT NULL AND EXISTS (SELECT * FROM sys.tables WHERE name = &apos;&apos;&apos; + @tableName + &apos;&apos;&apos;)
+        ///		BEGIN
+        ///			ALTER TABLE &quot;&apos; + @tableName + &apos;&quot; DROP CONSTRAINT &quot;&apos; + @constraintName + &apos;&quot; 
+        ///			PRINT &apos;&apos;Dropped constraint: &apos; + @constraintName + &apos;,  &apos; + @tableName + &apos;&apos;&apos; 
+        ///		END&apos;
+        ///
+        ///	PRINT @sql
+        ///	E [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string DropConstraint {
+            get {
+                return ResourceManager.GetString("DropConstraint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE dbo.DropIndex
+        ///	@tableName NVARCHAR(MAX),
+        ///	@columnName NVARCHAR(MAX)
+        ///AS
+        ///	DECLARE @sql NVARCHAR(MAX)
+        ///	DECLARE @indexName NVARCHAR(MAX)
+        ///
+        ///	SET @indexName = &apos;IDX_&apos; + @tableName + @columnName
+        ///
+        ///	SET @sql = &apos;IF EXISTS(SELECT * FROM sys.indexes WHERE name = &apos;&apos;&apos; + @indexName + &apos;&apos;&apos; AND object_id = OBJECT_ID(&apos;&apos;&apos; + @tableName + &apos;&apos;&apos;))
+        ///		BEGIN
+        ///			DROP INDEX &quot;&apos; + @indexName + &apos;&quot; ON &apos; + @tableName + &apos;
+        ///			PRINT &apos;&apos;Index Dropped: &apos; + @indexName + &apos;, &apos; + @tableName + &apos;&apos;&apos;
+        ///		END&apos;
+        ///
+        ///	PRINT @ [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string DropIndex {
+            get {
+                return ResourceManager.GetString("DropIndex", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE dbo.DropTable 
+        ///    @tableName NVARCHAR(MAX) 
+        ///AS
+        ///	DECLARE @sql NVARCHAR(MAX)
+        ///
+        ///	SET @sql = &apos;IF EXISTS (SELECT * FROM sys.tables WHERE Name = &apos;&apos;&apos; + @tableName + &apos;&apos;&apos;)
+        ///		BEGIN
+        ///			DROP TABLE &quot;&apos; + @tableName + &apos;&quot;
+        ///			PRINT &apos;&apos;Table dropped: &apos; + @tableName + &apos;&apos;&apos;
+        ///		END&apos;
+        ///
+        ///	PRINT @sql	
+        ///	EXEC sp_executesql @sql.
+        /// </summary>
+        internal static string DropTable {
+            get {
+                return ResourceManager.GetString("DropTable", resourceCulture);
+            }
+        }
     }
 }

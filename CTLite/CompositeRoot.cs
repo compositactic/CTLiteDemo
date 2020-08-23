@@ -23,7 +23,7 @@ namespace CTLite
             SetCompositeRoots();
         }
 
-        public abstract void Initialize(object model); 
+        public abstract void InitializeCompositeModel(object model); 
 
         [DataMember]
         public abstract long Id { get; } 

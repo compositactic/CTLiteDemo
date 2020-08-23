@@ -88,7 +88,7 @@ namespace CTLite.AspNetCore
 
                 var compositeRootModelJson = GetCache(cacheId);
                 if (!string.IsNullOrWhiteSpace(compositeRootModelJson))
-                    compositeRoot.Initialize(JsonConvert.DeserializeObject(compositeRootModelJson, compositeRootModelFieldType));
+                    compositeRoot.InitializeCompositeModel(JsonConvert.DeserializeObject(compositeRootModelJson, compositeRootModelFieldType));
                 else
                 {
                     if (cacheId == 0)

@@ -10,7 +10,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -419,7 +421,7 @@ namespace CTLite
 
                 ctContext = commandResponse.Context;
                 returnValue = commandResponse.ReturnValue;
-                commandResponses.Add(new CompositeRootCommandResponse { Id = commandRequest.Id, Success = true, ReturnValue = returnValue, ReturnValueContentType = ctContext?.Response.ContentType });
+                commandResponses.Add(new CompositeRootCommandResponse { Id = commandRequest.Id, Success = true, ReturnValue = returnValue.Copy(), ReturnValueContentType = ctContext?.Response.ContentType });
             }
 
             return commandResponses;
@@ -683,6 +685,7 @@ namespace CTLite
                 (Nullable.GetUnderlyingType(type) != null && TypeDescriptor.GetConverter(Nullable.GetUnderlyingType(type)).CanConvertFrom(typeof(string)));
         }
     }
+
 
     public enum CommandRequestError
     {
