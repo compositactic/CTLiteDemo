@@ -87,9 +87,8 @@ namespace CTLiteDemo.Presentation.BlogApplications
         }
 
         [Command]
-        public void SetupDatabase()
+        public void CreateDatabase()
         {
-
             var applicationPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             var createDatabaseSqlScriptFile = Path.Combine(applicationPath, "000-BlogServerDatabase.sql");
@@ -101,6 +100,13 @@ namespace CTLiteDemo.Presentation.BlogApplications
                 var createDatabaseSql = File.ReadAllText(createDatabaseSqlScriptFile);
                 repository.Execute<object>(connection, null, createDatabaseSql, null);
             }
+        }
+
+        [Command]
+        public void SetupDatabase()
+        {
+            var repository = GetService<IMicrosoftSqlServerRepository>();
+            var applicationPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             using (var connection = repository.OpenConnection(BlogDbConnectionString))
             using (var transaction = repository.BeginTransaction(connection))

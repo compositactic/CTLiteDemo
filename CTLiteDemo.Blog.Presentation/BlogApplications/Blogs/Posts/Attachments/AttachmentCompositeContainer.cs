@@ -1,7 +1,6 @@
 ﻿using CTLite;
 using CTLiteDemo.Presentation.Properties;
 using System;
-using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -36,12 +35,8 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
             };
 
             var fileAttachment = context.Request.UploadedFiles.FirstOrDefault();
-            if (fileAttachment != null)
-            {
-                var fileAttachmentPath = Path.GetTempFileName();
-                File.WriteAllBytes(fileAttachmentPath, fileAttachment.GetContent());
-                newAttachment.FilePath = fileAttachmentPath;
-            }
+            var attachmentArchiveService = CompositeRoot.GetService<IAttachmentArchiveService>();
+            attachmentArchiveService.ArchiveAttachment(fileAttachment, newAttachment);
 
             attachments.Add(newAttachment.Id, newAttachment);
             return newAttachment;

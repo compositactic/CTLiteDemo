@@ -10,7 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="BlogApplications\Blogs\Posts\Attachments\" />
     <Folder Include="BlogApplications\Blogs\Posts\Comments\" />
   </ItemGroup>
 
