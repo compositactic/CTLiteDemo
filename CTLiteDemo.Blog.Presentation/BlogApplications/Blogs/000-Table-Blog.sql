@@ -1,2 +1,7 @@
 ﻿EXEC CreateTable 'Blog'
 EXEC CreateOrModifyColumn 'Blog', 'Name', 'nvarchar(50)'
+EXEC CreateOrModifyColumn 'Blog', 'IsActive', 'bit'
+EXEC CreateOrModifyColumn 'Blog', 'PublishDate', 'datetime'
+EXEC CreateOrModifyColumn 'Blog', 'BlogType', 'int'
+EXEC CreateOrModifyColumn 'Blog', 'Rating', 'int'
+EXEC CreateOrModifyColumn 'Blog', 'Earnings', 'decimal(10,2)'

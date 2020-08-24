@@ -116,7 +116,7 @@ namespace CTLite.Data.MicrosoftSqlServer
 
                 ", null);
 
-                using (var sqlBulkCopy = new SqlBulkCopy((SqlConnection)connection))
+                using (var sqlBulkCopy = new SqlBulkCopy((SqlConnection)connection, SqlBulkCopyOptions.Default, (SqlTransaction)transaction))
                 {
                     sqlBulkCopy.DestinationTableName = $"#{dataTable.TableName}";
                     sqlBulkCopy.WriteToServer(dataTable);

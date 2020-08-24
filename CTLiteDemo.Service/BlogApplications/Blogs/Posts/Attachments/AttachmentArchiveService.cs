@@ -6,7 +6,7 @@ namespace CTLiteDemo.Service.BlogApplications.Blogs.Posts.Attachments
 {
     public class AttachmentArchiveService : IAttachmentArchiveService
     {
-        private AttachmentArchiveService() { }
+        public AttachmentArchiveService() { }
 
         public CompositeRoot CompositeRoot { get; set; }
 

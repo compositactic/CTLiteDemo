@@ -10,6 +10,9 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts.Attachments
     public class Attachment
     {
         [DataMember]
+        public CompositeState State { get; set; } = CompositeState.Unchanged;
+
+        [DataMember]
         public long Id { get; set; }
 
         [DataMember]

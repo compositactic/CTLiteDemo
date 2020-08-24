@@ -19,6 +19,8 @@ namespace CTLiteDemo.Presentation.BlogApplications
     {
         internal BlogApplication BlogApplicationModel;
 
+        public override CompositeState State { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public BlogApplicationCompositeRoot() : base()
         {
             Initialize();

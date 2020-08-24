@@ -10,9 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -131,7 +129,7 @@ namespace CTLite
                 var model = modelFieldInfo.GetValue(composite);
 
                 if (modelProperties == null)
-                    modelProperties = model.GetType().GetProperties().Where(p => p.GetCustomAttributes<DataMemberAttribute>().Any());
+                    modelProperties = model.GetType().GetProperties().Where(p => p.GetCustomAttributes<DataMemberAttribute>().Any() && p.PropertyType != typeof(CompositeState));
 
                 if (dataTable == null)
                 {

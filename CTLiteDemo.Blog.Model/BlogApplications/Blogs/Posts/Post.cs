@@ -14,6 +14,9 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts
     [KeyProperty(nameof(Post.Id))]
     public class Post
     {
+        [DataMember]
+        public CompositeState State { get; set; } = CompositeState.Unchanged;
+
         public Post() { }
 
         [DataMember]

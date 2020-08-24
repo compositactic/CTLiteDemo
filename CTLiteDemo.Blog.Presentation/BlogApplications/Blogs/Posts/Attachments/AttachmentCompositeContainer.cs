@@ -11,6 +11,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
     [CompositeContainer(nameof(AttachmentCompositeContainer.Attachments), nameof(Model.BlogApplications.Blogs.Posts.Post.Attachments))]
     public class AttachmentCompositeContainer : Composite
     {
+        public override CompositeState State { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public PostComposite Post { get; private set; }
 
         internal AttachmentCompositeContainer(PostComposite postComposite)

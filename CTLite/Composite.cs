@@ -17,7 +17,7 @@ namespace CTLite
             remove { _propertyChanged -= value; }
         }
 
-        public CompositeState State { get; set; } = CompositeState.Unchanged;
+        public abstract CompositeState State { get; set; }
 
         protected virtual void NotifyPropertyChanged(string propertyName)
         {

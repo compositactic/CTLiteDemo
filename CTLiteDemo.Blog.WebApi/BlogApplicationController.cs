@@ -1,7 +1,8 @@
-﻿using CTLiteDemo.Presentation.BlogApplications;
+﻿using CTLite.AspNetCore;
 using CTLite.Data.MicrosoftSqlServer;
+using CTLiteDemo.Presentation.BlogApplications;
+using CTLiteDemo.Service.BlogApplications.Blogs.Posts.Attachments;
 using Microsoft.Extensions.Caching.Memory;
-using CTLite.AspNetCore;
 
 namespace CTLiteDemo.WebApi
 {
@@ -12,7 +13,8 @@ namespace CTLiteDemo.WebApi
         {
             return new BlogApplicationCompositeRoot
             (
-                MicrosoftSqlServerRepository.Create()
+                MicrosoftSqlServerRepository.Create(),
+                new AttachmentArchiveService()
             );
         }
     }

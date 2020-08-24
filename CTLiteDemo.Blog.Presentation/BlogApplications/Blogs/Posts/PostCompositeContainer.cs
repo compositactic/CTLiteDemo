@@ -14,6 +14,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
     [CompositeContainer(nameof(PostCompositeContainer.Posts), nameof(Model.BlogApplications.Blogs.Blog.Posts))]
     public class PostCompositeContainer : Composite
     {
+        public override CompositeState State { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public BlogComposite Blog { get; private set; }
 
         internal PostCompositeContainer(BlogComposite blogComposite)

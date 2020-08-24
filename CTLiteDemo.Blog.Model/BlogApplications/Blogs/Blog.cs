@@ -13,6 +13,10 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs
     [KeyProperty(nameof(Blog.Id))]
     public class Blog
     {
+
+        [DataMember]
+        public CompositeState State { get; set; } = CompositeState.Unchanged;
+
         [DataMember]
         public long Id { get; set; }
 
@@ -68,7 +72,6 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs
         {
             _posts = new ReadOnlyDictionary<long, Post>(posts);
         }
-
 
         public void Remove()
         {

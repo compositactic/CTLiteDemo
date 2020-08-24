@@ -13,6 +13,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
     [CompositeModel(nameof(PostComposite.PostModel))]
     public class PostComposite : Composite
     {
+        public override CompositeState State { get => PostModel.State; set => PostModel.State = value; }
         internal PostComposite(Post post, PostCompositeContainer postCompositeContainer)
         {
             PostModel = post;

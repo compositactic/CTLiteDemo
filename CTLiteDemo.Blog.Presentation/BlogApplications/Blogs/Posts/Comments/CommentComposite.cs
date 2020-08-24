@@ -11,6 +11,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
     [CompositeModel(nameof(CommentComposite.CommentModel))]
     public class CommentComposite : Composite
     {
+        public override CompositeState State { get => CommentModel.State; set => CommentModel.State = value; }
         internal CommentComposite(Comment comment, CommentCompositeContainer commentCompositeContainer)
         {
             CommentModel = comment;
@@ -19,7 +20,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
 
         public CommentCompositeContainer Comments { get; private set; }
 
-        public Comment CommentModel { get; }
+        internal Comment CommentModel;
 
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.CommentComposite_IdHelp))]

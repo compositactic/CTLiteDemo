@@ -11,7 +11,9 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
     [CompositeModel(nameof(AttachmentComposite.AttachmentModel))]
     public class AttachmentComposite : Composite
     {
-        public Attachment AttachmentModel { get; }
+        public override CompositeState State { get => AttachmentModel.State; set => AttachmentModel.State = value; }
+
+        internal Attachment AttachmentModel;
         public AttachmentCompositeContainer Attachments { get; private set; }
 
         internal AttachmentComposite(Attachment attachment, AttachmentCompositeContainer attachmentCompositeContainer)

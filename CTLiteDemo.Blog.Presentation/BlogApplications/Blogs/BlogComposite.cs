@@ -14,6 +14,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
     [CompositeModel(nameof(BlogModel))]
     public class BlogComposite : Composite
     {
+        public override CompositeState State { get => BlogModel.State; set => BlogModel.State = value; }
         public BlogCompositeContainer Blogs { get; }
 
         internal Blog BlogModel;

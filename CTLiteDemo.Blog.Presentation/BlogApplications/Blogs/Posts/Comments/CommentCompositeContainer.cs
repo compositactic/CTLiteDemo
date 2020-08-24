@@ -10,6 +10,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
     [CompositeContainer(nameof(CommentCompositeContainer.Comments), nameof(Model.BlogApplications.Blogs.Posts.Post.Comments))]
     public class CommentCompositeContainer : Composite
     {
+        public override CompositeState State { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public PostComposite Post { get; private set; }
         internal CommentCompositeContainer(PostComposite postComposite)
         {

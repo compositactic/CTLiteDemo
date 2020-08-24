@@ -54,7 +54,7 @@ namespace CTLite
                     assemblies
                         .SelectMany(assembly => assembly.GetTypes()
                         .Where(t => t.GetInterface(nameof(IService)) != null && t.IsClass && !t.IsAbstract))
-                            .Select(serviceType => (IService)serviceType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[0], null).Invoke(null))
+                            .Select(serviceType => (IService)serviceType.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[0], null).Invoke(null))
                             .ToList());
 
             SetCompositeRoots();
