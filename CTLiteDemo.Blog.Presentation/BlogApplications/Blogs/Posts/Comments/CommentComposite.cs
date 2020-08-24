@@ -1,5 +1,6 @@
 ﻿using CTLite;
 using CTLiteDemo.Model.BlogApplications.Blogs.Posts.Comments;
+using CTLiteDemo.Presentation.Properties;
 using System.Runtime.Serialization;
 
 namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
@@ -16,12 +17,12 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
             Comments = commentCompositeContainer;
         }
 
-
         public CommentCompositeContainer Comments { get; private set; }
 
         public Comment CommentModel { get; }
 
         [DataMember]
+        [Help(typeof(Resources), nameof(Resources.CommentComposite_IdHelp))]
         public long Id
         {
             get { return CommentModel.Id; }
@@ -29,6 +30,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
 
 
         [DataMember]
+        [Help(typeof(Resources), nameof(Resources.CommentComposite_TextHelp))]
         public string Text
         {
             get { return CommentModel.Text; }
@@ -36,10 +38,12 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
             {
                 CommentModel.Text = value;
                 NotifyPropertyChanged(nameof(Text));
+                State = CompositeState.Modified;
             }
         }
 
         [Command]
+        [Help(typeof(Resources), nameof(Resources.CommentComposite_RemoveHelp))]
         public void Remove()
         {
             Comments.comments.Remove(Id);

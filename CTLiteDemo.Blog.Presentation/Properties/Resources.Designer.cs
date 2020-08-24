@@ -61,20 +61,443 @@ namespace CTLiteDemo.Presentation.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Gets or sets the file path of the Attachment.
         /// </summary>
-        internal static string BlogApplicationCompositeRoot_AllBlogs {
+        internal static string AttachmentComposite_FilePathHelp {
             get {
-                return ResourceManager.GetString("BlogApplicationCompositeRoot_AllBlogs", resourceCulture);
+                return ResourceManager.GetString("AttachmentComposite_FilePathHelp", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Gets the Id assigned to the Attachment.
         /// </summary>
-        internal static string BlogApplicationCompositeRoot_ErrorMessage {
+        internal static string AttachmentComposite_IdHelp {
             get {
-                return ResourceManager.GetString("BlogApplicationCompositeRoot_ErrorMessage", resourceCulture);
+                return ResourceManager.GetString("AttachmentComposite_IdHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Removes the Attachment from the Attachments container and marks it for deletion.
+        /// </summary>
+        internal static string AttachmentComposite_RemoveHelp {
+            get {
+                return ResourceManager.GetString("AttachmentComposite_RemoveHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets the Attachments belonging to the Attachments container.
+        /// </summary>
+        internal static string AttachmentCompositeContainer_AttachmentsHelp {
+            get {
+                return ResourceManager.GetString("AttachmentCompositeContainer_AttachmentsHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The newly create Attachment.
+        /// </summary>
+        internal static string AttachmentCompositeContainer_CreateNewAttachment_ReturnValueHelp {
+            get {
+                return ResourceManager.GetString("AttachmentCompositeContainer_CreateNewAttachment_ReturnValueHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Creates a new Attachment and saves it to the Attachment Archive.
+        /// </summary>
+        internal static string AttachmentCompositeContainer_CreateNewAttachmentHelp {
+            get {
+                return ResourceManager.GetString("AttachmentCompositeContainer_CreateNewAttachmentHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets the Blogs container containing the Blogs for this BlogApplication.
+        /// </summary>
+        internal static string BlogApplicationCompositeRoot_BlogsHelp {
+            get {
+                return ResourceManager.GetString("BlogApplicationCompositeRoot_BlogsHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets or sets the BlogType - either public or personal.
+        /// </summary>
+        internal static string BlogComposite_BlogTypeHelp {
+            get {
+                return ResourceManager.GetString("BlogComposite_BlogTypeHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets or sets the expected Earnings of the Blog.
+        /// </summary>
+        internal static string BlogComposite_EarningsHelp {
+            get {
+                return ResourceManager.GetString("BlogComposite_EarningsHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets the Id assigned to the Blog.
+        /// </summary>
+        internal static string BlogComposite_IdHelp {
+            get {
+                return ResourceManager.GetString("BlogComposite_IdHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets or sets a flag indictating if the Blog is active.
+        /// </summary>
+        internal static string BlogComposite_IsActiveHelp {
+            get {
+                return ResourceManager.GetString("BlogComposite_IsActiveHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets or sets the Name assigned to the Blog.
+        /// </summary>
+        internal static string BlogComposite_NameHelp {
+            get {
+                return ResourceManager.GetString("BlogComposite_NameHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets the Posts container containing the Posts associated with the Blog.
+        /// </summary>
+        internal static string BlogComposite_PostsHelp {
+            get {
+                return ResourceManager.GetString("BlogComposite_PostsHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets or sets the publication date of the Blog.
+        /// </summary>
+        internal static string BlogComposite_PublishDateHelp {
+            get {
+                return ResourceManager.GetString("BlogComposite_PublishDateHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets or sets the Rating of the Blog.
+        /// </summary>
+        internal static string BlogComposite_RatingHelp {
+            get {
+                return ResourceManager.GetString("BlogComposite_RatingHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Removes the Blog from the Blogs container and marks it for deletion.
+        /// </summary>
+        internal static string BlogComposite_RemoveHelp {
+            get {
+                return ResourceManager.GetString("BlogComposite_RemoveHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saves the Blog to the database.
+        /// </summary>
+        internal static string BlogComposite_SaveHelp {
+            get {
+                return ResourceManager.GetString("BlogComposite_SaveHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The BlogType to assign to the new Blog.
+        /// </summary>
+        internal static string BlogCompositeContainer_CreateNewBlog_BlogTypeHelp {
+            get {
+                return ResourceManager.GetString("BlogCompositeContainer_CreateNewBlog_BlogTypeHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The earnings goal for the new Blog.
+        /// </summary>
+        internal static string BlogCompositeContainer_CreateNewBlog_EarningsHelp {
+            get {
+                return ResourceManager.GetString("BlogCompositeContainer_CreateNewBlog_EarningsHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Flag to indicate if the new Blog is Active.
+        /// </summary>
+        internal static string BlogCompositeContainer_CreateNewBlog_IsActiveHelp {
+            get {
+                return ResourceManager.GetString("BlogCompositeContainer_CreateNewBlog_IsActiveHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The name to assign to the new Blog.
+        /// </summary>
+        internal static string BlogCompositeContainer_CreateNewBlog_NameHelp {
+            get {
+                return ResourceManager.GetString("BlogCompositeContainer_CreateNewBlog_NameHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The date the Blog is to be published.
+        /// </summary>
+        internal static string BlogCompositeContainer_CreateNewBlog_PublishDateHelp {
+            get {
+                return ResourceManager.GetString("BlogCompositeContainer_CreateNewBlog_PublishDateHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The rating to assign to the new Blog.
+        /// </summary>
+        internal static string BlogCompositeContainer_CreateNewBlog_RatingHelp {
+            get {
+                return ResourceManager.GetString("BlogCompositeContainer_CreateNewBlog_RatingHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The newly created Blog.
+        /// </summary>
+        internal static string BlogCompositeContainer_CreateNewBlog_ReturnValueHelp {
+            get {
+                return ResourceManager.GetString("BlogCompositeContainer_CreateNewBlog_ReturnValueHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Creates a new Blog using the specified parameters.
+        /// </summary>
+        internal static string BlogCompositeContainer_CreateNewBlogHelp {
+            get {
+                return ResourceManager.GetString("BlogCompositeContainer_CreateNewBlogHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Name of the Blog to load.
+        /// </summary>
+        internal static string BlogCompositeContainer_LoadBlog_NameHelp {
+            get {
+                return ResourceManager.GetString("BlogCompositeContainer_LoadBlog_NameHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loads a Blog into the Blogs container using the supplied Name.
+        /// </summary>
+        internal static string BlogCompositeContainer_LoadBlogHelp {
+            get {
+                return ResourceManager.GetString("BlogCompositeContainer_LoadBlogHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets the Id assigned to the Comment.
+        /// </summary>
+        internal static string CommentComposite_IdHelp {
+            get {
+                return ResourceManager.GetString("CommentComposite_IdHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Removes the Comment from the Comments container and marks it for deletion.
+        /// </summary>
+        internal static string CommentComposite_RemoveHelp {
+            get {
+                return ResourceManager.GetString("CommentComposite_RemoveHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets or sets the Text of the Comment.
+        /// </summary>
+        internal static string CommentComposite_TextHelp {
+            get {
+                return ResourceManager.GetString("CommentComposite_TextHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The newly created Comment.
+        /// </summary>
+        internal static string CommentCompositeContainer_CreateNewComment_ReturnValueHelp {
+            get {
+                return ResourceManager.GetString("CommentCompositeContainer_CreateNewComment_ReturnValueHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The text to assign to the new Comment.
+        /// </summary>
+        internal static string CommentCompositeContainer_CreateNewComment_TextHelp {
+            get {
+                return ResourceManager.GetString("CommentCompositeContainer_CreateNewComment_TextHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Creates a new Comment using the specified parameters.
+        /// </summary>
+        internal static string CommentCompositeContainer_CreateNewCommentHelp {
+            get {
+                return ResourceManager.GetString("CommentCompositeContainer_CreateNewCommentHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets the Comments belonging to the Comments container.
+        /// </summary>
+        internal static string CommentsCompositeContainer_CommentsHelp {
+            get {
+                return ResourceManager.GetString("CommentsCompositeContainer_CommentsHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets the Attachments container containing the Attachments associated with the Post.
+        /// </summary>
+        internal static string PostComposite_AttachmentsHelp {
+            get {
+                return ResourceManager.GetString("PostComposite_AttachmentsHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets the Comments container containing the Comments associated with the Post.
+        /// </summary>
+        internal static string PostComposite_CommentsHelp {
+            get {
+                return ResourceManager.GetString("PostComposite_CommentsHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets the Id assigned to the Post.
+        /// </summary>
+        internal static string PostComposite_IdHelp {
+            get {
+                return ResourceManager.GetString("PostComposite_IdHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Removes the Post from the Posts container and marks it for deletion.
+        /// </summary>
+        internal static string PostComposite_RemoveHelp {
+            get {
+                return ResourceManager.GetString("PostComposite_RemoveHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets or sets the Text of the Post.
+        /// </summary>
+        internal static string PostComposite_TextHelp {
+            get {
+                return ResourceManager.GetString("PostComposite_TextHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets or Sets the Title of the Post.
+        /// </summary>
+        internal static string PostComposite_TitleHelp {
+            get {
+                return ResourceManager.GetString("PostComposite_TitleHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The newly created Post.
+        /// </summary>
+        internal static string PostCompositeContainer_CreateNewPost_ReturnValueHelp {
+            get {
+                return ResourceManager.GetString("PostCompositeContainer_CreateNewPost_ReturnValueHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Text of the new Blog.
+        /// </summary>
+        internal static string PostCompositeContainer_CreateNewPost_TextHelp {
+            get {
+                return ResourceManager.GetString("PostCompositeContainer_CreateNewPost_TextHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Title to assign to the new Blog.
+        /// </summary>
+        internal static string PostCompositeContainer_CreateNewPost_TitleHelp {
+            get {
+                return ResourceManager.GetString("PostCompositeContainer_CreateNewPost_TitleHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Creates a new Post using the specified parameters.
+        /// </summary>
+        internal static string PostCompositeContainer_CreateNewPostHelp {
+            get {
+                return ResourceManager.GetString("PostCompositeContainer_CreateNewPostHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loads all the Posts assigned to this Blog.
+        /// </summary>
+        internal static string PostCompositeContainer_LoadPostsHelp {
+            get {
+                return ResourceManager.GetString("PostCompositeContainer_LoadPostsHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The ending index (1-based) of the record.
+        /// </summary>
+        internal static string PostCompositeContainer_LoadPostsPaged_PageEndHelp {
+            get {
+                return ResourceManager.GetString("PostCompositeContainer_LoadPostsPaged_PageEndHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The starting index (1-based) of the record.
+        /// </summary>
+        internal static string PostCompositeContainer_LoadPostsPaged_PageStartHelp {
+            get {
+                return ResourceManager.GetString("PostCompositeContainer_LoadPostsPaged_PageStartHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loads Posts from the Blog using the supplied starting and ending indicies.
+        /// </summary>
+        internal static string PostCompositeContainer_LoadPostsPagedHelp {
+            get {
+                return ResourceManager.GetString("PostCompositeContainer_LoadPostsPagedHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gets the Posts belonging to the Posts container.
+        /// </summary>
+        internal static string PostCompositeContainer_PostsHelp {
+            get {
+                return ResourceManager.GetString("PostCompositeContainer_PostsHelp", resourceCulture);
             }
         }
     }

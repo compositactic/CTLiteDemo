@@ -1,4 +1,5 @@
 ﻿using CTLite;
+using CTLiteDemo.Presentation.Properties;
 using System;
 using System.IO;
 using System.Linq;
@@ -21,9 +22,12 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
         [NonSerialized]
         internal CompositeDictionary<long, AttachmentComposite> attachments;
         [DataMember]
+        [Help(typeof(Resources), nameof(Resources.AttachmentCompositeContainer_AttachmentsHelp))]
         public ReadOnlyCompositeDictionary<long, AttachmentComposite> Attachments { get; private set; }
 
         [Command]
+        [Help(typeof(Resources), nameof(Resources.AttachmentCompositeContainer_CreateNewAttachmentHelp))]
+        [return: Help(typeof(Resources), nameof(Resources.AttachmentCompositeContainer_CreateNewAttachment_ReturnValueHelp))]
         public AttachmentComposite CreateNewAttachment(CompositeRootHttpContext context)
         {
             var newAttachment = new AttachmentComposite(Post.PostModel.CreateNewAttachment(), this)

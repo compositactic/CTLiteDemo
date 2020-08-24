@@ -117,10 +117,151 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="BlogApplicationCompositeRoot_AllBlogs" xml:space="preserve">
-    <value />
+  <data name="AttachmentCompositeContainer_AttachmentsHelp" xml:space="preserve">
+    <value>Gets the Attachments belonging to the Attachments container</value>
   </data>
-  <data name="BlogApplicationCompositeRoot_ErrorMessage" xml:space="preserve">
-    <value />
+  <data name="AttachmentCompositeContainer_CreateNewAttachmentHelp" xml:space="preserve">
+    <value>Creates a new Attachment and saves it to the Attachment Archive</value>
+  </data>
+  <data name="AttachmentCompositeContainer_CreateNewAttachment_ReturnValueHelp" xml:space="preserve">
+    <value>The newly create Attachment</value>
+  </data>
+  <data name="AttachmentComposite_FilePathHelp" xml:space="preserve">
+    <value>Gets or sets the file path of the Attachment</value>
+  </data>
+  <data name="AttachmentComposite_IdHelp" xml:space="preserve">
+    <value>Gets the Id assigned to the Attachment</value>
+  </data>
+  <data name="AttachmentComposite_RemoveHelp" xml:space="preserve">
+    <value>Removes the Attachment from the Attachments container and marks it for deletion</value>
+  </data>
+  <data name="BlogApplicationCompositeRoot_BlogsHelp" xml:space="preserve">
+    <value>Gets the Blogs container containing the Blogs for this BlogApplication</value>
+  </data>
+  <data name="BlogCompositeContainer_CreateNewBlogHelp" xml:space="preserve">
+    <value>Creates a new Blog using the specified parameters</value>
+  </data>
+  <data name="BlogCompositeContainer_CreateNewBlog_BlogTypeHelp" xml:space="preserve">
+    <value>The BlogType to assign to the new Blog</value>
+  </data>
+  <data name="BlogCompositeContainer_CreateNewBlog_EarningsHelp" xml:space="preserve">
+    <value>The earnings goal for the new Blog</value>
+  </data>
+  <data name="BlogCompositeContainer_CreateNewBlog_IsActiveHelp" xml:space="preserve">
+    <value>Flag to indicate if the new Blog is Active</value>
+  </data>
+  <data name="BlogCompositeContainer_CreateNewBlog_NameHelp" xml:space="preserve">
+    <value>The name to assign to the new Blog</value>
+  </data>
+  <data name="BlogCompositeContainer_CreateNewBlog_PublishDateHelp" xml:space="preserve">
+    <value>The date the Blog is to be published</value>
+  </data>
+  <data name="BlogCompositeContainer_CreateNewBlog_RatingHelp" xml:space="preserve">
+    <value>The rating to assign to the new Blog</value>
+  </data>
+  <data name="BlogCompositeContainer_CreateNewBlog_ReturnValueHelp" xml:space="preserve">
+    <value>The newly created Blog</value>
+  </data>
+  <data name="BlogCompositeContainer_LoadBlogHelp" xml:space="preserve">
+    <value>Loads a Blog into the Blogs container using the supplied Name</value>
+  </data>
+  <data name="BlogCompositeContainer_LoadBlog_NameHelp" xml:space="preserve">
+    <value>The Name of the Blog to load</value>
+  </data>
+  <data name="BlogComposite_BlogTypeHelp" xml:space="preserve">
+    <value>Gets or sets the BlogType - either public or personal</value>
+  </data>
+  <data name="BlogComposite_EarningsHelp" xml:space="preserve">
+    <value>Gets or sets the expected Earnings of the Blog</value>
+  </data>
+  <data name="BlogComposite_IdHelp" xml:space="preserve">
+    <value>Gets the Id assigned to the Blog</value>
+  </data>
+  <data name="BlogComposite_IsActiveHelp" xml:space="preserve">
+    <value>Gets or sets a flag indictating if the Blog is active</value>
+  </data>
+  <data name="BlogComposite_NameHelp" xml:space="preserve">
+    <value>Gets or sets the Name assigned to the Blog</value>
+  </data>
+  <data name="BlogComposite_PostsHelp" xml:space="preserve">
+    <value>Gets the Posts container containing the Posts associated with the Blog</value>
+  </data>
+  <data name="BlogComposite_PublishDateHelp" xml:space="preserve">
+    <value>Gets or sets the publication date of the Blog</value>
+  </data>
+  <data name="BlogComposite_RatingHelp" xml:space="preserve">
+    <value>Gets or sets the Rating of the Blog</value>
+  </data>
+  <data name="BlogComposite_RemoveHelp" xml:space="preserve">
+    <value>Removes the Blog from the Blogs container and marks it for deletion</value>
+  </data>
+  <data name="BlogComposite_SaveHelp" xml:space="preserve">
+    <value>Saves the Blog to the database</value>
+  </data>
+  <data name="CommentCompositeContainer_CreateNewCommentHelp" xml:space="preserve">
+    <value>Creates a new Comment using the specified parameters</value>
+  </data>
+  <data name="CommentCompositeContainer_CreateNewComment_ReturnValueHelp" xml:space="preserve">
+    <value>The newly created Comment</value>
+  </data>
+  <data name="CommentCompositeContainer_CreateNewComment_TextHelp" xml:space="preserve">
+    <value>The text to assign to the new Comment</value>
+  </data>
+  <data name="CommentComposite_IdHelp" xml:space="preserve">
+    <value>Gets the Id assigned to the Comment</value>
+  </data>
+  <data name="CommentComposite_RemoveHelp" xml:space="preserve">
+    <value>Removes the Comment from the Comments container and marks it for deletion</value>
+  </data>
+  <data name="CommentComposite_TextHelp" xml:space="preserve">
+    <value>Gets or sets the Text of the Comment</value>
+  </data>
+  <data name="CommentsCompositeContainer_CommentsHelp" xml:space="preserve">
+    <value>Gets the Comments belonging to the Comments container</value>
+  </data>
+  <data name="PostCompositeContainer_CreateNewPostHelp" xml:space="preserve">
+    <value>Creates a new Post using the specified parameters</value>
+  </data>
+  <data name="PostCompositeContainer_CreateNewPost_ReturnValueHelp" xml:space="preserve">
+    <value>The newly created Post</value>
+  </data>
+  <data name="PostCompositeContainer_CreateNewPost_TextHelp" xml:space="preserve">
+    <value>The Text of the new Blog</value>
+  </data>
+  <data name="PostCompositeContainer_CreateNewPost_TitleHelp" xml:space="preserve">
+    <value>The Title to assign to the new Blog</value>
+  </data>
+  <data name="PostCompositeContainer_LoadPostsHelp" xml:space="preserve">
+    <value>Loads all the Posts assigned to this Blog</value>
+  </data>
+  <data name="PostCompositeContainer_LoadPostsPagedHelp" xml:space="preserve">
+    <value>Loads Posts from the Blog using the supplied starting and ending indicies</value>
+  </data>
+  <data name="PostCompositeContainer_LoadPostsPaged_PageEndHelp" xml:space="preserve">
+    <value>The ending index (1-based) of the record</value>
+  </data>
+  <data name="PostCompositeContainer_LoadPostsPaged_PageStartHelp" xml:space="preserve">
+    <value>The starting index (1-based) of the record</value>
+  </data>
+  <data name="PostCompositeContainer_PostsHelp" xml:space="preserve">
+    <value>Gets the Posts belonging to the Posts container</value>
+  </data>
+  <data name="PostComposite_AttachmentsHelp" xml:space="preserve">
+    <value>Gets the Attachments container containing the Attachments associated with the Post</value>
+  </data>
+  <data name="PostComposite_CommentsHelp" xml:space="preserve">
+    <value>Gets the Comments container containing the Comments associated with the Post</value>
+  </data>
+  <data name="PostComposite_IdHelp" xml:space="preserve">
+    <value>Gets the Id assigned to the Post</value>
+  </data>
+  <data name="PostComposite_RemoveHelp" xml:space="preserve">
+    <value>Removes the Post from the Posts container and marks it for deletion</value>
+  </data>
+  <data name="PostComposite_TextHelp" xml:space="preserve">
+    <value>Gets or sets the Text of the Post</value>
+  </data>
+  <data name="PostComposite_TitleHelp" xml:space="preserve">
+    <value>Gets or Sets the Title of the Post</value>
   </data>
 </root>

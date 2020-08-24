@@ -2,6 +2,7 @@
 using CTLiteDemo.Model.BlogApplications.Blogs.Posts;
 using CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments;
 using CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments;
+using CTLiteDemo.Presentation.Properties;
 using System.Runtime.Serialization;
 
 namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
@@ -26,12 +27,14 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
         internal Post PostModel;
 
         [DataMember]
+        [Help(typeof(Resources), nameof(Resources.PostComposite_IdHelp))]
         public long Id
         {
             get { return PostModel.Id; }
         }
 
         [DataMember]
+        [Help(typeof(Resources), nameof(Resources.PostComposite_TitleHelp))]
         public string Title
         {
             get { return PostModel.Title; }
@@ -39,10 +42,12 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
             {
                 PostModel.Title = value;
                 NotifyPropertyChanged(nameof(PostComposite.Title));
+                State = CompositeState.Modified;
             }
         }
 
         [DataMember]
+        [Help(typeof(Resources), nameof(Resources.PostComposite_TextHelp))]
         public string Text
         {
             get { return PostModel.Text; }
@@ -50,16 +55,20 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
             {
                 PostModel.Text = value;
                 NotifyPropertyChanged(nameof(PostComposite.Text));
+                State = CompositeState.Modified;
             }
         }
 
         [DataMember]
+        [Help(typeof(Resources), nameof(Resources.PostComposite_CommentsHelp))]
         public CommentCompositeContainer Comments { get; }
 
         [DataMember]
+        [Help(typeof(Resources), nameof(Resources.PostComposite_AttachmentsHelp))]
         public AttachmentCompositeContainer Attachments { get; }
 
         [Command]
+        [Help(typeof(Resources), nameof(Resources.PostComposite_RemoveHelp))]
         public void Remove()
         {
             Posts.posts.Remove(Id);

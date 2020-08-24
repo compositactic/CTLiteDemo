@@ -44,21 +44,8 @@ namespace CTLiteDemo.Presentation.BlogApplications
         }
 
         [DataMember]
-        [Help(typeof(Resources), nameof(Resources.BlogApplicationCompositeRoot_AllBlogs))]
+        [Help(typeof(Resources), nameof(Resources.BlogApplicationCompositeRoot_BlogsHelp))]
         public BlogCompositeContainer Blogs { get; private set; }
-
-        private string _errorMessage;
-        [DataMember]
-        [Help(typeof(Resources), nameof(Resources.BlogApplicationCompositeRoot_ErrorMessage))]
-        public string ErrorMessage
-        {
-            get { return _errorMessage; }
-            set
-            {
-                _errorMessage = value;
-                NotifyPropertyChanged(nameof(ErrorMessage));
-            }
-        }
 
         private string _blogDbConnectionString;
         internal string BlogDbConnectionString

@@ -32,14 +32,6 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs
             _posts = new ReadOnlyDictionary<long, Post>(posts);
         }
 
-        public void Remove()
-        {
-            BlogApplication.blogs.TryRemove(Id, out _);
-        }
-
-        [DataMember]
-        public string Name { get; set; }
-
         [DataMember]
         internal ConcurrentDictionary<long, Post> posts;
         private ReadOnlyDictionary<long, Post> _posts;
@@ -47,6 +39,24 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs
         {
             get { return _posts; }
         }
+
+        [DataMember]
+        public string Name { get; set; }
+
+        [DataMember]
+        public bool IsActive { get; set; }
+
+        [DataMember]
+        public DateTime PublishDate { get; set; }
+
+        [DataMember]
+        public BlogType BlogType { get; set; }
+
+        [DataMember]
+        public int? Rating { get; set; }
+
+        [DataMember]
+        public decimal Earnings { get; set; }
 
         public Post CreateNewPost()
         {
@@ -57,6 +67,12 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs
         private void OnDeserialized(StreamingContext context)
         {
             _posts = new ReadOnlyDictionary<long, Post>(posts);
+        }
+
+
+        public void Remove()
+        {
+            BlogApplication.blogs.TryRemove(Id, out _);
         }
     }
 }

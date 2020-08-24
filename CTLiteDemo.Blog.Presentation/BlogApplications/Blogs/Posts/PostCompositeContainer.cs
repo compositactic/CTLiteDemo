@@ -1,6 +1,7 @@
 ﻿using CTLite;
 using CTLite.Data.MicrosoftSqlServer;
 using CTLiteDemo.Model.BlogApplications.Blogs.Posts;
+using CTLiteDemo.Presentation.Properties;
 using System;
 using System.Data.SqlClient;
 using System.Linq;
@@ -23,13 +24,20 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
         [NonSerialized]
         internal CompositeDictionary<long, PostComposite> posts;
         [DataMember]
+        [Help(typeof(Resources), nameof(Resources.PostCompositeContainer_PostsHelp))]
         public ReadOnlyCompositeDictionary<long, PostComposite> Posts { get; private set; }
 
         [Command]
-        public PostComposite CreateNewPost()
+        [Help(typeof(Resources), nameof(Resources.PostCompositeContainer_CreateNewPostHelp))]
+        [return: Help(typeof(Resources), nameof(Resources.PostCompositeContainer_CreateNewPost_ReturnValueHelp))]
+        public PostComposite CreateNewPost(
+            [Help(typeof(Resources), nameof(Resources.PostCompositeContainer_CreateNewPost_TitleHelp))] string title,
+            [Help(typeof(Resources), nameof(Resources.PostCompositeContainer_CreateNewPost_TextHelp))] string text)
         {
             var newPost = new PostComposite(Blog.BlogModel.CreateNewPost(), this)
             {
+                Title = title,
+                Text = text,
                 State = CompositeState.New
             };
 
@@ -38,6 +46,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
         }
 
         [Command]
+        [Help(typeof(Resources), nameof(Resources.PostCompositeContainer_LoadPostsHelp))]
         public void LoadPosts()
         {
             var blogApplication = CompositeRoot as BlogApplicationCompositeRoot;
@@ -55,7 +64,10 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
         }
 
         [Command]
-        public void LoadPosts(int pageStart, int pageEnd)
+        [Help(typeof(Resources), nameof(Resources.PostCompositeContainer_LoadPostsPagedHelp))]
+        public void LoadPosts(
+            [Help(typeof(Resources), nameof(Resources.PostCompositeContainer_LoadPostsPaged_PageStartHelp))] int pageStart,
+            [Help(typeof(Resources), nameof(Resources.PostCompositeContainer_LoadPostsPaged_PageEndHelp))] int pageEnd)
         {
             var blogApplication = CompositeRoot as BlogApplicationCompositeRoot;
             var repository = blogApplication.GetService<IMicrosoftSqlServerRepository>();
@@ -77,9 +89,9 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
 
                 new SqlParameter[]
                 {
-                        new SqlParameter("@BlogId", Blog.Id),
-                        new SqlParameter("@pageStart", pageStart),
-                        new SqlParameter("@pageEnd", pageEnd)
+                    new SqlParameter("@BlogId", Blog.Id),
+                    new SqlParameter("@pageStart", pageStart),
+                    new SqlParameter("@pageEnd", pageEnd)
                 })
                 .Select(p => new PostComposite(p, this)));
         }

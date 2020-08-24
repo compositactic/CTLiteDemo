@@ -1,6 +1,6 @@
 ﻿using CTLite;
 using CTLiteDemo.Model.BlogApplications.Blogs.Posts.Attachments;
-using System.Collections.Generic;
+using CTLiteDemo.Presentation.Properties;
 using System.Runtime.Serialization;
 
 namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
@@ -21,6 +21,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
         }
 
         [DataMember]
+        [Help(typeof(Resources), nameof(Resources.AttachmentComposite_FilePathHelp))]
         public string FilePath
         {
             get { return AttachmentModel.FilePath; }
@@ -32,12 +33,14 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
         }
 
         [DataMember]
+        [Help(typeof(Resources), nameof(Resources.AttachmentComposite_IdHelp))]
         public long Id
         {
             get { return AttachmentModel.Id; }
         }
 
         [Command]
+        [Help(typeof(Resources), nameof(Resources.AttachmentComposite_RemoveHelp))]
         public void Remove()
         {
             Attachments.attachments.Remove(Id);
