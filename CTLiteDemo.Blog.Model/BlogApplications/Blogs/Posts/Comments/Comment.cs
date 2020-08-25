@@ -22,9 +22,6 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts.Comments
         [DataMember]
         public string Text { get; set; }
 
-        [DataMember]
-        public long UserId { get; set; }
-
         public Comment() { }
 
         internal Comment(Post post)
@@ -40,4 +37,4 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts.Comments
             Post.comments.TryRemove(Id, out _);
         }
     }
-}
+} 

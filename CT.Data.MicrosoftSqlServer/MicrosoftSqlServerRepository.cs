@@ -1,4 +1,5 @@
 ﻿using CTLite.Data.MicrosoftSqlServer.Properties;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -8,7 +9,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Resources;
-using System.Text.RegularExpressions;
 
 namespace CTLite.Data.MicrosoftSqlServer
 {
@@ -107,8 +107,25 @@ namespace CTLite.Data.MicrosoftSqlServer
 
         protected override void OnInsert(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert)
         {
+            var keys = new Dictionary<object, object>();
+            var foreignKeyColumnName = string.Empty;
+
             foreach (var dataTable in dataTablesToInsert)
             {
+
+                if(dataTable.Columns.Contains(foreignKeyColumnName))
+                {
+                    PropertyInfo foreignKeyProperty = null;
+
+                    foreach (DataRow dataRow in dataTable.Rows)
+                    {
+                        dataRow[foreignKeyColumnName] = keys[dataRow[foreignKeyColumnName]];
+                        var model = dataRow["__model"];
+                        foreignKeyProperty ??= model.GetType().GetProperty(foreignKeyColumnName);
+                        foreignKeyProperty.SetValue(model, dataRow[foreignKeyColumnName]);
+                    }
+                }
+
                 OnExecute<object>(connection, transaction,
                 $@"
 
@@ -145,13 +162,16 @@ namespace CTLite.Data.MicrosoftSqlServer
                 var modelKeyPropertyName = dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)] as string;
                 PropertyInfo modelKeyProperty = null;
 
+                foreignKeyColumnName = dataTable.TableName + dataTable.PrimaryKey[0].ColumnName;
+
                 foreach (var insertKeyPair in insertKeyPairs)
                 {
+                    keys.Add(insertKeyPair.OriginalKey, insertKeyPair.InsertedKey);
+
                     var row = dataTable.Rows.Find(insertKeyPair.OriginalKey);
                     var model = row["__model"];
 
-                    if (modelKeyProperty == null)
-                        modelKeyProperty = model.GetType().GetProperty(modelKeyPropertyName);
+                    modelKeyProperty ??= model.GetType().GetProperty(modelKeyPropertyName);
 
                     modelKeyProperty.SetValue(model, insertKeyPair.InsertedKey);
                 }
