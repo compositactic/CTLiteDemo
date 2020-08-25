@@ -181,10 +181,12 @@ namespace CTLite.Data
                     if (modelFieldInfo == null)
                         throw new MissingMemberException(string.Format(CultureInfo.CurrentCulture, Resources.CannotFindCompositeModelProperty, compositeModelAttribute.ModelFieldName));
 
+                    var keyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>().PropertyName;
+
                     var columnProperties = modelFieldInfo
                                             .FieldType
                                             .GetProperties()
-                                            .Where(p => p.GetCustomAttribute<DataMemberAttribute>() != null && p.PropertyType != typeof(CompositeState));
+                                            .Where(p => p.GetCustomAttribute<DataMemberAttribute>() != null && p.PropertyType != typeof(CompositeState) && p.Name != keyName);
 
                     var columnList = columnProperties.Select(dataMemberProperty => dataMemberProperty.GetCustomAttribute<DataMemberAttribute>().Name ?? dataMemberProperty.Name);
 
