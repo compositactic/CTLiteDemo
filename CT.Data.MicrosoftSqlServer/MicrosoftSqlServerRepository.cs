@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Resources;
+using System.Text.RegularExpressions;
 
 namespace CTLite.Data.MicrosoftSqlServer
 {
@@ -116,14 +117,17 @@ namespace CTLite.Data.MicrosoftSqlServer
 
                 ", null);
 
-                using (var sqlBulkCopy = new SqlBulkCopy((SqlConnection)connection, SqlBulkCopyOptions.Default, (SqlTransaction)transaction))
+                var tempDataTable = dataTable.Copy();
+                tempDataTable.Columns.Remove("__model");
+
+                using (var sqlBulkCopy = new SqlBulkCopy((SqlConnection)connection, SqlBulkCopyOptions.KeepIdentity, (SqlTransaction)transaction))
                 {
                     sqlBulkCopy.DestinationTableName = $"#{dataTable.TableName}";
-                    sqlBulkCopy.WriteToServer(dataTable);
+                    sqlBulkCopy.WriteToServer(tempDataTable);
                 }
 
                 var mergeSql = $@"
-                 
+
                     MERGE INTO {dataTable.TableName}
                     USING #{dataTable.TableName} AS tableToInsert ON 1 = 0 
                     WHEN NOT MATCHED BY TARGET

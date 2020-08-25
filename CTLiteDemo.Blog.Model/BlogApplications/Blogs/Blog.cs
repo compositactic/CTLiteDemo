@@ -20,7 +20,6 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs
         [DataMember]
         public long Id { get; set; }
 
-        [DataMember]
         public long BlogApplicationId { get; set; }
 
         public BlogApplication BlogApplication { get; internal set; }

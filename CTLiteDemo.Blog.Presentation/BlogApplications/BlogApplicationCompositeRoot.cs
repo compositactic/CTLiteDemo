@@ -120,8 +120,8 @@ namespace CTLiteDemo.Presentation.BlogApplications
             using (var connection = repository.OpenConnection(BlogDbConnectionString))
             using (var transaction = repository.BeginTransaction(connection))
             {
-                var directories = Directory
-                    .GetDirectories(Path.Combine(applicationPath, "BlogApplications"), string.Empty, SearchOption.AllDirectories)
+                var directories = 
+                    Directory.GetDirectories(Path.Combine(applicationPath, "BlogApplications"), string.Empty, SearchOption.AllDirectories)
                     .GroupBy(d => new { Depth = d.Split(Path.DirectorySeparatorChar).Count(), Directory = d })
                     .OrderBy(g => g.Key.Depth).ThenBy(g => g.Key.Directory)
                     .Select(g => g.Key.Directory);
