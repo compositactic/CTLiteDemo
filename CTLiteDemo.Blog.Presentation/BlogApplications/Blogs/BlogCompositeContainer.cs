@@ -63,6 +63,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
             var repository = blogApplication.GetService<IMicrosoftSqlServerRepository>();
 
             using var connection = repository.OpenConnection(blogApplication.BlogDbConnectionString);
+
             blogs.AddRange(repository.Load<Blog>(connection, null,
                 @"
                         SELECT * 

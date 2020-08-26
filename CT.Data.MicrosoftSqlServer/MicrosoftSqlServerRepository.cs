@@ -1,5 +1,4 @@
 ﻿using CTLite.Data.MicrosoftSqlServer.Properties;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -112,19 +111,22 @@ namespace CTLite.Data.MicrosoftSqlServer
 
             foreach (var dataTable in dataTablesToInsert)
             {
-
-                if(dataTable.Columns.Contains(foreignKeyColumnName))
-                {
-                    PropertyInfo foreignKeyProperty = null;
-
-                    foreach (DataRow dataRow in dataTable.Rows)
+                if(!string.IsNullOrEmpty(foreignKeyColumnName))
+                    foreach (var dt in dataTablesToInsert)
                     {
-                        dataRow[foreignKeyColumnName] = keys[dataRow[foreignKeyColumnName]];
-                        var model = dataRow["__model"];
-                        foreignKeyProperty ??= model.GetType().GetProperty(foreignKeyColumnName);
-                        foreignKeyProperty.SetValue(model, dataRow[foreignKeyColumnName]);
+                        if (dt.Columns.Contains(foreignKeyColumnName))
+                        {
+                            PropertyInfo foreignKeyProperty = null;
+
+                            foreach (DataRow dataRow in dt.Rows)
+                            {
+                                dataRow[foreignKeyColumnName] = keys[dataRow[foreignKeyColumnName]];
+                                var model = dataRow["__model"];
+                                foreignKeyProperty ??= model.GetType().GetProperty(foreignKeyColumnName);
+                                foreignKeyProperty.SetValue(model, dataRow[foreignKeyColumnName]);
+                            }
+                        }
                     }
-                }
 
                 OnExecute<object>(connection, transaction,
                 $@"
