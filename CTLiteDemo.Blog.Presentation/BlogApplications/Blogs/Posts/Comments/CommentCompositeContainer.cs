@@ -7,7 +7,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
 {
     [DataContract]
     [ParentProperty(nameof(CommentCompositeContainer.Post))]
-    [CompositeContainer(nameof(CommentCompositeContainer.Comments), nameof(Model.BlogApplications.Blogs.Posts.Post.Comments))]
+    [CompositeContainer(nameof(CommentCompositeContainer.Comments), nameof(Model.BlogApplications.Blogs.Posts.Post.Comments), nameof(CommentCompositeContainer.comments))]
     public class CommentCompositeContainer : Composite
     {
         public override CompositeState State { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

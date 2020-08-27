@@ -6,7 +6,7 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts.Comments
 {
     [DataContract]
     [ParentProperty(nameof(Comment.Post))]
-    [KeyProperty(nameof(Comment.Id))]
+    [KeyProperty(nameof(Comment.Id), nameof(Comment.OriginalId))]
     public class Comment
     {
         [DataMember]
@@ -14,6 +14,8 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts.Comments
 
         [DataMember]
         public long Id { get; set; }
+
+        public long OriginalId { get; set; }
 
         [DataMember]
         public long PostId { get; set; }

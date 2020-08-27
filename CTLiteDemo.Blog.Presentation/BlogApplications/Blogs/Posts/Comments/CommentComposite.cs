@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
 {
     [DataContract]
-    [KeyProperty(nameof(CommentComposite.Id))]
+    [KeyProperty(nameof(CommentComposite.Id), nameof(CommentComposite.OriginalId))]
     [ParentProperty(nameof(CommentComposite.Comments))]
     [CompositeModel(nameof(CommentComposite.CommentModel))]
     public class CommentComposite : Composite
@@ -29,6 +29,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
             get { return CommentModel.Id; }
         }
 
+        public long OriginalId { get { return CommentModel.OriginalId; } }
 
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.CommentComposite_TextHelp))]

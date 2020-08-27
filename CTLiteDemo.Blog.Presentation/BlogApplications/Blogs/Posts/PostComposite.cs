@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
 {
     [DataContract]
-    [KeyProperty(nameof(PostComposite.Id))]
+    [KeyProperty(nameof(PostComposite.Id), nameof(PostComposite.OriginalId))]
     [ParentProperty(nameof(PostComposite.Posts))]
     [CompositeModel(nameof(PostComposite.PostModel))]
     public class PostComposite : Composite
@@ -33,6 +33,8 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
         {
             get { return PostModel.Id; }
         }
+
+        public long OriginalId { get { return PostModel.OriginalId; } }
 
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.PostComposite_TitleHelp))]

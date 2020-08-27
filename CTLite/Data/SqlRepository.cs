@@ -56,12 +56,12 @@ namespace CTLite.Data
                 var compositeType = c.GetType();
                 var compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>();
 
-                if(compositeModelAttribute != null)
+                if (compositeModelAttribute != null)
                 {
                     var modelFieldInfo = compositeType.GetField(compositeModelAttribute?.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
                     var dataContractAttribute = modelFieldInfo?.FieldType.GetCustomAttribute<DataContractAttribute>();
                     var modelKeyPropertyAttribute = modelFieldInfo?.FieldType.GetCustomAttribute<KeyPropertyAttribute>();
-                    var modelKeyProperty = modelFieldInfo?.FieldType.GetProperty(modelKeyPropertyAttribute.PropertyName);
+                    var modelKeyProperty = modelFieldInfo?.FieldType.GetProperty(modelKeyPropertyAttribute.KeyPropertyName);
                     var modelKeyDataMemberAttribute = modelKeyProperty?.GetCustomAttribute<DataMemberAttribute>();
 
                     if ((compositeDictionaryPropertyAttribute = compositeType.FindCustomAttribute<CompositeContainerAttribute>()) != null)
@@ -88,10 +88,10 @@ namespace CTLite.Data
                             throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveKeyPropertyAttribute, modelFieldInfo.FieldType.Name));
 
                         if (modelKeyProperty == null)
-                            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPropertyName, modelKeyPropertyAttribute.PropertyName));
+                            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPropertyName, modelKeyPropertyAttribute.KeyPropertyName));
 
                         if (modelKeyDataMemberAttribute == null)
-                            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataMemberAttribute, modelKeyPropertyAttribute.PropertyName));
+                            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataMemberAttribute, modelKeyPropertyAttribute.KeyPropertyName));
 
                         var deletedIds = (IEnumerable<object>)removedIdsProperty.GetValue(compositeDictionary);
 
@@ -118,10 +118,10 @@ namespace CTLite.Data
                                 throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataContractAttribute, modelFieldInfo.FieldType.Name));
 
                             if (modelKeyDataMemberAttribute == null)
-                                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataMemberAttribute, modelKeyPropertyAttribute.PropertyName));
+                                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataMemberAttribute, modelKeyPropertyAttribute.KeyPropertyName));
 
                             if (modelKeyProperty == null)
-                                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPropertyName, modelKeyPropertyAttribute.PropertyName));
+                                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPropertyName, modelKeyPropertyAttribute.KeyPropertyName));
 
                             var dataRow = new Composite[] { composite }.ToDataTable().Rows[0];
                             var columnValues = dataRow.Table.Columns.Cast<DataColumn>().ToDictionary(column => column.ColumnName, column => dataRow[column]);
@@ -156,6 +156,28 @@ namespace CTLite.Data
             });
 
             SaveNewComposites(connection, transaction, newComposites);
+            UpdateNewKeyValues(composite);
+        }
+
+        private static void UpdateNewKeyValues(Composite composite)
+        {
+            composite.TraverseDepthFirst((c) =>
+            {
+                if (c.GetType().GetCustomAttribute<CompositeModelAttribute>() != null && c.GetType().GetCustomAttribute<KeyPropertyAttribute>() != null)
+                {
+                    var compositeType = c.GetType();
+                    var keyPropertyAttribute = c.GetType().GetCustomAttribute<KeyPropertyAttribute>();
+
+                    var compositeDictionaryContainer = compositeType.GetProperty(compositeType.GetCustomAttribute<ParentPropertyAttribute>().ParentPropertyName).GetValue(c);
+                    var compositeDictionaryContainerType = compositeDictionaryContainer.GetType();
+                    var compositeOriginalId = compositeType.GetProperty(keyPropertyAttribute.OriginalKeyPropertyName).GetValue(c);
+                    var compositeNewId = compositeType.GetProperty(keyPropertyAttribute.KeyPropertyName).GetValue(c);
+                    
+                    dynamic compositeDictionary = compositeDictionaryContainerType.GetField(compositeDictionaryContainerType.GetCustomAttribute<CompositeContainerAttribute>().InternalCompositeContainerDictionaryPropertyName, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(compositeDictionaryContainer);
+                    compositeDictionary.Remove(compositeOriginalId);
+                    compositeDictionary.Add(compositeNewId, c);
+                }
+            });
         }
 
         private void SaveNewComposites(DbConnection connection, DbTransaction transaction, List<Composite> newComposites)
@@ -181,7 +203,7 @@ namespace CTLite.Data
                     if (modelFieldInfo == null)
                         throw new MissingMemberException(string.Format(CultureInfo.CurrentCulture, Resources.CannotFindCompositeModelProperty, compositeModelAttribute.ModelFieldName));
 
-                    var keyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>().PropertyName;
+                    var keyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>().KeyPropertyName;
 
                     var columnProperties = modelFieldInfo
                                             .FieldType
@@ -199,12 +221,13 @@ namespace CTLite.Data
 
                     dataTable = newComposites.Where(nc => nc.GetType() == compositeType).ToDataTable();
 
-                    var modelKeyPropertyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>()?.PropertyName;
+                    var modelKeyPropertyName = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>()?.KeyPropertyName;
                     if (string.IsNullOrEmpty(modelKeyPropertyName))
                         throw new InvalidOperationException();
 
                     var modelKeyName = modelFieldInfo.FieldType.GetProperty(modelKeyPropertyName)?.GetCustomAttribute<DataMemberAttribute>()?.Name ?? modelKeyPropertyName;
 
+                    dataTable.ExtendedProperties[nameof(SaveParameters.ModelOriginalKeyPropertyName)] = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>().OriginalKeyPropertyName;
                     dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)] = modelKeyName;
                     dataTable.ExtendedProperties[nameof(SaveParameters.SqlColumnList)] = sqlColumnList;
                     dataTable.ExtendedProperties[nameof(SaveParameters.SqlInsertColumnList)] = sqlInsertColumnList;

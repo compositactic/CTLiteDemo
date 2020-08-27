@@ -51,6 +51,17 @@ namespace CTLite
                 RaiseEvents();
         }
 
+        public void Add(object key, object value)
+        {
+            var k = (TKey)key;
+            var v = (TValue)value;
+
+            var result = dictionary.TryAdd(k, v);
+
+            if (result)
+                RaiseEvents();
+        }
+
         public void AddRange(IEnumerable<TValue> composites)
         {
             KeyPropertyAttribute keyPropertyAttribute;
@@ -61,8 +72,8 @@ namespace CTLite
             if ((keyPropertyAttribute = compositeType.GetCustomAttribute<KeyPropertyAttribute>()) == null)
                 throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveKeyPropertyAttribute, typeof(TValue).Name));
 
-            if ((keyProperty = compositeType.GetProperty(keyPropertyAttribute.PropertyName)) == null)
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPropertyName, keyPropertyAttribute.PropertyName));
+            if ((keyProperty = compositeType.GetProperty(keyPropertyAttribute.KeyPropertyName)) == null)
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPropertyName, keyPropertyAttribute.KeyPropertyName));
 
             foreach (var composite in composites)
             {
@@ -96,7 +107,7 @@ namespace CTLite
                 throw new MissingMemberException();
 
             var valueToRemoveModel = valueToRemove.GetType().GetField(compositeModelAttribute.ModelFieldName).GetValue(valueToRemove);
-            var valueToRemoveId = valueToRemove.GetType().GetProperty(valueToRemoveModel.GetType().GetCustomAttribute<KeyPropertyAttribute>().PropertyName).GetValue(valueToRemoveModel);
+            var valueToRemoveId = valueToRemove.GetType().GetProperty(valueToRemoveModel.GetType().GetCustomAttribute<KeyPropertyAttribute>().KeyPropertyName).GetValue(valueToRemoveModel);
 
             if (!_removedIds.Contains(valueToRemoveId))
                 _removedIds.Add(valueToRemoveId);
@@ -117,6 +128,18 @@ namespace CTLite
                 RaiseEvents();
 
             return result;
+        }
+
+        public bool Remove(object key)
+        {
+            var k = (TKey)key;
+            var result = dictionary.TryRemove(k, out _);
+
+            if (result)
+                RaiseEvents();
+
+            return result;
+
         }
 
         public bool TryGetValue(TKey key, out TValue value)

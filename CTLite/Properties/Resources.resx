@@ -153,6 +153,9 @@
   <data name="MustSupplyCompositeContainerDictionaryPropertyName" xml:space="preserve">
     <value>Must supply a compositeContainerDictionaryPropertyName value</value>
   </data>
+  <data name="MustSupplyInternalCompositeContainerDictionaryPropertyName" xml:space="preserve">
+    <value>Must supply an internalCompositeContainerDictionaryPropertyName value</value>
+  </data>
   <data name="MustSupplyModelDictionaryPropertyName" xml:space="preserve">
     <value>Must supply a modelDictionaryPropertyName value</value>
   </data>

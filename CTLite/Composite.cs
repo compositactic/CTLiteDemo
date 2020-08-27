@@ -10,12 +10,7 @@ namespace CTLite
     [DataContract]
     public abstract class Composite : INotifyPropertyChanged
     {
-        private PropertyChangedEventHandler _propertyChanged;
-        public event PropertyChangedEventHandler PropertyChanged
-        {
-            add { _propertyChanged += value; }
-            remove { _propertyChanged -= value; }
-        }
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public abstract CompositeState State { get; set; }
 
@@ -24,9 +19,11 @@ namespace CTLite
             var property = GetType().GetProperty(propertyName);
             if (property == null)
                 throw new ArgumentException(propertyName);
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        protected CompositeRoot CompositeRoot
+        public CompositeRoot CompositeRoot
         {
             get { return GetParentComposite(this, null, null) as CompositeRoot; }
         }

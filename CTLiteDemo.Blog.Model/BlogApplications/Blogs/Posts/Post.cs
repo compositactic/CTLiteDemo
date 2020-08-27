@@ -11,7 +11,7 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts
 {
     [DataContract]
     [ParentProperty(nameof(Post.Blog))]
-    [KeyProperty(nameof(Post.Id))]
+    [KeyProperty(nameof(Post.Id), nameof(Post.OriginalId))]
     public class Post
     {
         [DataMember]
@@ -21,6 +21,8 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts
 
         [DataMember]
         public long Id { get; set; }
+
+        public long OriginalId { get; set; }
 
         [DataMember]
         public long BlogId { get; set; }

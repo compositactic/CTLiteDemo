@@ -6,7 +6,7 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts.Attachments
 {
     [DataContract]
     [ParentProperty(nameof(Attachment.Post))]
-    [KeyProperty(nameof(Attachment.Id))]
+    [KeyProperty(nameof(Attachment.Id), nameof(OriginalId))]
     public class Attachment
     {
         [DataMember]
@@ -14,6 +14,8 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts.Attachments
 
         [DataMember]
         public long Id { get; set; }
+
+        public long OriginalId { get; set; }
 
         [DataMember]
         public long PostId { get; set; }

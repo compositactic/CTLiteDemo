@@ -97,11 +97,9 @@ namespace CTLiteDemo.Presentation.BlogApplications
 
             var repository = GetService<IMicrosoftSqlServerRepository>();
 
-            using (var connection = repository.OpenConnection(MasterDbConnectionString))
-            {
-                var createDatabaseSql = File.ReadAllText(createDatabaseSqlScriptFile);
-                repository.Execute<object>(connection, null, createDatabaseSql, null);
-            }
+            using var connection = repository.OpenConnection(MasterDbConnectionString);
+            var createDatabaseSql = File.ReadAllText(createDatabaseSqlScriptFile);
+            repository.Execute<object>(connection, null, createDatabaseSql, null);
         }
 
         [Command]

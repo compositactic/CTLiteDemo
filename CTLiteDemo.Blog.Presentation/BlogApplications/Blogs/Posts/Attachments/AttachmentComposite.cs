@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
 {
     [DataContract]
-    [KeyProperty(nameof(AttachmentComposite.Id))]
+    [KeyProperty(nameof(AttachmentComposite.Id), nameof(AttachmentComposite.OriginalId))]
     [ParentProperty(nameof(AttachmentComposite.Attachments))]
     [CompositeModel(nameof(AttachmentComposite.AttachmentModel))]
     public class AttachmentComposite : Composite
@@ -40,6 +40,8 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
         {
             get { return AttachmentModel.Id; }
         }
+
+        public long OriginalId { get { return AttachmentModel.OriginalId;  } }
 
         [Command]
         [Help(typeof(Resources), nameof(Resources.AttachmentComposite_RemoveHelp))]

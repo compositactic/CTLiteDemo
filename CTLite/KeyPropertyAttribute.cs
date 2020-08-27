@@ -6,11 +6,20 @@ namespace CTLite
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public sealed class KeyPropertyAttribute : Attribute
     {
-        public KeyPropertyAttribute(string propertyName)
+        public KeyPropertyAttribute(string keyPropertyName)
         {
-            PropertyName = string.IsNullOrEmpty(propertyName) ? throw new ArgumentException(Resources.MustSupplyPropertyName) : propertyName;
+            KeyPropertyName = string.IsNullOrEmpty(keyPropertyName) ? throw new ArgumentException(Resources.MustSupplyPropertyName) : keyPropertyName;
         }
 
-        public string PropertyName { get; private set; }
+        public KeyPropertyAttribute(string keyPropertyName, string originalKeyPropertyName)
+        {
+            KeyPropertyName = string.IsNullOrEmpty(keyPropertyName) ? throw new ArgumentException(Resources.MustSupplyPropertyName) : keyPropertyName;
+            OriginalKeyPropertyName = string.IsNullOrEmpty(originalKeyPropertyName) ? throw new ArgumentException() : originalKeyPropertyName;
+        }
+
+        public string KeyPropertyName { get; private set; }
+
+        public string OriginalKeyPropertyName { get; private set; }
+
     }
 }

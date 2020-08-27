@@ -107,6 +107,7 @@ namespace CTLite.Data.MicrosoftSqlServer
         protected override void OnInsert(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert)
         {
             var keys = new Dictionary<object, object>();
+
             var foreignKeyColumnName = string.Empty;
 
             foreach (var dataTable in dataTablesToInsert)
@@ -162,7 +163,9 @@ namespace CTLite.Data.MicrosoftSqlServer
                 OnExecute<object>(connection, transaction, $@"DROP TABLE #{dataTable.TableName}", null);
 
                 var modelKeyPropertyName = dataTable.ExtendedProperties[nameof(SaveParameters.ModelKeyPropertyName)] as string;
+                var modelOriginalKeyPropertyName = dataTable.ExtendedProperties[nameof(SaveParameters.ModelOriginalKeyPropertyName)] as string;
                 PropertyInfo modelKeyProperty = null;
+                PropertyInfo modelOriginalKeyProperty = null;
 
                 foreignKeyColumnName = dataTable.TableName + dataTable.PrimaryKey[0].ColumnName;
 
@@ -174,7 +177,9 @@ namespace CTLite.Data.MicrosoftSqlServer
                     var model = row["__model"];
 
                     modelKeyProperty ??= model.GetType().GetProperty(modelKeyPropertyName);
+                    modelOriginalKeyProperty ??= model.GetType().GetProperty(modelOriginalKeyPropertyName);
 
+                    modelOriginalKeyProperty.SetValue(model, modelKeyProperty.GetValue(model));
                     modelKeyProperty.SetValue(model, insertKeyPair.InsertedKey);
                 }
             }

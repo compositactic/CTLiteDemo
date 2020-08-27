@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 namespace CTLiteDemo.Presentation.BlogApplications.Blogs
 {
     [DataContract]
-    [KeyProperty(nameof(BlogComposite.Id))]
+    [KeyProperty(nameof(BlogComposite.Id), nameof(BlogComposite.OriginalId))]
     [ParentProperty(nameof(BlogComposite.Blogs))]
     [CompositeModel(nameof(BlogModel))]
     public class BlogComposite : Composite
@@ -36,6 +36,8 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
         {
             get { return BlogModel.Id; }
         }
+
+        public long OriginalId { get { return BlogModel.OriginalId; } }
 
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.BlogComposite_NameHelp))]
@@ -125,7 +127,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
 
         [Command]
         [Help(typeof(Resources), nameof(Resources.BlogComposite_SaveHelp))]
-        public void Save()
+        public BlogComposite Save()
         {
             var blogApplication = CompositeRoot as BlogApplicationCompositeRoot;
             var repository = blogApplication.GetService<IMicrosoftSqlServerRepository>();
@@ -134,6 +136,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
             using var transaction = repository.BeginTransaction(connection);
             repository.Save(connection, transaction, this);
             transaction.Commit();
+            return this;
         }
     }
 }

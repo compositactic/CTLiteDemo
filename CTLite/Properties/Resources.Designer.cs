@@ -169,6 +169,15 @@ namespace CTLite.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Must supply an internalCompositeContainerDictionaryPropertyName value.
+        /// </summary>
+        internal static string MustSupplyInternalCompositeContainerDictionaryPropertyName {
+            get {
+                return ResourceManager.GetString("MustSupplyInternalCompositeContainerDictionaryPropertyName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Must supply a modelDictionaryPropertyName value.
         /// </summary>
         internal static string MustSupplyModelDictionaryPropertyName {

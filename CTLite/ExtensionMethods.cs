@@ -39,7 +39,7 @@ namespace CTLite
             if (keyPropertyValueGenerationFunc == null)
                 throw new ArgumentNullException(nameof(keyPropertyValueGenerationFunc));
 
-            var keyProperty = value.GetType().GetProperty(value.GetType().FindCustomAttribute<KeyPropertyAttribute>().PropertyName);
+            var keyProperty = value.GetType().GetProperty(value.GetType().FindCustomAttribute<KeyPropertyAttribute>().KeyPropertyName);
 
             TKey keyValue;
             var totalCount = dictionary.LongCount();
@@ -124,7 +124,7 @@ namespace CTLite
                 if ((keyPropertyAttribute = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>()) == null)
                     throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveKeyPropertyAttribute, modelFieldInfo.FieldType));
 
-                var modelKeyPropertyName = keyPropertyAttribute.PropertyName;
+                var modelKeyPropertyName = keyPropertyAttribute.KeyPropertyName;
 
                 var model = modelFieldInfo.GetValue(composite);
 
@@ -238,25 +238,23 @@ namespace CTLite
                 if ((modelDictionaryPropertyInfo = parentModel.GetType().GetProperty(compositeDictionaryPropertyAttribute.ModelDictionaryPropertyName)) == null)
                     throw new InvalidOperationException();
 
-                object modelDictionary;
+                dynamic modelDictionary;
 
                 if ((modelDictionary = modelDictionaryPropertyInfo.GetValue(parentModel)) == null)
                     throw new InvalidOperationException();
-
-                var models = modelDictionary.GetType().GetProperty("Values").GetValue(modelDictionary) as IEnumerable;
 
                 KeyPropertyAttribute modelKeyPropertyAttribute = null;
                 PropertyInfo modelKeyPropertyInfo = null;
                 Type modelType = null;
 
-                foreach (var model in models)
+                foreach (var model in modelDictionary.Values)
                 {
                     modelType ??= model.GetType();
 
                     if (modelKeyPropertyAttribute == null && (modelKeyPropertyAttribute = modelType.FindCustomAttribute<KeyPropertyAttribute>()) == null)
                         throw new InvalidOperationException();
 
-                    if (modelKeyPropertyInfo == null && (modelKeyPropertyInfo = modelType.GetProperty(modelKeyPropertyAttribute.PropertyName)) == null)
+                    if (modelKeyPropertyInfo == null && (modelKeyPropertyInfo = modelType.GetProperty(modelKeyPropertyAttribute.KeyPropertyName)) == null)
                         throw new InvalidOperationException();
 
                     var idValue = modelKeyPropertyInfo.GetValue(model);

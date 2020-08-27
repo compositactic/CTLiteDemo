@@ -14,6 +14,7 @@ namespace CTLiteDemo.Model.BlogApplications
         [DataMember]
         public long Id { get; set; }
 
+
         public BlogApplication()
         {
             Id = new long().NewId();
