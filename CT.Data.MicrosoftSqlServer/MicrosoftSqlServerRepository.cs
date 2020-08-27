@@ -97,7 +97,7 @@ namespace CTLite.Data.MicrosoftSqlServer
             var updateSql =
             $@"
                 UPDATE {tableName} 
-                SET {string.Join(',', sqlParameterList.Where(p => p.ParameterName != tableKeyPropertyName).Select(p => p.ParameterName.Substring(1) + " = '" + p.Value.ToString() + "'"))}
+                SET {string.Join(',', sqlParameterList.Where(p => p.ParameterName != "@" + tableKeyPropertyName).Select(p => p.ParameterName.Substring(1) + " = '" + p.Value.ToString() + "'"))}
                 WHERE {tableKeyPropertyName} = @{tableKeyPropertyName} 
             ";
 

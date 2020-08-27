@@ -1,5 +1,4 @@
 ﻿using CTLite;
-using CTLite.Data.MicrosoftSqlServer;
 using CTLiteDemo.Model.BlogApplications.Blogs;
 using CTLiteDemo.Presentation.BlogApplications.Blogs.Posts;
 using CTLiteDemo.Presentation.Properties;
@@ -129,14 +128,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
         [Help(typeof(Resources), nameof(Resources.BlogComposite_SaveHelp))]
         public BlogComposite Save()
         {
-            var blogApplication = CompositeRoot as BlogApplicationCompositeRoot;
-            var repository = blogApplication.GetService<IMicrosoftSqlServerRepository>();
-
-            using var connection = repository.OpenConnection(blogApplication.BlogDbConnectionString);
-            using var transaction = repository.BeginTransaction(connection);
-            repository.Save(connection, transaction, this);
-            transaction.Commit();
-            return this;
+            return this.Save<BlogComposite>();
         }
     }
 }

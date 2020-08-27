@@ -17,7 +17,14 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts
         [DataMember]
         public CompositeState State { get; set; } = CompositeState.Unchanged;
 
-        public Post() { }
+        public Post() 
+        {
+            comments = new ConcurrentDictionary<long, Comment>();
+            _comments = new ReadOnlyDictionary<long, Comment>(comments);
+
+            attachments = new ConcurrentDictionary<long, Attachment>();
+            _attachments = new ReadOnlyDictionary<long, Attachment>(attachments);
+        }
 
         [DataMember]
         public long Id { get; set; }

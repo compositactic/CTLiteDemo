@@ -26,7 +26,12 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs
 
         public BlogApplication BlogApplication { get; internal set; }
 
-        public Blog() { }
+        public Blog() 
+        {
+            posts = new ConcurrentDictionary<long, Post>();
+            _posts = new ReadOnlyDictionary<long, Post>(posts);
+        }
+
         internal Blog(BlogApplication blogApplication)
         {
             BlogApplicationId = blogApplication.Id;

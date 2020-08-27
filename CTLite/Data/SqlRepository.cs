@@ -124,7 +124,7 @@ namespace CTLite.Data
                                 throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPropertyName, modelKeyPropertyAttribute.KeyPropertyName));
 
                             var dataRow = new Composite[] { composite }.ToDataTable().Rows[0];
-                            var columnValues = dataRow.Table.Columns.Cast<DataColumn>().ToDictionary(column => column.ColumnName, column => dataRow[column]);
+                            var columnValues = dataRow.Table.Columns.Cast<DataColumn>().Where(column => column.ColumnName != "__model").ToDictionary(column => column.ColumnName, column => dataRow[column]);
 
                             var keyColumnName = modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name;
                             var keyValue = dataRow[keyColumnName];
@@ -246,12 +246,12 @@ namespace CTLite.Data
             }
             catch
             {
-                dataTable.Dispose();
+                dataTable?.Dispose();
                 throw;
             }
             finally
             {
-                dataTable.Dispose();
+                dataTable?.Dispose();
             }
         }
 
