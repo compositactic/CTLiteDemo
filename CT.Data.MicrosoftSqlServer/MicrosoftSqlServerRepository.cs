@@ -1,4 +1,5 @@
 ﻿using CTLite.Data.MicrosoftSqlServer.Properties;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -30,7 +31,7 @@ namespace CTLite.Data.MicrosoftSqlServer
             return returnValue;
         }
 
-        protected override IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters)
+        protected override IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters, Func<T> newModelFunc)
         {
             var results = new List<T>();
 
@@ -42,7 +43,7 @@ namespace CTLite.Data.MicrosoftSqlServer
                 using var dataReader = command.ExecuteReader();
 
                 while (dataReader.Read())
-                    results.Add(dataReader.ToModel<T>());
+                    results.Add(dataReader.ToModel(newModelFunc));
             }
 
             return results;
@@ -158,7 +159,7 @@ namespace CTLite.Data.MicrosoftSqlServer
                       [nameof(SaveParameters.ModelKeyPropertyName)]} AS {nameof(InsertKeyPair.OriginalKey)};
                 ";
 
-                var insertKeyPairs = OnLoad<InsertKeyPair>(connection, transaction, mergeSql, null);
+                var insertKeyPairs = OnLoad(connection, transaction, mergeSql, null, () => new InsertKeyPair());
 
                 OnExecute<object>(connection, transaction, $@"DROP TABLE #{dataTable.TableName}", null);
 

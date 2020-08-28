@@ -20,7 +20,10 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
         internal PostCompositeContainer(BlogComposite blogComposite)
         {
             this.InitializeCompositeContainer(out posts, blogComposite);
+            _newPostFunc = () => Blog.BlogModel.CreateNewPost();
         }
+
+        private readonly Func<Post> _newPostFunc;
 
         [NonSerialized]
         internal CompositeDictionary<long, PostComposite> posts;
@@ -54,13 +57,14 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
             var repository = blogApplication.GetService<IMicrosoftSqlServerRepository>();
 
             using var connection = repository.OpenConnection(blogApplication.BlogDbConnectionString);
-            posts.AddRange(repository.Load<Post>(connection, null,
+            posts.AddRange(repository.Load(connection, null,
                 @"
                         SELECT * 
                         FROM Post 
                         WHERE BlogId = @BlogId
                     ",
-                new SqlParameter[] { new SqlParameter("@BlogId", Blog.Id) })
+                new SqlParameter[] { new SqlParameter("@BlogId", Blog.Id) },
+                _newPostFunc)
                 .Select(p => new PostComposite(p, this)));
         }
 
@@ -74,7 +78,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
             var repository = blogApplication.GetService<IMicrosoftSqlServerRepository>();
 
             using var connection = repository.OpenConnection(blogApplication.BlogDbConnectionString);
-            posts.AddRange(repository.Load<Post>(connection, null,
+            posts.AddRange(repository.Load(connection, null,
 
                 @"
                       WITH Posts AS
@@ -93,7 +97,8 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
                     new SqlParameter("@BlogId", Blog.Id),
                     new SqlParameter("@pageStart", pageStart),
                     new SqlParameter("@pageEnd", pageEnd)
-                })
+                },
+                _newPostFunc)
                 .Select(p => new PostComposite(p, this)));
         }
     }

@@ -175,10 +175,10 @@ namespace CTLite
             return dataTable;
         }
 
-        public static T ToModel<T>(this IDataRecord record) where T : new()
+        public static T ToModel<T>(this IDataRecord record, Func<T> newModelFunc)
         {
             var modelType = typeof(T);
-            var model = new T();
+            var model = newModelFunc();
             var modelProperties = modelType.GetProperties();
             PropertyInfo propertyInfo = null;
 

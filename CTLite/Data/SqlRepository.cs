@@ -40,9 +40,9 @@ namespace CTLite.Data
             return OnExecute<T>(connection, transaction, statement, parameters);
         }
 
-        public IEnumerable<T> Load<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters) where T : new()
+        public IEnumerable<T> Load<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters, Func<T> newModelFunc)
         {
-            return OnLoad<T>(connection, transaction, query, parameters);
+            return OnLoad(connection, transaction, query, parameters, newModelFunc);
         }
 
         public void Save(DbConnection connection, DbTransaction transaction, Composite composite)
@@ -261,7 +261,7 @@ namespace CTLite.Data
         protected abstract void OnInsert(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert);
         protected abstract void OnUpdate(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, object tableKeyValue, IReadOnlyDictionary<string, object> columnValues);
         protected abstract void OnCommit(DbConnection connection, DbTransaction transaction);
-        protected abstract IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters) where T : new();
+        protected abstract IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters, Func<T> newModelFunc);
         protected abstract T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement, IEnumerable<DbParameter> parameters);
     }
 }

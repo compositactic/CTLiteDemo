@@ -20,7 +20,10 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
         internal BlogCompositeContainer(BlogApplicationCompositeRoot blogApplicationCompositeRoot)
         {
             this.InitializeCompositeContainer(out blogs, blogApplicationCompositeRoot);
+            _newBlogFunc = () => BlogApplication.BlogApplicationModel.CreateNewBlog();
         }
+
+        private readonly Func<Blog> _newBlogFunc;
 
         [NonSerialized]
         internal CompositeDictionary<long, BlogComposite> blogs;
@@ -64,13 +67,14 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
 
             using var connection = repository.OpenConnection(blogApplication.BlogDbConnectionString);
 
-            blogs.AddRange(repository.Load<Blog>(connection, null,
+            blogs.AddRange(repository.Load(connection, null,
                 @"
                         SELECT * 
                         FROM Blog 
                         WHERE Name = @Name
                 ",
-                new SqlParameter[] { new SqlParameter("@Name", name) })
+                new SqlParameter[] { new SqlParameter("@Name", name) },
+                _newBlogFunc)
                 .Select(blog => new BlogComposite(blog, this)));
         }
     }
