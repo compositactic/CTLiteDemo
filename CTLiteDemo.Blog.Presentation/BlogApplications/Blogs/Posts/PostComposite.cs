@@ -74,7 +74,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
         [Help(typeof(Resources), nameof(Resources.PostComposite_RemoveHelp))]
         public void Remove()
         {
-            Posts.posts.Remove(Id);
+            Posts.posts.Remove(Id, true);
         }
     }
 }

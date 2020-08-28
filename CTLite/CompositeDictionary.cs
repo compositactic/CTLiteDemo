@@ -97,20 +97,8 @@ namespace CTLite
             if (!setCompositeStateDeleted)
                 return Remove(key);
 
-            var valueToRemove = dictionary[key];
-
-            var compositeModelAttribute = valueToRemove
-                                        .GetType()
-                                        .GetCustomAttribute<CompositeModelAttribute>();
-
-            if (compositeModelAttribute == null)
-                throw new MissingMemberException();
-
-            var valueToRemoveModel = valueToRemove.GetType().GetField(compositeModelAttribute.ModelFieldName).GetValue(valueToRemove);
-            var valueToRemoveId = valueToRemove.GetType().GetProperty(valueToRemoveModel.GetType().GetCustomAttribute<KeyPropertyAttribute>().KeyPropertyName).GetValue(valueToRemoveModel);
-
-            if (!_removedIds.Contains(valueToRemoveId))
-                _removedIds.Add(valueToRemoveId);
+            if (!_removedIds.Contains(key))
+                _removedIds.Add(key);
 
             return Remove(key);
         }

@@ -100,11 +100,13 @@ namespace CTLite.AspNetCore
                 commandResponses = compositeRoot.Execute(commandRequests, compositeRootHttpContext, uploadedFiles).ToList();
                 SetCache(compositeRoot.Id, JsonConvert.SerializeObject(compositeRootModelField.GetValue(compositeRoot)));
 
-                if (commandResponses.First().ReturnValue is byte[])
+                if (commandResponses.First().ReturnValue is byte[] bytes)
                 {
-                    Response.ContentType = compositeRootHttpContext.Response.ContentType;
-                    Response.ContentLength = compositeRootHttpContext.Response.ContentLength64;
-                    return commandResponses.First().ReturnValue;
+                    return File
+                    (
+                        bytes,
+                        compositeRootHttpContext.Response.ContentType
+                    );
                 }
                 else
                 {

@@ -1,6 +1,7 @@
 ﻿using CTLite;
 using CTLiteDemo.Model.BlogApplications.Blogs.Posts.Attachments;
 using CTLiteDemo.Presentation.Properties;
+using System.IO;
 using System.Runtime.Serialization;
 
 namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
@@ -34,6 +35,14 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
             }
         }
 
+        [Command]
+        public byte[] GetAttachment(CompositeRootHttpContext context)
+        {
+            var attachmentBytes = CompositeRoot.GetService<IAttachmentArchiveService>().GetAttachment(FilePath);
+            context.Response.ContentType = ContentTypes.GetContentTypeFromFileExtension(Path.GetExtension(FilePath));
+            return attachmentBytes;
+        }
+
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.AttachmentComposite_IdHelp))]
         public long Id
@@ -47,7 +56,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
         [Help(typeof(Resources), nameof(Resources.AttachmentComposite_RemoveHelp))]
         public void Remove()
         {
-            Attachments.attachments.Remove(Id);
+            Attachments.attachments.Remove(Id, true);
         }
     }
 }

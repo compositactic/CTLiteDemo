@@ -51,65 +51,45 @@ namespace CTLite.Data
 
             composite.TraverseDepthFirst((c) =>
             {
-                CompositeContainerAttribute compositeDictionaryPropertyAttribute;
+                CompositeContainerAttribute compositeContainerAttribute;
 
                 var compositeType = c.GetType();
-                var compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>();
+                CompositeModelAttribute compositeModelAttribute;
 
-                if (compositeModelAttribute != null)
+                if ((compositeContainerAttribute = compositeType.FindCustomAttribute<CompositeContainerAttribute>()) != null)
                 {
-                    var modelFieldInfo = compositeType.GetField(compositeModelAttribute?.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-                    var dataContractAttribute = modelFieldInfo?.FieldType.GetCustomAttribute<DataContractAttribute>();
-                    var modelKeyPropertyAttribute = modelFieldInfo?.FieldType.GetCustomAttribute<KeyPropertyAttribute>();
-                    var modelKeyProperty = modelFieldInfo?.FieldType.GetProperty(modelKeyPropertyAttribute.KeyPropertyName);
-                    var modelKeyDataMemberAttribute = modelKeyProperty?.GetCustomAttribute<DataMemberAttribute>();
+                    var removedIdsProperty = compositeType
+                        .GetProperty(compositeContainerAttribute.CompositeContainerDictionaryPropertyName)
+                        .GetValue(c)
+                        .GetType().GetProperty(nameof(CompositeDictionary<object, Composite>.RemovedIds));
 
-                    if ((compositeDictionaryPropertyAttribute = compositeType.FindCustomAttribute<CompositeContainerAttribute>()) != null)
+                    var compositeDictionary = compositeType
+                        .GetProperty(compositeContainerAttribute.CompositeContainerDictionaryPropertyName)
+                        .GetValue(c);
+
+                    dynamic deletedIds = removedIdsProperty.GetValue(compositeDictionary);
+
+                    if(deletedIds.Count > 0)
                     {
-                        var removedIdsProperty = compositeType
-                            .GetProperty(compositeDictionaryPropertyAttribute.CompositeContainerDictionaryPropertyName)
-                            .GetValue(c)
-                            .GetType().GetProperty(nameof(CompositeDictionary<object, Composite>.RemovedIds));
-
-                        var compositeDictionary = compositeType
-                            .GetProperty(compositeDictionaryPropertyAttribute.CompositeContainerDictionaryPropertyName)
-                            .GetValue(c);
-
-                        if (compositeModelAttribute == null)
-                            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveCompositeModelAttribute, compositeType.Name));
-
-                        if (modelFieldInfo == null)
-                            throw new MemberAccessException(Resources.CannotFindCompositeModelProperty);
-
-                        if (dataContractAttribute == null)
-                            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataContractAttribute, modelFieldInfo.FieldType.Name));
-
-                        if (modelKeyPropertyAttribute == null)
-                            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveKeyPropertyAttribute, modelFieldInfo.FieldType.Name));
-
-                        if (modelKeyProperty == null)
-                            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPropertyName, modelKeyPropertyAttribute.KeyPropertyName));
-
-                        if (modelKeyDataMemberAttribute == null)
-                            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataMemberAttribute, modelKeyPropertyAttribute.KeyPropertyName));
-
-                        var deletedIds = (IEnumerable<object>)removedIdsProperty.GetValue(compositeDictionary);
-
-                        var tableName = dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name;
-                        var tableKeyPropertyName = modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name;
-
-                        if (!Regex.IsMatch(tableName, @"^[A-Za-z0-9_]+$"))
-                            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidTableName, tableName));
-
-                        if (!Regex.IsMatch(tableKeyPropertyName, @"^[A-Za-z0-9_]+$"))
-                            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidColumnName, tableKeyPropertyName));
-
+                        var deletedCompositeType = compositeDictionary.GetType().GetGenericArguments()[1];
+                        var deletedModelType = deletedCompositeType.GetField(deletedCompositeType.GetCustomAttribute<CompositeModelAttribute>().ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic).FieldType;
+                        var tableName = deletedModelType.GetCustomAttribute<DataContractAttribute>().Name ?? deletedModelType.Name;
+                        var tableKeyPropertyName = deletedModelType.GetCustomAttribute<KeyPropertyAttribute>().KeyPropertyName;
                         OnDelete(connection, transaction, tableName, tableKeyPropertyName, deletedIds);
                     }
+                }
 
+                if ((compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>()) != null)
+                {
                     switch (c.State)
                     {
                         case CompositeState.Modified:
+
+                            var modelFieldInfo = compositeType.GetField(compositeModelAttribute?.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+                            var dataContractAttribute = modelFieldInfo?.FieldType.GetCustomAttribute<DataContractAttribute>();
+                            var modelKeyPropertyAttribute = modelFieldInfo?.FieldType.GetCustomAttribute<KeyPropertyAttribute>();
+                            var modelKeyProperty = modelFieldInfo?.FieldType.GetProperty(modelKeyPropertyAttribute.KeyPropertyName);
+                            var modelKeyDataMemberAttribute = modelKeyProperty?.GetCustomAttribute<DataMemberAttribute>();
 
                             if (modelFieldInfo == null)
                                 throw new MemberAccessException(Resources.CannotFindCompositeModelProperty);
@@ -117,11 +97,14 @@ namespace CTLite.Data
                             if (dataContractAttribute == null)
                                 throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataContractAttribute, modelFieldInfo.FieldType.Name));
 
-                            if (modelKeyDataMemberAttribute == null)
-                                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataMemberAttribute, modelKeyPropertyAttribute.KeyPropertyName));
+                            if (modelKeyPropertyAttribute == null)
+                                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveKeyPropertyAttribute, modelFieldInfo.FieldType.Name));
 
                             if (modelKeyProperty == null)
                                 throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPropertyName, modelKeyPropertyAttribute.KeyPropertyName));
+
+                            if (modelKeyDataMemberAttribute == null)
+                                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataMemberAttribute, modelKeyPropertyAttribute.KeyPropertyName));
 
                             var dataRow = new Composite[] { composite }.ToDataTable().Rows[0];
                             var columnValues = dataRow.Table.Columns.Cast<DataColumn>().Where(column => column.ColumnName != "__model").ToDictionary(column => column.ColumnName, column => dataRow[column]);
@@ -155,8 +138,11 @@ namespace CTLite.Data
                 }
             });
 
-            SaveNewComposites(connection, transaction, newComposites);
-            UpdateNewKeyValues(composite);
+            if(newComposites.Count() > 0)
+            {
+                SaveNewComposites(connection, transaction, newComposites);
+                UpdateNewKeyValues(composite);
+            }
         }
 
         private static void UpdateNewKeyValues(Composite composite)

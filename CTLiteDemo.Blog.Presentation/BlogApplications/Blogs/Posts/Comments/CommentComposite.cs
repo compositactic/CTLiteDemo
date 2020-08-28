@@ -48,7 +48,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
         [Help(typeof(Resources), nameof(Resources.CommentComposite_RemoveHelp))]
         public void Remove()
         {
-            Comments.comments.Remove(Id);
+            Comments.comments.Remove(Id, true);
         }
     }
 }

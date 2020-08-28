@@ -108,7 +108,6 @@ namespace CTLite.Data.MicrosoftSqlServer
         protected override void OnInsert(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert)
         {
             var keys = new Dictionary<object, object>();
-
             var foreignKeyColumnName = string.Empty;
 
             foreach (var dataTable in dataTablesToInsert)

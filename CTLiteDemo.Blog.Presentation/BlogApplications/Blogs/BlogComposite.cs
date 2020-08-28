@@ -121,7 +121,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
         [Help(typeof(Resources), nameof(Resources.BlogComposite_RemoveHelp))]
         public void Remove()
         {
-            Blogs.blogs.Remove(Id);
+            Blogs.blogs.Remove(Id, true);
         }
 
         [Command]

@@ -41,7 +41,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
             [Help(typeof(Resources), nameof(Resources.BlogCompositeContainer_CreateNewBlog_RatingHelp))] int? rating,
             [Help(typeof(Resources), nameof(Resources.BlogCompositeContainer_CreateNewBlog_EarningsHelp))] decimal earnings)
         {
-            var newBlog = new BlogComposite(BlogApplication.BlogApplicationModel.CreateNewBlog(), this)
+            var newBlog = new BlogComposite(_newBlogFunc.Invoke(), this)
             {
                 Name = name,
                 IsActive = isActive,
@@ -59,8 +59,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
 
         [Command]
         [Help(typeof(Resources), nameof(Resources.BlogCompositeContainer_LoadBlogHelp))]
-        public void LoadBlog(
-            [Help(typeof(Resources), nameof(Resources.BlogCompositeContainer_LoadBlog_NameHelp))] string name)
+        public void LoadBlog([Help(typeof(Resources), nameof(Resources.BlogCompositeContainer_LoadBlog_NameHelp))] string name)
         {
             var blogApplication = CompositeRoot as BlogApplicationCompositeRoot;
             var repository = blogApplication.GetService<IMicrosoftSqlServerRepository>();
@@ -76,6 +75,12 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
                 new SqlParameter[] { new SqlParameter("@Name", name) },
                 _newBlogFunc)
                 .Select(blog => new BlogComposite(blog, this)));
+        }
+
+        [Command]
+        public BlogCompositeContainer SaveAll()
+        {
+            return this.Save();
         }
     }
 }

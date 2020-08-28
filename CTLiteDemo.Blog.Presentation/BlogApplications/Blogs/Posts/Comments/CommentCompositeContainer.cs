@@ -1,4 +1,5 @@
 ﻿using CTLite;
+using CTLiteDemo.Model.BlogApplications.Blogs.Posts.Comments;
 using CTLiteDemo.Presentation.Properties;
 using System;
 using System.Runtime.Serialization;
@@ -15,7 +16,10 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
         internal CommentCompositeContainer(PostComposite postComposite)
         {
             this.InitializeCompositeContainer(out comments, postComposite);
+            _newCommentFunc = () => Post.PostModel.CreateNewComment();
         }
+
+        private readonly Func<Comment> _newCommentFunc;
 
         [NonSerialized]
         internal CompositeDictionary<long, CommentComposite> comments;
@@ -29,7 +33,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
         public CommentComposite CreateNewComment(
             [Help(typeof(Resources), nameof(Resources.CommentCompositeContainer_CreateNewComment_TextHelp))] string text)
         {
-            var newComment = new CommentComposite(Post.PostModel.CreateNewComment(), this)
+            var newComment = new CommentComposite(_newCommentFunc.Invoke(), this)
             {
                 Text = text,
                 State = CompositeState.New

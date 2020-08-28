@@ -1,4 +1,5 @@
 ﻿using CTLite;
+using CTLiteDemo.Model.BlogApplications.Blogs.Posts.Attachments;
 using CTLiteDemo.Presentation.Properties;
 using System;
 using System.Linq;
@@ -17,7 +18,10 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
         internal AttachmentCompositeContainer(PostComposite postComposite)
         {
             this.InitializeCompositeContainer(out attachments, postComposite);
+            _newAttachmentFunc = () => Post.PostModel.CreateNewAttachment();
         }
+
+        private readonly Func<Attachment> _newAttachmentFunc;
 
         [NonSerialized]
         internal CompositeDictionary<long, AttachmentComposite> attachments;
@@ -30,12 +34,13 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
         [return: Help(typeof(Resources), nameof(Resources.AttachmentCompositeContainer_CreateNewAttachment_ReturnValueHelp))]
         public AttachmentComposite CreateNewAttachment(CompositeRootHttpContext context)
         {
-            var newAttachment = new AttachmentComposite(Post.PostModel.CreateNewAttachment(), this)
+            var newAttachment = new AttachmentComposite(_newAttachmentFunc.Invoke(), this)
             {
                 State = CompositeState.New
             };
 
             var fileAttachment = context.Request.UploadedFiles.FirstOrDefault();
+
             var attachmentArchiveService = CompositeRoot.GetService<IAttachmentArchiveService>();
             attachmentArchiveService.ArchiveAttachment(fileAttachment, newAttachment);
 

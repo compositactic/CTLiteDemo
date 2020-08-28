@@ -38,7 +38,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
             [Help(typeof(Resources), nameof(Resources.PostCompositeContainer_CreateNewPost_TitleHelp))] string title,
             [Help(typeof(Resources), nameof(Resources.PostCompositeContainer_CreateNewPost_TextHelp))] string text)
         {
-            var newPost = new PostComposite(Blog.BlogModel.CreateNewPost(), this)
+            var newPost = new PostComposite(_newPostFunc.Invoke(), this)
             {
                 Title = title,
                 Text = text,

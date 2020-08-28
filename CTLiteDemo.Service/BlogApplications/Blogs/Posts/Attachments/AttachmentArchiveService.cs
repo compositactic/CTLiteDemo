@@ -14,10 +14,15 @@ namespace CTLiteDemo.Service.BlogApplications.Blogs.Posts.Attachments
         {
             if (compositeUploadedFile != null)
             {
-                var fileAttachmentPath = Path.GetTempFileName();
+                var fileAttachmentPath = $"{Path.GetTempFileName()}{compositeUploadedFile.FileName}";
                 File.WriteAllBytes(fileAttachmentPath, compositeUploadedFile.GetContent());
                 attachment.FilePath = fileAttachmentPath;
             }
+        }
+
+        public byte[] GetAttachment(string filePath)
+        {
+            return File.ReadAllBytes(filePath);
         }
     }
 }
