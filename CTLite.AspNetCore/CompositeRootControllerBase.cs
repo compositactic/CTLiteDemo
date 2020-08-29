@@ -76,7 +76,7 @@ namespace CTLite.AspNetCore
 
                 commandRequests ??= new CompositeRootCommandRequest[]
                 {
-                    CompositeRootCommandRequest.Create(1, Regex.Replace(pathAndQuery, requestPattern, string.Empty ))
+                    CompositeRootCommandRequest.Create(1, Regex.Replace(pathAndQuery, requestPattern, string.Empty))
                 };
 
                 var compositeRootHttpContext = GetContext(requestBody, uploadedFiles);
