@@ -7,7 +7,7 @@ namespace CTLiteDemo.Test
 {
     internal class MockMemoryCache : IMemoryCache
     {
-        private readonly Dictionary<object, object> _cache = new Dictionary<object, object>();
+
         public ICacheEntry CreateEntry(object key)
         {
             return new MockCacheEntry { Key = key };
@@ -19,14 +19,15 @@ namespace CTLiteDemo.Test
 
         public void Remove(object key)
         {
-            _cache.Remove(key);
+            System.Runtime.Caching.MemoryCache.Default.Remove(key.ToString());
         }
 
         public bool TryGetValue(object key, out object value)
         {
-            if(_cache.ContainsKey(key))
+            var keyString = key.ToString();
+            if(System.Runtime.Caching.MemoryCache.Default.Contains(keyString))
             {
-                value = _cache[key];
+                value = System.Runtime.Caching.MemoryCache.Default.Get(keyString);
                 return true;
             }
             else
@@ -42,7 +43,16 @@ namespace CTLiteDemo.Test
 
         public object Key { get; set; }
 
-        public object Value { get; set; }
+        private object _value;
+        public object Value
+        { 
+            get { return _value; }
+            set
+            {
+                _value = value;
+                System.Runtime.Caching.MemoryCache.Default.Set(Key.ToString(), value, DateTimeOffset.MaxValue);
+            }
+        }
 
         public DateTimeOffset? AbsoluteExpiration { get; set; } = DateTimeOffset.MaxValue;
 
@@ -54,7 +64,7 @@ namespace CTLiteDemo.Test
 
         public IList<PostEvictionCallbackRegistration> PostEvictionCallbacks { get; } = new List<PostEvictionCallbackRegistration>();
 
-        public CacheItemPriority Priority { get; set; }
+        public Microsoft.Extensions.Caching.Memory.CacheItemPriority Priority { get; set; }
         public long? Size { get; set; }
 
         public void Dispose()

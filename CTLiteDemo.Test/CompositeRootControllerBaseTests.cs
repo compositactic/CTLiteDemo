@@ -1,44 +1,27 @@
-using CTLite.Data.MicrosoftSqlServer;
-using CTLiteDemo.Model.BlogApplications.Blogs;
+using CTLite;
 using CTLiteDemo.Presentation.BlogApplications;
-using CTLiteDemo.Service.BlogApplications.Blogs.Posts.Attachments;
 using CTLiteDemo.WebApi;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.IO;
-using System.Net;
 using System.Collections.Generic;
-using CTLite;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Text;
 
 namespace CTLiteDemo.Test
 {
     [TestClass]
     public class CompositeRootControllerBaseTests
     {
-        [TestMethod]
-        public void TestMethod1()
-        {
-            var blogApplicationCompositeRoot = new BlogApplicationCompositeRoot
-            (
-                MicrosoftSqlServerRepository.Create(),
-                new AttachmentArchiveService()
-            );
-
-            var newBlog = blogApplicationCompositeRoot.Blogs.CreateNewBlog("Test Blog", true, DateTime.Now, BlogType.Public, 1, 123.45m);
-
-            newBlog.Save();
-        }
-
-        [TestMethod]
-        public void TestMethod2()
+        private static BlogApplicationController CreateController()
         {
             var blogApplicationController = new BlogApplicationController(new MockMemoryCache())
-            { 
-                ControllerContext = new ControllerContext 
+            {
+                ControllerContext = new ControllerContext
                 {
                     HttpContext = new DefaultHttpContext() { },
                     ActionDescriptor = new ControllerActionDescriptor
@@ -47,24 +30,96 @@ namespace CTLiteDemo.Test
                     }
                 }
             };
+
             var connection = blogApplicationController.ControllerContext.HttpContext.Connection;
             connection.LocalIpAddress = IPAddress.Loopback;
             connection.RemoteIpAddress = IPAddress.Loopback;
-
+            
             var request = blogApplicationController.ControllerContext.HttpContext.Request;
-            request.Path = new PathString($"/{nameof(BlogApplicationController).Replace("Controller", string.Empty)}");
-            request.ContentLength = 0;
             request.Scheme = "https";
             request.Host = new HostString(Environment.MachineName);
 
-            //request.Path = new PathString("/BlogApplication/637343168600464556/Blogs/CreateNewBlog");
-            //request.QueryString = new QueryString("?name=Justin%20Blog&isActive=true&publishDate=02/02/2002&blogType=Personal&rating=1&earnings=123.45");
+            return blogApplicationController;
+        }
 
-            //request.ContentLength = 0;
-            //request.ContentType = "";
-            //request.Body = new MemoryStream();
+        private static TResponse SendRequest<TResponse>(string path, string query, string contentType)
+        {
+            var blogApplicationController = CreateController();
 
-            var ret = (BlogApplicationCompositeRoot)((IEnumerable<CompositeRootCommandResponse>)blogApplicationController.ReceiveRequest()).First().ReturnValue;
+            var request = blogApplicationController.ControllerContext.HttpContext.Request;
+            request.Path = new PathString($"/{nameof(BlogApplicationController).Replace("Controller", string.Empty)}{path}");
+
+            if (contentType.ToLower() == "application/x-www-form-urlencoded")
+            {
+                var requestBodyBytes = Encoding.UTF8.GetBytes(query);
+                request.ContentType = contentType;
+                request.ContentLength = requestBodyBytes.Length;
+                request.Body = new MemoryStream(requestBodyBytes);
+            }
+            else
+            {
+                request.Path += query;
+                request.ContentLength = 0;
+            }
+
+            return (TResponse)blogApplicationController.ReceiveRequest();
+        }
+
+        private static IEnumerable<CompositeRootCommandResponse> SendMultiRequest(string sessionId, string multiRequestJson)
+        {
+            var blogApplicationController = CreateController();
+            var request = blogApplicationController.ControllerContext.HttpContext.Request;
+            
+            request.Path = new PathString($"/{nameof(BlogApplicationController).Replace("Controller", string.Empty)}{"/" + sessionId}");
+
+            var requestBodyBytes = Encoding.UTF8.GetBytes(multiRequestJson);
+            request.ContentType = "application/json";
+            request.ContentLength = requestBodyBytes.Length;
+            request.Body = new MemoryStream(requestBodyBytes);
+
+            return (IEnumerable<CompositeRootCommandResponse>)blogApplicationController.ReceiveRequest();
+        }
+
+        private long GetNewSessionId()
+        {
+            return ((BlogApplicationCompositeRoot)SendRequest<IEnumerable<CompositeRootCommandResponse>>(string.Empty, string.Empty, string.Empty).First().ReturnValue).Id;
+        }
+
+        [TestMethod]
+        public void DoesCTLiteWorkAndNothingIsBroken()
+        {
+
+            var sessionId = GetNewSessionId();
+
+            var createDatabaseResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
+            (
+                $"/{sessionId}/CreateDatabase",
+                string.Empty,
+                string.Empty
+            );
+
+            var setupDatabaseResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
+            (
+                $"/{sessionId}/SetupDatabase",
+                string.Empty,
+                string.Empty
+            );
+
+            var createNewBlogResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
+            (
+                $"/{sessionId}/Blogs/CreateNewBlog",
+                "?name=Test%20Blog&isActive=true&publishDate=02/02/2002&blogType=Personal&rating=1&earnings=123.45",
+                string.Empty
+            );
+
+            var createNewPostResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
+            (
+                $"/{sessionId}/Blogs/Blogs/0/Posts/CreateNewPost",
+                "?title=First Post&text=This is a test post",
+                string.Empty
+            );
+
+
 
         }
     }
