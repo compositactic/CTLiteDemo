@@ -63,7 +63,7 @@ namespace CTLite.AspNetCore
                 if (requestBody == null && Request.ContentLength.HasValue)
                     requestBody = Request.Body.GetRequest(Encoding.UTF8, Request.ContentType, string.Empty, CultureInfo.CurrentCulture, out uploadedFiles, out commandRequests);
 
-                var pathAndQuery = $"{Request.Path.Value}{Request.QueryString.Value}";
+                var pathAndQuery = $"{Request.Path.Value}{(string.IsNullOrEmpty(Request.QueryString.Value) && !string.IsNullOrEmpty(requestBody) ? (!requestBody.StartsWith("?") ? "?" : string.Empty) + requestBody : Request.QueryString.Value)}";
                 var controllerName = ControllerContext.ActionDescriptor.ControllerName;
                 var requestPattern = $"^/{controllerName}/?(?'cacheId'[0-9]+)?/?";
                 Match cacheIdMatch;
@@ -155,10 +155,10 @@ namespace CTLite.AspNetCore
                 isAuthenticated: false,
                 isLocal: false,
                 isSecureConnection: Request.IsHttps,
-                isWebSocketRequest: false,
+                isWebSocketRequest: HttpContext.WebSockets.IsWebSocketRequest,
                 requestKeepAlive: true,
                 localEndPoint: new IPEndPoint(HttpContext.Connection.LocalIpAddress, HttpContext.Connection.LocalPort),
-                requestProtocolVersion: null, //new Version(Request.Protocol),
+                requestProtocolVersion: new Version(Regex.Replace(Request.Protocol, "[^0-9.]", string.Empty)),
                 remoteEndPoint: new IPEndPoint(HttpContext.Connection.RemoteIpAddress, HttpContext.Connection.RemotePort),
                 requestTraceIdentifier: new Guid(),
                 serviceName: string.Empty,

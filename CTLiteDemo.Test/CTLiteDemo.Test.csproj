@@ -21,4 +21,16 @@
     <ProjectReference Include="..\CTLiteDemo.Service\CTLiteDemo.Service.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TestAttachmentFile1.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestAttachmentFile2.pdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestMultiCommand.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

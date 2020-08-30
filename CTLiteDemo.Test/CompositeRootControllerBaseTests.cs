@@ -38,6 +38,7 @@ namespace CTLiteDemo.Test
             var request = blogApplicationController.ControllerContext.HttpContext.Request;
             request.Scheme = "https";
             request.Host = new HostString(Environment.MachineName);
+            request.Protocol = "HTTP/1.1";
 
             return blogApplicationController;
         }
@@ -65,12 +66,12 @@ namespace CTLiteDemo.Test
             return (TResponse)blogApplicationController.ReceiveRequest();
         }
 
-        private static IEnumerable<CompositeRootCommandResponse> SendMultiRequest(string sessionId, string multiRequestJson)
+        private static IEnumerable<CompositeRootCommandResponse> SendMultiRequest(long sessionId, string multiRequestJson)
         {
             var blogApplicationController = CreateController();
             var request = blogApplicationController.ControllerContext.HttpContext.Request;
             
-            request.Path = new PathString($"/{nameof(BlogApplicationController).Replace("Controller", string.Empty)}{"/" + sessionId}");
+            request.Path = new PathString($"/{nameof(BlogApplicationController).Replace("Controller", string.Empty)}/{sessionId}");
 
             var requestBodyBytes = Encoding.UTF8.GetBytes(multiRequestJson);
             request.ContentType = "application/json";
@@ -85,18 +86,21 @@ namespace CTLiteDemo.Test
             return ((BlogApplicationCompositeRoot)SendRequest<IEnumerable<CompositeRootCommandResponse>>(string.Empty, string.Empty, string.Empty).First().ReturnValue).Id;
         }
 
+
         [TestMethod]
         public void DoesCTLiteWorkAndNothingIsBroken()
         {
 
             var sessionId = GetNewSessionId();
-
+            Assert.IsTrue(sessionId != 0);
+            
             var createDatabaseResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
             (
                 $"/{sessionId}/CreateDatabase",
                 string.Empty,
                 string.Empty
             );
+            Assert.IsTrue(createDatabaseResponse.First().Success);
 
             var setupDatabaseResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
             (
@@ -104,6 +108,7 @@ namespace CTLiteDemo.Test
                 string.Empty,
                 string.Empty
             );
+            Assert.IsTrue(setupDatabaseResponse.First().Success);
 
             var createNewBlogResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
             (
@@ -111,6 +116,7 @@ namespace CTLiteDemo.Test
                 "?name=Test%20Blog&isActive=true&publishDate=02/02/2002&blogType=Personal&rating=1&earnings=123.45",
                 string.Empty
             );
+            Assert.IsTrue(createNewBlogResponse.First().Success);
 
             var createNewPostResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
             (
@@ -118,8 +124,18 @@ namespace CTLiteDemo.Test
                 "?title=First Post&text=This is a test post",
                 string.Empty
             );
+            Assert.IsTrue(createNewPostResponse.First().Success);
 
+            var createNewCommentResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
+            (
+                $"/{sessionId}/Blogs/Blogs/0/Posts/Posts/0/Comments/CreateNewComment",
+                "?title=First Post&text=This is a test post",
+                "application/x-www-form-urlencoded"
+            );
+            Assert.IsTrue(createNewCommentResponse.First().Success);
 
+            var multiCommandResponse = SendMultiRequest(sessionId, File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "TestMultiCommand.json")));
+            Assert.IsTrue(multiCommandResponse.All(cr => cr.Success));
 
         }
     }

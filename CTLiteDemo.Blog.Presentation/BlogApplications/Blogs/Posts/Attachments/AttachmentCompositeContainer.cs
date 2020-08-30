@@ -2,7 +2,7 @@
 using CTLiteDemo.Model.BlogApplications.Blogs.Posts.Attachments;
 using CTLiteDemo.Presentation.Properties;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
@@ -30,22 +30,25 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
         public ReadOnlyCompositeDictionary<long, AttachmentComposite> Attachments { get; private set; }
 
         [Command]
-        [Help(typeof(Resources), nameof(Resources.AttachmentCompositeContainer_CreateNewAttachmentHelp))]
+        [Help(typeof(Resources), nameof(Resources.AttachmentCompositeContainer_CreateNewAttachmentsHelp))]
         [return: Help(typeof(Resources), nameof(Resources.AttachmentCompositeContainer_CreateNewAttachment_ReturnValueHelp))]
-        public AttachmentComposite CreateNewAttachment(CompositeRootHttpContext context)
+        public AttachmentComposite[] CreateNewAttachments(CompositeRootHttpContext context, bool shouldArchiveAttachments)
         {
-            var newAttachment = new AttachmentComposite(_newAttachmentFunc.Invoke(), this)
-            {
-                State = CompositeState.New
-            };
-
-            var fileAttachment = context.Request.UploadedFiles.FirstOrDefault();
-
             var attachmentArchiveService = CompositeRoot.GetService<IAttachmentArchiveService>();
-            attachmentArchiveService.ArchiveAttachment(fileAttachment, newAttachment);
+            var addedAttachments = new List<AttachmentComposite>();
 
-            attachments.Add(newAttachment.Id, newAttachment);
-            return newAttachment;
+            foreach(var uploadedFile in context.Request.UploadedFiles)
+            {
+                var newAttachment = new AttachmentComposite(_newAttachmentFunc.Invoke(), this) { State = CompositeState.New };
+
+                if(shouldArchiveAttachments)
+                    attachmentArchiveService.ArchiveAttachment(uploadedFile, newAttachment);
+
+                attachments.Add(newAttachment.Id, newAttachment);
+                addedAttachments.Add(newAttachment);
+            }
+
+            return addedAttachments.ToArray();
         }
     }
 }

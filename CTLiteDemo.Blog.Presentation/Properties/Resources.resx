@@ -120,8 +120,8 @@
   <data name="AttachmentCompositeContainer_AttachmentsHelp" xml:space="preserve">
     <value>Gets the Attachments belonging to the Attachments container</value>
   </data>
-  <data name="AttachmentCompositeContainer_CreateNewAttachmentHelp" xml:space="preserve">
-    <value>Creates a new Attachment and saves it to the Attachment Archive</value>
+  <data name="AttachmentCompositeContainer_CreateNewAttachmentsHelp" xml:space="preserve">
+    <value>Creates new Attachments from uploaded files and saves it to the Attachment Archive</value>
   </data>
   <data name="AttachmentCompositeContainer_CreateNewAttachment_ReturnValueHelp" xml:space="preserve">
     <value>The newly create Attachment</value>

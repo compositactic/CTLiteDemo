@@ -106,11 +106,11 @@ namespace CTLiteDemo.Presentation.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Creates a new Attachment and saves it to the Attachment Archive.
+        ///   Looks up a localized string similar to Creates new Attachments from uploaded files and saves it to the Attachment Archive.
         /// </summary>
-        internal static string AttachmentCompositeContainer_CreateNewAttachmentHelp {
+        internal static string AttachmentCompositeContainer_CreateNewAttachmentsHelp {
             get {
-                return ResourceManager.GetString("AttachmentCompositeContainer_CreateNewAttachmentHelp", resourceCulture);
+                return ResourceManager.GetString("AttachmentCompositeContainer_CreateNewAttachmentsHelp", resourceCulture);
             }
         }
         

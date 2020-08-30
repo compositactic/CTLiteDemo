@@ -1,0 +1,38 @@
+[
+  {
+    "CommandPath": "Blogs/CreateNewBlog?name=Another%20Blog&isActive=true&publishDate=02/02/2002&blogType=Personal&rating=1&earnings=123.45",
+    "Id": 1
+  },
+  {
+    "CommandPath": "Blogs/Blogs/[{1/Id}]/Posts/CreateNewPost?title=First Post&text=This is a test post on the Blog",
+    "Id": 2
+  },
+  {
+    "CommandPath": "Blogs/Blogs/[{1/Id}]/Posts/Posts/0/Comments/CreateNewComment?text=A comment for the Test Post on Blog",
+    "Id": 3
+  },
+  {
+    "CommandPath": "Blogs/CreateNewBlog?name=Some%20Other%20Blog&isActive=true&publishDate=02/02/2002&blogType=Personal&rating=7&earnings=654.45",
+    "Id": 5
+  },
+  {
+    "CommandPath": "Blogs/Blogs/[{5/Id}]/Posts/CreateNewPost?title=First Post&text=This is a test post on the Blog",
+    "Id": 6
+  },
+  {
+    "CommandPath": "Blogs/Blogs/[{5/Id}]/Posts/Posts/0/Comments/CreateNewComment?text=My comment is here",
+    "Id": 7
+  },
+  {
+    "CommandPath": "Blogs/SaveAll",
+    "Id": 8
+  },
+  {
+    "CommandPath": "Blogs/Blogs/0/Remove",
+    "Id": 9
+  },
+  {
+    "CommandPath": "Blogs/SaveAll",
+    "Id": 10
+  }
+]
