@@ -45,7 +45,6 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
             {
                 PostModel.Title = value;
                 NotifyPropertyChanged(nameof(PostComposite.Title));
-                State = State == CompositeState.New ? CompositeState.New : CompositeState.Modified;
             }
         }
 
@@ -58,7 +57,6 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
             {
                 PostModel.Text = value;
                 NotifyPropertyChanged(nameof(PostComposite.Text));
-                State = State == CompositeState.New ? CompositeState.New : CompositeState.Modified;
             }
         }
 

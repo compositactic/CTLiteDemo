@@ -20,6 +20,8 @@ namespace CTLite
             if (property == null)
                 throw new ArgumentException(propertyName);
 
+            State = State == CompositeState.New ? CompositeState.New : CompositeState.Modified;
+
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 

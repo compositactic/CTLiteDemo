@@ -40,7 +40,6 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Comments
             {
                 CommentModel.Text = value;
                 NotifyPropertyChanged(nameof(Text));
-                State = CompositeState.Modified;
             }
         }
 

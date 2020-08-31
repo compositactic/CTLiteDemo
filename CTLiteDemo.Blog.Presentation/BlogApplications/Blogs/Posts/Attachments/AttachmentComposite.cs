@@ -32,7 +32,6 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
             {
                 AttachmentModel.FilePath = value;
                 NotifyPropertyChanged(nameof(AttachmentComposite.FilePath));
-                State = State == CompositeState.New ? CompositeState.New : CompositeState.Modified;
             }
         }
 
