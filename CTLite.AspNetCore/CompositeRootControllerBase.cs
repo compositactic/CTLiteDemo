@@ -63,7 +63,7 @@ namespace CTLite.AspNetCore
                 if (requestBody == null && Request.ContentLength.HasValue)
                     requestBody = Request.Body.GetRequest(Encoding.UTF8, Request.ContentType, string.Empty, CultureInfo.CurrentCulture, out uploadedFiles, out commandRequests);
 
-                var pathAndQuery = $"{Request.Path.Value}{(string.IsNullOrEmpty(Request.QueryString.Value) && !string.IsNullOrEmpty(requestBody) ? (!requestBody.StartsWith("?") ? "?" : string.Empty) + requestBody : Request.QueryString.Value)}";
+                var pathAndQuery = $"{Regex.Replace(Request.Path.Value, @"\0$", "%00")}{(string.IsNullOrEmpty(Request.QueryString.Value) && !string.IsNullOrEmpty(requestBody) ? (!requestBody.StartsWith("?") ? "?" : string.Empty) + requestBody : Request.QueryString.Value)}";
                 var controllerName = ControllerContext.ActionDescriptor.ControllerName;
                 var requestPattern = $"^/{controllerName}/?(?'cacheId'[0-9]+)?/?";
                 Match cacheIdMatch;

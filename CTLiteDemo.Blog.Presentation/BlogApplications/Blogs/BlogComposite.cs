@@ -47,7 +47,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
             {
                 BlogModel.Name = value;
                 NotifyPropertyChanged(nameof(BlogComposite.Name));
-                State = CompositeState.Modified;
+                State = State == CompositeState.New ? CompositeState.New : CompositeState.Modified;
             }
         }
 
@@ -60,7 +60,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
             {
                 BlogModel.IsActive = value;
                 NotifyPropertyChanged(nameof(BlogComposite.IsActive));
-                State = CompositeState.Modified;
+                State = State == CompositeState.New ? CompositeState.New : CompositeState.Modified;
             }
         }
 
@@ -73,7 +73,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
             {
                 BlogModel.PublishDate = value;
                 NotifyPropertyChanged(nameof(BlogComposite.PublishDate));
-                State = CompositeState.Modified;
+                State = State == CompositeState.New ? CompositeState.New : CompositeState.Modified;
             }
         }
 
@@ -86,6 +86,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
             {
                 BlogModel.BlogType = value;
                 NotifyPropertyChanged(nameof(BlogComposite.BlogType));
+                State = State == CompositeState.New ? CompositeState.New : CompositeState.Modified;
             }
         }
 
@@ -98,7 +99,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
             {
                 BlogModel.Rating = value;
                 NotifyPropertyChanged(nameof(BlogComposite.Rating));
-                State = CompositeState.Modified;
+                State = State == CompositeState.New ? CompositeState.New : CompositeState.Modified;
             }
         }
 
@@ -112,7 +113,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
             {
                 BlogModel.Earnings = value;
                 NotifyPropertyChanged(nameof(BlogComposite.Earnings));
-                State = CompositeState.Modified;
+                State = State == CompositeState.New ? CompositeState.New : CompositeState.Modified;
             }
         }
 

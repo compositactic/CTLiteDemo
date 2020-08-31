@@ -1,5 +1,6 @@
 using CTLite;
 using CTLiteDemo.Presentation.BlogApplications;
+using CTLiteDemo.Presentation.BlogApplications.Blogs;
 using CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments;
 using CTLiteDemo.WebApi;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using CTLiteDemo.Model.BlogApplications.Blogs;
 
 namespace CTLiteDemo.Test
 {
@@ -147,6 +149,62 @@ namespace CTLiteDemo.Test
                 string.Empty
             );
             Assert.IsTrue(createNewBlogResponse.First().Success);
+            var newBlog = createNewBlogResponse.First().ReturnValue as BlogComposite;
+            Assert.IsTrue(newBlog.Name == "Test Blog" &&
+                            newBlog.IsActive &&
+                            newBlog.PublishDate == new DateTime(2002, 2, 2) &&
+                            newBlog.BlogType == BlogType.Personal &&
+                            newBlog.Rating == 1 &&
+                            newBlog.Earnings == 123.45m);
+
+            var changePropertyValueResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
+            (
+                $"/{sessionId}/Blogs/Blogs/[{newBlog.Id}]/Name",
+                "?New Blog Name",
+                string.Empty
+            );
+            Assert.IsTrue(changePropertyValueResponse.First().Success);
+
+            var getPropertyValueResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
+            (
+                $"/{sessionId}/Blogs/Blogs/[{newBlog.Id}]/Name",
+                string.Empty,
+                string.Empty
+            );
+            Assert.IsTrue(getPropertyValueResponse.First().Success && (string)getPropertyValueResponse.First().ReturnValue == "New Blog Name");
+
+            changePropertyValueResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
+            (
+                $"/{sessionId}/Blogs/Blogs/[{newBlog.Id}]/Name",
+                "?%00",
+                string.Empty
+            );
+            Assert.IsTrue(changePropertyValueResponse.First().Success);
+
+            getPropertyValueResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
+            (
+                $"/{sessionId}/Blogs/Blogs/[{newBlog.Id}]/Name",
+                string.Empty,
+                string.Empty
+            );
+            Assert.IsTrue(getPropertyValueResponse.First().Success && (string)getPropertyValueResponse.First().ReturnValue == string.Empty);
+
+            changePropertyValueResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
+            (
+                $"/{sessionId}/Blogs/Blogs/[{newBlog.Id}]/Name",
+                "?",
+                string.Empty
+            );
+            Assert.IsTrue(changePropertyValueResponse.First().Success);
+
+            getPropertyValueResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
+            (
+                $"/{sessionId}/Blogs/Blogs/[{newBlog.Id}]/Name",
+                string.Empty,
+                string.Empty
+            );
+            Assert.IsTrue(getPropertyValueResponse.First().Success && (string)getPropertyValueResponse.First().ReturnValue == null);
+
 
             var createNewPostResponse = SendRequest<IEnumerable<CompositeRootCommandResponse>>
             (
