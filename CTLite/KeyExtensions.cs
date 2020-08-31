@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
 
-namespace CTLiteDemo.Model
+namespace CTLite
 {
-    public static class ExtensionMethods
+    public static class KeyExtensions
     {
         private static long lastTimeStamp = DateTime.UtcNow.Ticks;
         public static long NewId(this long _)

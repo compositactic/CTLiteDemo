@@ -46,8 +46,8 @@ namespace CTLiteDemo.Test
         private static TResponse SendRequest<TResponse>(string path, string query, string contentType)
         {
             var blogApplicationController = CreateController();
-
             var request = blogApplicationController.ControllerContext.HttpContext.Request;
+
             request.Path = new PathString($"/{nameof(BlogApplicationController).Replace("Controller", string.Empty)}{path}");
 
             if (contentType.ToLower() == "application/x-www-form-urlencoded")
@@ -79,6 +79,35 @@ namespace CTLiteDemo.Test
             request.Body = new MemoryStream(requestBodyBytes);
 
             return (IEnumerable<CompositeRootCommandResponse>)blogApplicationController.ReceiveRequest();
+        }
+
+        private static TResponse SendFileUploadRequest<TResponse>(string path, string query, FileInfo[] files)
+        {
+            var blogApplicationController = CreateController();
+            var request = blogApplicationController.ControllerContext.HttpContext.Request;
+
+            request.Path = new PathString($"/{nameof(BlogApplicationController).Replace("Controller", string.Empty)}{path}");
+            request.QueryString = new QueryString($"{query}");
+
+            var boundary = $"{Guid.NewGuid()}";
+            request.ContentType = $"multipart/form-data; boundary={boundary}";
+
+            var requestBodyStream = new MemoryStream();
+
+            for(int fileIndex = 0; fileIndex < files.Length; fileIndex++)
+            {
+                var seperatorBytes = Encoding.UTF8.GetBytes($"{(fileIndex == 0 ? string.Empty : Environment.NewLine + Environment.NewLine)}--{boundary}{Environment.NewLine}Content-Disposition: form-data; name=\"filename\"; filename=\"{Path.GetFileName(files[fileIndex].FullName)}\"{Environment.NewLine}Content-Type: {ContentTypes.GetContentTypeFromFileExtension(files[fileIndex].Extension)}{Environment.NewLine}{Environment.NewLine}");
+                requestBodyStream.Write(seperatorBytes);
+                requestBodyStream.Write(File.ReadAllBytes(files[fileIndex].FullName));
+            }
+
+            requestBodyStream.Write(Encoding.UTF8.GetBytes($"{Environment.NewLine}--{boundary}--{Environment.NewLine}{Environment.NewLine}"));
+
+            requestBodyStream.Position = 0;
+            request.ContentLength = requestBodyStream.Length;
+            request.Body = requestBodyStream;
+
+            return (TResponse)blogApplicationController.ReceiveRequest();
         }
 
         private long GetNewSessionId()
@@ -136,6 +165,19 @@ namespace CTLiteDemo.Test
 
             var multiCommandResponse = SendMultiRequest(sessionId, File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "TestMultiCommand.json")));
             Assert.IsTrue(multiCommandResponse.All(cr => cr.Success));
+
+            var createNewAttachmentsResponse = SendFileUploadRequest<IEnumerable<CompositeRootCommandResponse>>
+            (
+                $"/{sessionId}/Blogs/Blogs/0/Posts/Posts/0/Attachments/CreateNewAttachments",
+                "?shouldArchiveAttachments=true",
+                new FileInfo[]
+                {
+                    new FileInfo(Path.Combine(Environment.CurrentDirectory, "TestAttachmentFile1.pdf")),
+                    new FileInfo(Path.Combine(Environment.CurrentDirectory, "TestAttachmentFile2.jpg"))
+                }
+
+            );
+            Assert.IsTrue(createNewAttachmentsResponse.First().Success);
 
         }
     }

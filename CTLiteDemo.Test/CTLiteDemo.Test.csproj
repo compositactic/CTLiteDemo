@@ -22,10 +22,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="TestAttachmentFile1.jpg">
+    <None Update="TestAttachmentFile1.pdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="TestAttachmentFile2.pdf">
+    <None Update="TestAttachmentFile2.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestAttachmentFile2.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TestMultiCommand.json">
