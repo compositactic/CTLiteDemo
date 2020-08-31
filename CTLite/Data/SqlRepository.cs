@@ -76,6 +76,8 @@ namespace CTLite.Data
                         var tableName = deletedModelType.GetCustomAttribute<DataContractAttribute>().Name ?? deletedModelType.Name;
                         var tableKeyPropertyName = deletedModelType.GetCustomAttribute<KeyPropertyAttribute>().KeyPropertyName;
                         OnDelete(connection, transaction, tableName, tableKeyPropertyName, deletedIds);
+                        dynamic internalCompositeDictionary = compositeType.GetField(compositeType.GetCustomAttribute<CompositeContainerAttribute>().InternalCompositeContainerDictionaryPropertyName, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(c);
+                        internalCompositeDictionary.ClearRemovedIds();
                     }
                 }
 
