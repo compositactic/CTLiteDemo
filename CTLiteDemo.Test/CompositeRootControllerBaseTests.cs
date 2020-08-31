@@ -1,5 +1,6 @@
 using CTLite;
 using CTLiteDemo.Presentation.BlogApplications;
+using CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments;
 using CTLiteDemo.WebApi;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -96,12 +97,12 @@ namespace CTLiteDemo.Test
 
             for(int fileIndex = 0; fileIndex < files.Length; fileIndex++)
             {
-                var seperatorBytes = Encoding.UTF8.GetBytes($"{(fileIndex == 0 ? string.Empty : Environment.NewLine + Environment.NewLine)}--{boundary}{Environment.NewLine}Content-Disposition: form-data; name=\"filename\"; filename=\"{Path.GetFileName(files[fileIndex].FullName)}\"{Environment.NewLine}Content-Type: {ContentTypes.GetContentTypeFromFileExtension(files[fileIndex].Extension)}{Environment.NewLine}{Environment.NewLine}");
+                var seperatorBytes = Encoding.ASCII.GetBytes($"{(fileIndex == 0 ? string.Empty : Environment.NewLine)}--{boundary}{Environment.NewLine}Content-Disposition: form-data; name=\"filename\"; filename=\"{Path.GetFileName(files[fileIndex].FullName)}\"{Environment.NewLine}Content-Type: {ContentTypes.GetContentTypeFromFileExtension(files[fileIndex].Extension)}{Environment.NewLine}{Environment.NewLine}");
                 requestBodyStream.Write(seperatorBytes);
                 requestBodyStream.Write(File.ReadAllBytes(files[fileIndex].FullName));
             }
 
-            requestBodyStream.Write(Encoding.UTF8.GetBytes($"{Environment.NewLine}--{boundary}--{Environment.NewLine}{Environment.NewLine}"));
+            requestBodyStream.Write(Encoding.ASCII.GetBytes($"{Environment.NewLine}--{boundary}--"));
 
             requestBodyStream.Position = 0;
             request.ContentLength = requestBodyStream.Length;
@@ -172,13 +173,24 @@ namespace CTLiteDemo.Test
                 "?shouldArchiveAttachments=true",
                 new FileInfo[]
                 {
-                    new FileInfo(Path.Combine(Environment.CurrentDirectory, "TestAttachmentFile1.pdf")),
-                    new FileInfo(Path.Combine(Environment.CurrentDirectory, "TestAttachmentFile2.jpg"))
+                    new FileInfo(Path.Combine(Environment.CurrentDirectory, "doc1.pdf")),
+                    new FileInfo(Path.Combine(Environment.CurrentDirectory, "img1.jpg"))
                 }
-
             );
             Assert.IsTrue(createNewAttachmentsResponse.First().Success);
 
+            foreach(var uploadedAttachment in createNewAttachmentsResponse.First().ReturnValue as AttachmentComposite[])
+            {
+                var getAttachmentResponse = SendRequest<FileContentResult>
+                (
+                    $"/{sessionId}/Blogs/Blogs/0/Posts/Posts/0/Attachments/Attachments/[{uploadedAttachment.Id}]/GetAttachment",
+                    string.Empty,
+                    string.Empty
+                );
+
+                var originalFileBytes = File.ReadAllBytes(Path.Combine(Environment.CurrentDirectory, Path.GetFileName(uploadedAttachment.FilePath)));
+                Assert.IsTrue(Enumerable.SequenceEqual(originalFileBytes, getAttachmentResponse.FileContents));
+            }
         }
     }
 }

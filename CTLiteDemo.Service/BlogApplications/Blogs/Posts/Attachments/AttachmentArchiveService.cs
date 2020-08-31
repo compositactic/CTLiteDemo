@@ -14,7 +14,7 @@ namespace CTLiteDemo.Service.BlogApplications.Blogs.Posts.Attachments
         {
             if (compositeUploadedFile != null)
             {
-                var fileAttachmentPath = $"{Path.GetTempFileName()}{compositeUploadedFile.FileName}";
+                var fileAttachmentPath = $"{Path.GetTempPath()}{compositeUploadedFile.FileName}";
                 File.WriteAllBytes(fileAttachmentPath, compositeUploadedFile.GetContent());
                 attachment.FilePath = fileAttachmentPath;
             }
