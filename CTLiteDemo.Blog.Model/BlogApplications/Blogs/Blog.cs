@@ -13,7 +13,6 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs
     [KeyProperty(nameof(Blog.Id), nameof(Blog.OriginalId))]
     public class Blog
     {
-
         [DataMember]
         public CompositeState State { get; set; } = CompositeState.Unchanged;
 
@@ -42,12 +41,28 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs
             _posts = new ReadOnlyDictionary<long, Post>(posts);
         }
 
+        public Post CreateNewPost()
+        {
+            return new Post(this);
+        }
+
         [DataMember]
         internal ConcurrentDictionary<long, Post> posts;
         private ReadOnlyDictionary<long, Post> _posts;
         public IReadOnlyDictionary<long, Post> Posts
         {
             get { return _posts; }
+        }
+
+        public void Remove()
+        {
+            BlogApplication.blogs.TryRemove(Id, out _);
+        }
+
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext context)
+        {
+            _posts = new ReadOnlyDictionary<long, Post>(posts);
         }
 
         [DataMember]
@@ -67,21 +82,5 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs
 
         [DataMember]
         public decimal Earnings { get; set; }
-
-        public Post CreateNewPost()
-        {
-            return new Post(this);
-        }
-
-        [OnDeserialized]
-        private void OnDeserialized(StreamingContext context)
-        {
-            _posts = new ReadOnlyDictionary<long, Post>(posts);
-        }
-
-        public void Remove()
-        {
-            BlogApplication.blogs.TryRemove(Id, out _);
-        }
     }
 }

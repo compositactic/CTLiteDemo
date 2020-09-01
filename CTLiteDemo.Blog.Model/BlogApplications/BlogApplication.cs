@@ -14,12 +14,16 @@ namespace CTLiteDemo.Model.BlogApplications
         [DataMember]
         public long Id { get; set; }
 
-
         public BlogApplication()
         {
             Id = new long().NewId();
             blogs = new ConcurrentDictionary<long, Blog>();
             _blogs = new ReadOnlyDictionary<long, Blog>(blogs);
+        }
+
+        public Blog CreateNewBlog()
+        {
+            return new Blog(this);
         }
 
         [DataMember]
@@ -28,11 +32,6 @@ namespace CTLiteDemo.Model.BlogApplications
         public IReadOnlyDictionary<long, Blog> Blogs
         {
             get { return _blogs; }
-        }
-
-        public Blog CreateNewBlog()
-        {
-            return new Blog(this);
         }
 
         [OnDeserialized]

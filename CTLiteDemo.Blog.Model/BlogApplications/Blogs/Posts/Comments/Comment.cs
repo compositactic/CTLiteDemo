@@ -12,6 +12,7 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts.Comments
         [DataMember]
         public CompositeState State { get; set; } = CompositeState.Unchanged;
 
+
         [DataMember]
         public long Id { get; set; }
 
@@ -20,9 +21,6 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts.Comments
         [DataMember]
         public long PostId { get; set; }
         public Post Post { get; internal set; }
-
-        [DataMember]
-        public string Text { get; set; }
 
         public Comment() { }
 
@@ -38,5 +36,8 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts.Comments
         {
             Post.comments.TryRemove(Id, out _);
         }
+
+        [DataMember]
+        public string Text { get; set; }
     }
 } 

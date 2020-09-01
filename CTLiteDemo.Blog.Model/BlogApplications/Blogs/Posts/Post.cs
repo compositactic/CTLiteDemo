@@ -17,15 +17,6 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts
         [DataMember]
         public CompositeState State { get; set; } = CompositeState.Unchanged;
 
-        public Post() 
-        {
-            comments = new ConcurrentDictionary<long, Comment>();
-            _comments = new ReadOnlyDictionary<long, Comment>(comments);
-
-            attachments = new ConcurrentDictionary<long, Attachment>();
-            _attachments = new ReadOnlyDictionary<long, Attachment>(attachments);
-        }
-
         [DataMember]
         public long Id { get; set; }
 
@@ -35,6 +26,15 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts
         public long BlogId { get; set; }
 
         public Blog Blog { get; internal set; }
+
+        public Post() 
+        {
+            comments = new ConcurrentDictionary<long, Comment>();
+            _comments = new ReadOnlyDictionary<long, Comment>(comments);
+
+            attachments = new ConcurrentDictionary<long, Attachment>();
+            _attachments = new ReadOnlyDictionary<long, Attachment>(attachments);
+        }
 
         internal Post(Blog blog)
         {
@@ -48,11 +48,6 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts
 
             Blog = blog ?? throw new ArgumentNullException(nameof(blog));
             Blog.posts.Load(this, _ => { return new long().NewId(); });
-        }
-
-        public void Remove()
-        {
-            Blog.posts.TryRemove(Id, out _);
         }
 
         public Comment CreateNewComment()
@@ -74,17 +69,16 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts
         }
 
         [DataMember]
-        public string Title { get; set; }
-
-        [DataMember]
-        public string Text { get; set; }
-
-        [DataMember]
         internal ConcurrentDictionary<long, Attachment> attachments;
         private ReadOnlyDictionary<long, Attachment> _attachments;
         public IReadOnlyDictionary<long, Attachment> Attachments
         {
             get { return _attachments; }
+        }
+
+        public void Remove()
+        {
+            Blog.posts.TryRemove(Id, out _);
         }
 
         [OnDeserialized]
@@ -93,5 +87,12 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts
             _comments = new ReadOnlyDictionary<long, Comment>(comments);
             _attachments = new ReadOnlyDictionary<long, Attachment>(attachments);
         }
+
+        [DataMember]
+        public string Title { get; set; }
+
+        [DataMember]
+        public string Text { get; set; }
+
     }
 }
