@@ -108,7 +108,7 @@ namespace CTLite.Data
                             if (modelKeyDataMemberAttribute == null)
                                 throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataMemberAttribute, modelKeyPropertyAttribute.KeyPropertyName));
 
-                            var dataRow = new Composite[] { composite }.ToDataTable().Rows[0];
+                            var dataRow = new Composite[] { c }.ToDataTable().Rows[0];
                             var columnValues = dataRow.Table.Columns.Cast<DataColumn>().Where(column => column.ColumnName != "__model").ToDictionary(column => column.ColumnName, column => dataRow[column]);
 
                             var keyColumnName = modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name;
@@ -128,7 +128,7 @@ namespace CTLite.Data
                                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidColumnName, invalidColumnName));
 
                             OnUpdate(connection, transaction, tableName, tableKeyPropertyName, keyValue, columnValues);
-                            composite.State = CompositeState.Unchanged;
+                            c.State = CompositeState.Unchanged;
 
                             break;
                         case CompositeState.New:
