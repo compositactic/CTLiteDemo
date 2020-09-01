@@ -17,6 +17,5 @@ namespace CTLiteDemo.Presentation
             transaction.Commit();
             return composite;
         }
-
     }
 }

@@ -26,7 +26,7 @@ namespace CTLiteDemo.Test
             {
                 ControllerContext = new ControllerContext
                 {
-                    HttpContext = new DefaultHttpContext() { },
+                    HttpContext = new DefaultHttpContext(),
                     ActionDescriptor = new ControllerActionDescriptor
                     {
                         ControllerName = nameof(BlogApplicationController).Replace("Controller", string.Empty)
@@ -120,7 +120,7 @@ namespace CTLiteDemo.Test
 
 
         [TestMethod]
-        public void DoesCTLiteWorkAndNothingIsBroken()
+        public void CanExecuteAllControllerBaseFunctions()
         {
 
             var sessionId = GetNewSessionId();

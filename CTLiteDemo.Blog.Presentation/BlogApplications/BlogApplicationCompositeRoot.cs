@@ -9,7 +9,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+
+[assembly: InternalsVisibleTo("CTLiteDemo.Test")]
 
 namespace CTLiteDemo.Presentation.BlogApplications
 {
@@ -83,6 +86,12 @@ namespace CTLiteDemo.Presentation.BlogApplications
             }
         }
 
+        internal void SetConnectionStrings(string masterDbConnectionString, string blogDbConnectionString)
+        {
+            _masterDbConnectionString = masterDbConnectionString;
+            _blogDbConnectionString = blogDbConnectionString;
+        }
+
         public static Dictionary<string, string> GetSettings(string applicationPath)
         {
             return JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(applicationPath, "BlogApplicationSettings.json")));
@@ -92,13 +101,19 @@ namespace CTLiteDemo.Presentation.BlogApplications
         public void CreateDatabase()
         {
             var applicationPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-            var createDatabaseSqlScriptFile = Path.Combine(applicationPath, "000-BlogServerDatabase.sql");
+            var createDatabaseSqlScriptFile = Path.Combine(applicationPath, "000-BlogDatabase.sql");
 
             var repository = GetService<IMicrosoftSqlServerRepository>();
 
             using var connection = repository.OpenConnection(MasterDbConnectionString);
             var createDatabaseSql = File.ReadAllText(createDatabaseSqlScriptFile);
+            repository.Execute<object>(connection, null, createDatabaseSql, null);
+        }
+
+        internal void CreateDatabase(string createDatabaseSql)
+        {
+            var repository = GetService<IMicrosoftSqlServerRepository>();
+            using var connection = repository.OpenConnection(MasterDbConnectionString);
             repository.Execute<object>(connection, null, createDatabaseSql, null);
         }
 
