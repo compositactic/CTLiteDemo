@@ -71,7 +71,7 @@ namespace CTLiteDemo.Test
                 }
             }
 
-            blogApplicationCompositeRoot.Blogs.SaveAll();
+            blogApplicationCompositeRoot.Blogs.SaveAll(true);
             Assert.IsTrue(blogApplicationCompositeRoot.Blogs.Blogs.Values.All
             (
                 b => b.Id != 0 && 
@@ -92,7 +92,7 @@ namespace CTLiteDemo.Test
             foreach (var blog in blogApplicationCompositeRoot.Blogs.Blogs.Values)
                 blog.BlogType = BlogType.Personal;
 
-            blogApplicationCompositeRoot.Blogs.SaveAll();
+            blogApplicationCompositeRoot.Blogs.SaveAll(true);
 
             var repository = blogApplicationCompositeRoot.GetService<IMicrosoftSqlServerRepository>();
             using var connection = repository.OpenConnection(blogApplicationCompositeRoot.BlogDbConnectionString);
@@ -100,7 +100,7 @@ namespace CTLiteDemo.Test
             Assert.IsTrue(updatedBlogs.All(b => b.BlogType == BlogType.Personal));
 
             blogApplicationCompositeRoot.Blogs.Blogs.Values.Single(b => b.Name == "CT Blog").Remove();
-            blogApplicationCompositeRoot.Blogs.SaveAll();
+            blogApplicationCompositeRoot.Blogs.SaveAll(true);
             var removedBlogsShouldBeEmpty = repository.Load(connection, null, @"SELECT * FROM Blog WHERE Name = 'CT Blog'", null, () => new Blog());
             Assert.IsTrue(removedBlogsShouldBeEmpty.Count() == 0);
         }

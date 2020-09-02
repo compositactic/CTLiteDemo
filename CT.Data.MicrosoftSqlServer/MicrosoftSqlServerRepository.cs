@@ -23,7 +23,7 @@ namespace CTLite.Data.MicrosoftSqlServer
 
         protected override T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement, IEnumerable<DbParameter> parameters)
         {
-            using var command = new SqlCommand(statement, (SqlConnection)connection) { Transaction = (SqlTransaction)transaction };
+            using var command = new SqlCommand(statement, (SqlConnection)connection) { Transaction = (SqlTransaction)transaction, CommandTimeout = 0 };
             if (parameters != null)
                 command.Parameters.AddRange(parameters.ToArray());
 
@@ -35,7 +35,7 @@ namespace CTLite.Data.MicrosoftSqlServer
         {
             var results = new List<T>();
 
-            using (var command = new SqlCommand(query, (SqlConnection)connection) { Transaction = (SqlTransaction)transaction })
+            using (var command = new SqlCommand(query, (SqlConnection)connection) { Transaction = (SqlTransaction)transaction, CommandTimeout = 0 })
             {
                 if (parameters != null)
                     command.Parameters.AddRange(parameters.ToArray());
@@ -105,7 +105,7 @@ namespace CTLite.Data.MicrosoftSqlServer
             OnExecute<object>(connection, transaction, updateSql, sqlParameterList);
         }
 
-        protected override void OnInsert(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert)
+        protected override void OnInsert(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert, bool shouldUpdatedInsertedIds)
         {
             var keys = new Dictionary<object, object>();
             var foreignKeyColumnName = string.Empty;
@@ -173,14 +173,17 @@ namespace CTLite.Data.MicrosoftSqlServer
                 {
                     keys.Add(insertKeyPair.OriginalKey, insertKeyPair.InsertedKey);
 
-                    var row = dataTable.Rows.Find(insertKeyPair.OriginalKey);
-                    var model = row["__model"];
+                    if(shouldUpdatedInsertedIds)
+                    {
+                        var row = dataTable.Rows.Find(insertKeyPair.OriginalKey);
+                        var model = row["__model"];
 
-                    modelKeyProperty ??= model.GetType().GetProperty(modelKeyPropertyName);
-                    modelOriginalKeyProperty ??= model.GetType().GetProperty(modelOriginalKeyPropertyName);
+                        modelKeyProperty ??= model.GetType().GetProperty(modelKeyPropertyName);
+                        modelOriginalKeyProperty ??= model.GetType().GetProperty(modelOriginalKeyPropertyName);
 
-                    modelOriginalKeyProperty.SetValue(model, modelKeyProperty.GetValue(model));
-                    modelKeyProperty.SetValue(model, insertKeyPair.InsertedKey);
+                        modelOriginalKeyProperty.SetValue(model, modelKeyProperty.GetValue(model));
+                        modelKeyProperty.SetValue(model, insertKeyPair.InsertedKey);
+                    }
                 }
             }
         }

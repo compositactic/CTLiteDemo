@@ -47,6 +47,11 @@ namespace CTLite.Data
 
         public void Save(DbConnection connection, DbTransaction transaction, Composite composite)
         {
+            Save(connection, transaction, composite, true);
+        }
+
+        public void Save(DbConnection connection, DbTransaction transaction, Composite composite, bool shouldUpdateInsertedIds)
+        {
             var newComposites = new List<Composite>();
 
             composite.TraverseDepthFirst((c) =>
@@ -69,7 +74,7 @@ namespace CTLite.Data
 
                     dynamic deletedIds = removedIdsProperty.GetValue(compositeDictionary);
 
-                    if(deletedIds.Count > 0)
+                    if (deletedIds.Count > 0)
                     {
                         var deletedCompositeType = compositeDictionary.GetType().GetGenericArguments()[1];
                         var deletedModelType = deletedCompositeType.GetField(deletedCompositeType.GetCustomAttribute<CompositeModelAttribute>().ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic).FieldType;
@@ -140,11 +145,13 @@ namespace CTLite.Data
                 }
             });
 
-            if(newComposites.Count() > 0)
+            if (newComposites.Count() > 0)
             {
-                SaveNewComposites(connection, transaction, newComposites);
-                UpdateNewKeyValues(composite);
+                SaveNewComposites(connection, transaction, newComposites, shouldUpdateInsertedIds);
+                if(shouldUpdateInsertedIds)
+                    UpdateNewKeyValues(composite);
             }
+
         }
 
         private static void UpdateNewKeyValues(Composite composite)
@@ -168,7 +175,7 @@ namespace CTLite.Data
             });
         }
 
-        private void SaveNewComposites(DbConnection connection, DbTransaction transaction, List<Composite> newComposites)
+        private void SaveNewComposites(DbConnection connection, DbTransaction transaction, List<Composite> newComposites, bool shouldUpdateInsertedIds)
         {
             DataTable dataTable = null;
 
@@ -227,7 +234,7 @@ namespace CTLite.Data
                 if ((invalidTableName = dataTablesToInsert.FirstOrDefault(t => !Regex.IsMatch(t.TableName, @"^[A-Za-z0-9_]+$"))?.TableName) != null)
                     throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidTableName, invalidTableName));
 
-                OnInsert(connection, transaction, dataTablesToInsert);
+                OnInsert(connection, transaction, dataTablesToInsert, shouldUpdateInsertedIds);
 
                 foreach (var composite in newComposites)
                     composite.State = CompositeState.Unchanged;
@@ -246,10 +253,11 @@ namespace CTLite.Data
         protected abstract DbConnection OnOpenNewConnection(string connectionString);
         protected abstract DbTransaction OnBeginNewTransaction(DbConnection connection);
         protected abstract void OnDelete(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, IEnumerable<object> idValues);
-        protected abstract void OnInsert(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert);
+        protected abstract void OnInsert(DbConnection connection, DbTransaction transaction, IReadOnlyList<DataTable> dataTablesToInsert, bool shouldUpdatedInsertedIds);
         protected abstract void OnUpdate(DbConnection connection, DbTransaction transaction, string tableName, string tableKeyPropertyName, object tableKeyValue, IReadOnlyDictionary<string, object> columnValues);
         protected abstract void OnCommit(DbConnection connection, DbTransaction transaction);
         protected abstract IEnumerable<T> OnLoad<T>(DbConnection connection, DbTransaction transaction, string query, IEnumerable<DbParameter> parameters, Func<T> newModelFunc);
         protected abstract T OnExecute<T>(DbConnection connection, DbTransaction transaction, string statement, IEnumerable<DbParameter> parameters);
+
     }
 }

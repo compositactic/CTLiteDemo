@@ -78,9 +78,9 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
         }
 
         [Command]
-        public BlogCompositeContainer SaveAll()
+        public BlogCompositeContainer SaveAll(bool shouldUpdatedInsertedIds)
         {
-            return this.Save();
+            return this.Save(shouldUpdatedInsertedIds);
         }
     }
 }

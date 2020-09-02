@@ -124,7 +124,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
         [Help(typeof(Resources), nameof(Resources.BlogComposite_SaveHelp))]
         public BlogComposite Save()
         {
-            return this.Save<BlogComposite>();
+            return this.Save(true);
         }
     }
 }
