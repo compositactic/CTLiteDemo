@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CTLite.AspNetCore", "CTLite
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CTLite", "CTLite\CTLite.csproj", "{BFC5721E-8124-4391-9090-527E434BBBD4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CTLite.Tools.CTGen", "CTLite.Tools.CTGen\CTLite.Tools.CTGen.csproj", "{94E2D5BA-4C2A-47C1-AD9D-2E11BC5E4826}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{BFC5721E-8124-4391-9090-527E434BBBD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFC5721E-8124-4391-9090-527E434BBBD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFC5721E-8124-4391-9090-527E434BBBD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94E2D5BA-4C2A-47C1-AD9D-2E11BC5E4826}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94E2D5BA-4C2A-47C1-AD9D-2E11BC5E4826}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94E2D5BA-4C2A-47C1-AD9D-2E11BC5E4826}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94E2D5BA-4C2A-47C1-AD9D-2E11BC5E4826}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

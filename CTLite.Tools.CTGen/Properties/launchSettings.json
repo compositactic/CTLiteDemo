@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CTLite.Tools.CTGen": {
+      "commandName": "Project",
+      "commandLineArgs": "-r \"C:\\Users\\matt_\\AppData\\Local\\Temp\\Scratch\\BlogApplications\" -a api"
+    }
+  }
+}
