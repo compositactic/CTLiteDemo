@@ -70,6 +70,7 @@ namespace CTLite.Tools.CTGen
             Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
             dotNetProc.WaitForExit();
 
+            // ---------------
             Console.Write($"Creating project {rootDirectoryNameSingular}.Model ...");
             dotNet.Arguments = $"new classlib --name {rootDirectoryNameSingular}.Model -- output {rootDirectoryNameSingular}.Model";
             dotNetProc = Process.Start(dotNet);
@@ -85,7 +86,43 @@ namespace CTLite.Tools.CTGen
             dotNetProc = Process.Start(dotNet);
             Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
             dotNetProc.WaitForExit();
+            // -------------------
 
+            // ---------------
+            Console.Write($"Creating project {rootDirectoryNameSingular}.Presentation ...");
+            dotNet.Arguments = $"new classlib --name {rootDirectoryNameSingular}.Presentation -- output {rootDirectoryNameSingular}.Presentation";
+            dotNetProc = Process.Start(dotNet);
+            Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
+            dotNetProc.WaitForExit();
+
+            newDirs = directories.Select(d => d.FullName.Replace(workingDirectory, Path.Combine(workingDirectory, $"{rootDirectoryNameSingular}.Presentation")));
+
+            foreach (var newDir in newDirs)
+                Directory.CreateDirectory(newDir);
+
+            dotNet.Arguments = $"sln add .\\{rootDirectoryNameSingular}.Presentation\\{rootDirectoryNameSingular}.Presentation.csproj";
+            dotNetProc = Process.Start(dotNet);
+            Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
+            dotNetProc.WaitForExit();
+            // -------------------
+
+            // ---------------
+            Console.Write($"Creating project {rootDirectoryNameSingular}.Service ...");
+            dotNet.Arguments = $"new classlib --name {rootDirectoryNameSingular}.Service -- output {rootDirectoryNameSingular}.Service";
+            dotNetProc = Process.Start(dotNet);
+            Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
+            dotNetProc.WaitForExit();
+
+            newDirs = directories.Select(d => d.FullName.Replace(workingDirectory, Path.Combine(workingDirectory, $"{rootDirectoryNameSingular}.Service")));
+
+            foreach (var newDir in newDirs)
+                Directory.CreateDirectory(newDir);
+
+            dotNet.Arguments = $"sln add .\\{rootDirectoryNameSingular}.Service\\{rootDirectoryNameSingular}.Service.csproj";
+            dotNetProc = Process.Start(dotNet);
+            Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
+            dotNetProc.WaitForExit();
+            // -------------------
 
         }
     }
