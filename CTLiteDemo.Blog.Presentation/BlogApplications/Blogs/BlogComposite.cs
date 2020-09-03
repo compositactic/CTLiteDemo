@@ -31,9 +31,10 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
     public class BlogComposite : Composite
     {
         public override CompositeState State { get => BlogModel.State; set => BlogModel.State = value; }
-        public BlogCompositeContainer Blogs { get; }
 
         internal Blog BlogModel;
+
+        public BlogCompositeContainer Blogs { get; }
 
         internal BlogComposite(Blog blog, BlogCompositeContainer blogCompositeContainer)
         {
@@ -41,10 +42,6 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
             Blogs = blogCompositeContainer;
             Posts = new PostCompositeContainer(this);
         }
-
-        [DataMember]
-        [Help(typeof(Resources), nameof(Resources.BlogComposite_PostsHelp))]
-        public PostCompositeContainer Posts { get; }
 
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.BlogComposite_IdHelp))]
@@ -55,6 +52,17 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
 
         public long OriginalId { get { return BlogModel.OriginalId; } }
 
+        [Command]
+        [Help(typeof(Resources), nameof(Resources.BlogComposite_RemoveHelp))]
+        public void Remove()
+        {
+            Blogs.blogs.Remove(Id, true);
+        }
+
+        [DataMember]
+        [Help(typeof(Resources), nameof(Resources.BlogComposite_PostsHelp))]
+        public PostCompositeContainer Posts { get; }
+
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.BlogComposite_NameHelp))]
         public string Name
@@ -64,7 +72,6 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
             {
                 BlogModel.Name = value;
                 NotifyPropertyChanged(nameof(BlogComposite.Name));
-
             }
         }
 
@@ -127,14 +134,6 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
                 BlogModel.Earnings = value;
                 NotifyPropertyChanged(nameof(BlogComposite.Earnings));
             }
-        }
-
-
-        [Command]
-        [Help(typeof(Resources), nameof(Resources.BlogComposite_RemoveHelp))]
-        public void Remove()
-        {
-            Blogs.blogs.Remove(Id, true);
         }
 
         [Command]

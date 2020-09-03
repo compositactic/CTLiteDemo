@@ -138,6 +138,9 @@
   <data name="BlogApplicationCompositeRoot_BlogsHelp" xml:space="preserve">
     <value>Gets the Blogs container containing the Blogs for this BlogApplication</value>
   </data>
+  <data name="BlogCompositeContainer_BlogsHelp" xml:space="preserve">
+    <value>Gets the Blogs belonging to the Blogs container</value>
+  </data>
   <data name="BlogCompositeContainer_CreateNewBlogHelp" xml:space="preserve">
     <value>Creates a new Blog using the specified parameters</value>
   </data>

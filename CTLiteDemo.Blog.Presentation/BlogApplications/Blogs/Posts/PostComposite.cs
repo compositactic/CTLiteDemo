@@ -31,6 +31,11 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
     public class PostComposite : Composite
     {
         public override CompositeState State { get => PostModel.State; set => PostModel.State = value; }
+
+        internal Post PostModel;
+
+        public PostCompositeContainer Posts { get; }
+
         internal PostComposite(Post post, PostCompositeContainer postCompositeContainer)
         {
             PostModel = post;
@@ -40,10 +45,6 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
             Attachments = new AttachmentCompositeContainer(this);
         }
 
-        public PostCompositeContainer Posts { get; }
-
-        internal Post PostModel;
-
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.PostComposite_IdHelp))]
         public long Id
@@ -52,6 +53,21 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
         }
 
         public long OriginalId { get { return PostModel.OriginalId; } }
+
+        [Command]
+        [Help(typeof(Resources), nameof(Resources.PostComposite_RemoveHelp))]
+        public void Remove()
+        {
+            Posts.posts.Remove(Id, true);
+        }
+
+        [DataMember]
+        [Help(typeof(Resources), nameof(Resources.PostComposite_CommentsHelp))]
+        public CommentCompositeContainer Comments { get; }
+
+        [DataMember]
+        [Help(typeof(Resources), nameof(Resources.PostComposite_AttachmentsHelp))]
+        public AttachmentCompositeContainer Attachments { get; }
 
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.PostComposite_TitleHelp))]
@@ -75,21 +91,6 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts
                 PostModel.Text = value;
                 NotifyPropertyChanged(nameof(PostComposite.Text));
             }
-        }
-
-        [DataMember]
-        [Help(typeof(Resources), nameof(Resources.PostComposite_CommentsHelp))]
-        public CommentCompositeContainer Comments { get; }
-
-        [DataMember]
-        [Help(typeof(Resources), nameof(Resources.PostComposite_AttachmentsHelp))]
-        public AttachmentCompositeContainer Attachments { get; }
-
-        [Command]
-        [Help(typeof(Resources), nameof(Resources.PostComposite_RemoveHelp))]
-        public void Remove()
-        {
-            Posts.posts.Remove(Id, true);
         }
     }
 }

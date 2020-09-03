@@ -45,6 +45,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
         [NonSerialized]
         internal CompositeDictionary<long, BlogComposite> blogs;
         [DataMember]
+        [Help(typeof(Resources), nameof(Resources.BlogCompositeContainer_BlogsHelp))]
         public ReadOnlyCompositeDictionary<long, BlogComposite> Blogs { get; private set; }
 
         [Command]

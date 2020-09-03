@@ -32,12 +32,29 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
         public override CompositeState State { get => AttachmentModel.State; set => AttachmentModel.State = value; }
 
         internal Attachment AttachmentModel;
-        public AttachmentCompositeContainer Attachments { get; private set; }
+
+        public AttachmentCompositeContainer Attachments { get; }
 
         internal AttachmentComposite(Attachment attachment, AttachmentCompositeContainer attachmentCompositeContainer)
         {
             AttachmentModel = attachment;
             Attachments = attachmentCompositeContainer;
+        }
+
+        [DataMember]
+        [Help(typeof(Resources), nameof(Resources.AttachmentComposite_IdHelp))]
+        public long Id
+        {
+            get { return AttachmentModel.Id; }
+        }
+
+        public long OriginalId { get { return AttachmentModel.OriginalId; } }
+
+        [Command]
+        [Help(typeof(Resources), nameof(Resources.AttachmentComposite_RemoveHelp))]
+        public void Remove()
+        {
+            Attachments.attachments.Remove(Id, true);
         }
 
         [DataMember]
@@ -58,22 +75,6 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
             var attachmentBytes = CompositeRoot.GetService<IAttachmentArchiveService>().GetAttachment(FilePath);
             context.Response.ContentType = ContentTypes.GetContentTypeFromFileExtension(Path.GetExtension(FilePath));
             return attachmentBytes;
-        }
-
-        [DataMember]
-        [Help(typeof(Resources), nameof(Resources.AttachmentComposite_IdHelp))]
-        public long Id
-        {
-            get { return AttachmentModel.Id; }
-        }
-
-        public long OriginalId { get { return AttachmentModel.OriginalId;  } }
-
-        [Command]
-        [Help(typeof(Resources), nameof(Resources.AttachmentComposite_RemoveHelp))]
-        public void Remove()
-        {
-            Attachments.attachments.Remove(Id, true);
         }
     }
 }

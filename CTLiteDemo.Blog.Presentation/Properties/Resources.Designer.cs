@@ -214,6 +214,15 @@ namespace CTLiteDemo.Presentation.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Gets the Blogs belonging to the Blogs container.
+        /// </summary>
+        internal static string BlogCompositeContainer_BlogsHelp {
+            get {
+                return ResourceManager.GetString("BlogCompositeContainer_BlogsHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The BlogType to assign to the new Blog.
         /// </summary>
         internal static string BlogCompositeContainer_CreateNewBlog_BlogTypeHelp {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -55,6 +56,12 @@ namespace CTLite.Tools.CTGen
                 return;
             }
 
+            CreateSolutionAndProjects(rootDirectoryInfo, workingDirectory, directories);
+
+        }
+
+        private static void CreateSolutionAndProjects(DirectoryInfo rootDirectoryInfo, string workingDirectory, IEnumerable<DirectoryInfo> directories)
+        {
             var rootDirectoryNameSingular = Regex.Replace(rootDirectoryInfo.Name, @"s|es$", string.Empty);
             var dotNet = new ProcessStartInfo("dotnet")
             {
@@ -237,9 +244,6 @@ namespace CTLite.Tools.CTGen
             dotNetProc = Process.Start(dotNet);
             Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
             dotNetProc.WaitForExit();
-
-            // -------------
-
         }
     }
 }
