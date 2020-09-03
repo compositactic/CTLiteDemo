@@ -86,27 +86,6 @@ namespace CTLite.Tools.CTGen
             Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
             dotNetProc.WaitForExit();
 
-            // dotnet new sln --name FooBar
-            //dotnet new console --name Foo --output Foo
-            //dotnet new console --name Bar --output Bar
-            //dotnet sln add .\Foo\Foo.csproj
-            //dotnet sln add .\Bar\Bar.csproj
-            //dotnet restore
-            //dotnet build FooBar.sln
-
-            //if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            //{
-            //    url = url.Replace("&", "^&");
-            //    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
-            //}
-            //else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            //{
-            //    Process.Start("xdg-open", url);
-            //}
-            //else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            //{
-            //    Process.Start("open", url);
-            //}
 
         }
     }
