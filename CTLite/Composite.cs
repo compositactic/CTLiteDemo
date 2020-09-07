@@ -95,6 +95,7 @@ namespace CTLite
                 var returnValueHelpText = cmi.ReturnTypeCustomAttributes.GetCustomAttributes(typeof(HelpAttribute), true).Cast<HelpAttribute>().FirstOrDefault()?.Text;
 
                 compositeCommandInfos.Add(new CompositeCommandInfo(cmi.Name, cmi.GetCustomAttribute<HelpAttribute>()?.Text, compositeCommandParameterInfos, cmi.ReturnType, returnValueHelpText));
+                compositeCommandParameterInfos.Clear();
             }
 
             return new CompositeMemberInfo(compositePropertyInfos, compositeCommandInfos);

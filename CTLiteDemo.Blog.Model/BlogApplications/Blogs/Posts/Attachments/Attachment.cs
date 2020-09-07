@@ -38,9 +38,6 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts.Attachments
         public long PostId { get; set; }
         public Post Post { get; internal set; }
 
-        [DataMember]
-        public string FilePath { get; set; }
-
         public Attachment() { }
 
         internal Attachment(Post post)
@@ -55,5 +52,8 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts.Attachments
         {
             Post.attachments.TryRemove(Id, out _);
         }
+
+        [DataMember]
+        public string FilePath { get; set; }
     }
 }

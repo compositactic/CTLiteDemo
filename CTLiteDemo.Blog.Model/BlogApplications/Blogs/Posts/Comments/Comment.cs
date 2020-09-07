@@ -29,7 +29,6 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs.Posts.Comments
         [DataMember]
         public CompositeState State { get; set; } = CompositeState.Unchanged;
 
-
         [DataMember]
         public long Id { get; set; }
 

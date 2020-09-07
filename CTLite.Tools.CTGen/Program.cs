@@ -57,8 +57,34 @@ namespace CTLite.Tools.CTGen
             }
 
             CreateSolutionAndProjects(rootDirectoryInfo, workingDirectory, directories);
+            GenerateCode(new DirectoryInfo[] { rootDirectoryInfo });
 
         }
+
+        private static void GenerateCode(IEnumerable<DirectoryInfo> rootDirectoryInfos)
+        {
+            foreach(var directory in rootDirectoryInfos)
+            {
+                var modelClassName = Regex.Replace(directory.Name, @"s|es$", string.Empty);
+
+                var childModelClassDirectories = directory.GetDirectories();
+                foreach (var childDirectory in childModelClassDirectories)
+                {
+                    var childModelClassName = childDirectory.Name;
+                    var concurrentDictionaryName = childModelClassName.ToLower();
+                    var readOnlyDictionaryName = $"_{concurrentDictionaryName}";
+                    var iReadOnlyDictionaryName = childModelClassName;
+                }
+
+                GenerateCode(directory.GetDirectories());
+            }
+
+
+
+
+        }
+
+
 
         private static void CreateSolutionAndProjects(DirectoryInfo rootDirectoryInfo, string workingDirectory, IEnumerable<DirectoryInfo> directories)
         {
