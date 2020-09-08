@@ -1,9 +1,12 @@
-﻿using System;
+﻿using CTLite;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Xsl;
 
 namespace CTLite.Tools.CTGen
 {
@@ -50,36 +53,84 @@ namespace CTLite.Tools.CTGen
 
             var directories = new DirectoryInfo[] { rootDirectoryInfo }.Union(rootDirectoryInfo.GetDirectories(string.Empty, SearchOption.AllDirectories));
 
-            if (!Regex.IsMatch(rootDirectoryInfo.Name, @"s|es$") || !directories.All(d => Regex.IsMatch(d.Name, @"s|es$")))
+            if (!Regex.IsMatch(rootDirectoryInfo.Name, @"s$|es$") || !directories.All(d => Regex.IsMatch(d.Name, @"s$|es$")))
             {
                 Console.Error.WriteLine("All directory names must be in plural form, and end with 's' or 'es'");
                 return;
             }
 
-            CreateSolutionAndProjects(rootDirectoryInfo, workingDirectory, directories);
-            GenerateCode(new DirectoryInfo[] { rootDirectoryInfo });
+            //CreateSolutionAndProjects(rootDirectoryInfo, workingDirectory, directories);
+            GenerateCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty);
 
         }
 
-        private static void GenerateCode(IEnumerable<DirectoryInfo> rootDirectoryInfos)
+        private static void GenerateCode(IEnumerable<DirectoryInfo> rootDirectoryInfos, string workingDirectory, bool isRootDirectory, string rootNamespace)
         {
+            var modelTcs = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "Model.tcs"));
             foreach(var directory in rootDirectoryInfos)
             {
-                var modelClassName = Regex.Replace(directory.Name, @"s|es$", string.Empty);
+                var childNamespaces = new StringBuilder();
+                var childModelFactoryMethods = new StringBuilder();
+                var childModelClassDictionaries = new StringBuilder();
+                var publicConstructorCode = new StringBuilder();
+                var modelOnDeserailizedMethod = new StringBuilder();
 
+                var modelClassName = Regex.Replace(directory.Name, @"s$|es$", string.Empty);
+                rootNamespace = isRootDirectory ? $"{modelClassName}.Model" : rootNamespace;
+                var modelClassNamespace = rootNamespace + directory.FullName.Replace(workingDirectory, string.Empty).Replace(Path.DirectorySeparatorChar, '.');
                 var childModelClassDirectories = directory.GetDirectories();
+
+                var parentModelClassName = isRootDirectory ? string.Empty : Regex.Replace(directory.Parent.Name, @"s$|es$", string.Empty);
+                var parentModelIdPropertyName = string.IsNullOrEmpty(parentModelClassName) ? string.Empty : $"{parentModelClassName}Id";
+
                 foreach (var childDirectory in childModelClassDirectories)
                 {
-                    var childModelClassName = childDirectory.Name;
-                    var concurrentDictionaryName = childModelClassName.ToLower();
+                    var childModelClassName = Regex.Replace(childDirectory.Name, @"s$|es$", string.Empty);
+                    var concurrentDictionaryName = childDirectory.Name.ToLower();
                     var readOnlyDictionaryName = $"_{concurrentDictionaryName}";
-                    var iReadOnlyDictionaryName = childModelClassName;
+                    var iReadOnlyDictionaryName = childDirectory.Name;
+                    childNamespaces.AppendLine($"using {modelClassNamespace}.{childDirectory.Name}");
+                    childModelFactoryMethods.AppendLine($"public {childModelClassName} CreateNew{childModelClassName}() {{ return new {childModelClassName}(this); }}");
+
+                    childModelClassDictionaries.AppendLine("[DataMember]");
+                    childModelClassDictionaries.AppendLine($"\t\tinternal ConcurrentDictionary<long, {childModelClassName}> {concurrentDictionaryName}");
+                    childModelClassDictionaries.AppendLine($"\t\tprivate ReadOnlyDictionary<long, {childModelClassName}> {readOnlyDictionaryName}");
+                    childModelClassDictionaries.AppendLine($"\t\tpublic IReadOnlyDictionary<long, {childModelClassName}> {iReadOnlyDictionaryName} {{ get {{ return {readOnlyDictionaryName}; }} }}");
+                    childModelClassDictionaries.AppendLine();
+
+                    publicConstructorCode.AppendLine($"public {modelClassName}() ");
+                    publicConstructorCode.AppendLine("\t\t{");
+                    publicConstructorCode.AppendLine("\t\t\tId = new long().NewId();");
+                    publicConstructorCode.AppendLine($"\t\t\t{concurrentDictionaryName} = new ConcurrentDictionary<long, {childModelClassName}>();");
+                    publicConstructorCode.AppendLine($"\t\t\t{readOnlyDictionaryName} = new ReadOnlyDictionary<long, {childModelClassName}>({concurrentDictionaryName});");
+
+                    modelOnDeserailizedMethod.AppendLine("[OnDeserialized]");
+                    modelOnDeserailizedMethod.AppendLine("\t\tprivate void OnDeserialized(StreamingContext context)");
+                    modelOnDeserailizedMethod.AppendLine("\t\t{");
+                    modelOnDeserailizedMethod.AppendLine($"\t\t\t{readOnlyDictionaryName} = new ReadOnlyDictionary<long, {childModelClassName}>({concurrentDictionaryName});");
+
                 }
 
-                GenerateCode(directory.GetDirectories());
+                modelOnDeserailizedMethod.AppendLine("\t\t}");
+                publicConstructorCode.AppendLine("\t\t}");
+
+                modelTcs = modelTcs
+                    .Replace("{modelClassChildNamespaces}", childNamespaces.ToString())
+                    .Replace("{modelClassNamespace}", modelClassNamespace)
+                    .Replace("{modelClassName}", modelClassName)
+                    .Replace("{modelParentPropertyNameAttribute}", string.IsNullOrEmpty(parentModelClassName) ? string.Empty : $"[ParentProperty(nameof({modelClassName}.{parentModelIdPropertyName}))]")
+                    .Replace("{publicConstructorCode}", publicConstructorCode.ToString())
+                    .Replace("{childModelClassDictionaries}", childModelClassDictionaries.ToString())
+                    .Replace("{childModelFactoryMethods}", childModelFactoryMethods.ToString())
+                    .Replace("{modelOnDeserailizedMethod}", modelOnDeserailizedMethod.ToString())
+                    .Replace("{modelOnDeserailizedMethod}", modelOnDeserailizedMethod.ToString())
+                    .Replace("{modelOnDeserailizedMethod}", modelOnDeserailizedMethod.ToString());
+
+                var modelClassFileName = Path.Combine(workingDirectory, rootNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + ".cs");
+                File.WriteAllText(modelClassFileName, modelTcs);
+
+                GenerateCode(directory.GetDirectories(), workingDirectory, false, rootNamespace);
             }
-
-
 
 
         }
@@ -88,7 +139,7 @@ namespace CTLite.Tools.CTGen
 
         private static void CreateSolutionAndProjects(DirectoryInfo rootDirectoryInfo, string workingDirectory, IEnumerable<DirectoryInfo> directories)
         {
-            var rootDirectoryNameSingular = Regex.Replace(rootDirectoryInfo.Name, @"s|es$", string.Empty);
+            var rootDirectoryNameSingular = Regex.Replace(rootDirectoryInfo.Name, @"s$|es$", string.Empty);
             var dotNet = new ProcessStartInfo("dotnet")
             {
                 WorkingDirectory = workingDirectory,

@@ -25,11 +25,13 @@ using System.Runtime.Serialization;
 namespace CTLiteDemo.Model.BlogApplications
 {
     [DataContract]
-    [KeyProperty(nameof(BlogApplication.Id))]
+    [KeyProperty(nameof(BlogApplication.Id), nameof(BlogApplication.OriginalId))]
     public class BlogApplication
     {
         [DataMember]
         public long Id { get; set; }
+
+        public long OriginalId { get; set; }
 
         public BlogApplication()
         {

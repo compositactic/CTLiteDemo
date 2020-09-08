@@ -1,0 +1,38 @@
+﻿using CTLite;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Runtime.Serialization;
+{modelClassChildNamespaces}
+
+namespace {modelClassNamespace}
+{
+	[DataContract]
+	{modelParentPropertyNameAttribute}
+	[KeyProperty(nameof({modelClassName}.Id), nameof({modelClassName}.OriginalId)]
+	public partial class {modelClassName}
+	{
+		[DataMember]
+		public CompositeState State { get; set; } = CompositeState.Unchanged;
+
+		[DataMember]
+		public long Id { get; set; }
+
+		public long OriginalId { get; set; }
+
+		{parentIdPropertyAndParentProperty}
+
+		{publicConstructorCode}
+
+		{internalConstructorCode}
+
+		{childModelFactoryMethods}
+
+		{childModelClassDictionaries}
+
+		{modelRemoveMethod}
+
+		{modelOnDeserailizedMethod}
+	}
+}

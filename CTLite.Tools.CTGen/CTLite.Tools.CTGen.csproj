@@ -6,4 +6,10 @@
     <AssemblyName>CTGen</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Update="Model.tcs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
