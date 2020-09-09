@@ -1,0 +1,9 @@
+﻿using CTLite;
+
+namespace {compositeClassNamespace}
+{
+	public partial class {compositeClassName}
+	{
+
+	}
+}
