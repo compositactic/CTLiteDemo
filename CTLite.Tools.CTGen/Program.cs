@@ -195,6 +195,7 @@ namespace CTLite.Tools.CTGen
             dotNetProc = Process.Start(dotNet);
             Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
             dotNetProc.WaitForExit();
+            File.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.Model","class1.cs"));
 
             dotNet.WorkingDirectory = Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.Model");
             dotNet.Arguments = $"add package CTLite";
@@ -221,6 +222,7 @@ namespace CTLite.Tools.CTGen
             dotNetProc = Process.Start(dotNet);
             Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
             dotNetProc.WaitForExit();
+            File.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.Presentation", "class1.cs"));
 
             dotNet.WorkingDirectory = Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.Presentation");
             dotNet.Arguments = $"add package CTLite";
@@ -257,6 +259,7 @@ namespace CTLite.Tools.CTGen
             dotNetProc = Process.Start(dotNet);
             Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
             dotNetProc.WaitForExit();
+            File.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.Service", "class1.cs"));
 
             dotNet.WorkingDirectory = Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.Service");
             dotNet.Arguments = $"add package CTLite";
@@ -327,6 +330,8 @@ namespace CTLite.Tools.CTGen
             dotNetProc = Process.Start(dotNet);
             Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
             dotNetProc.WaitForExit();
+            Directory.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi", "Controllers"), true);
+            File.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi", "WeatherForecast.cs"));
 
             // dotnet add app/app.csproj reference lib/lib.csproj
             dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.WebApi\\{rootDirectoryNameSingular}.WebApi.csproj reference .\\{rootDirectoryNameSingular}.Presentation\\{rootDirectoryNameSingular}.Presentation.csproj";
