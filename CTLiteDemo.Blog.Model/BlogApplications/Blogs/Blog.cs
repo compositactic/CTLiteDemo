@@ -26,7 +26,7 @@ using System.Runtime.Serialization;
 namespace CTLiteDemo.Model.BlogApplications.Blogs
 {
     [DataContract]
-    [ParentProperty(nameof(Blog.BlogApplicationId))]
+    [ParentProperty(nameof(Blog.BlogApplication))]
     [KeyProperty(nameof(Blog.Id), nameof(Blog.OriginalId))]
     public class Blog
     {
