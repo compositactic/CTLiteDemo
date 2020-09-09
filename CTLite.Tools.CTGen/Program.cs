@@ -163,7 +163,9 @@ namespace CTLite.Tools.CTGen
 
                 var modelGeneratedClassFileName = Path.Combine(workingDirectory, rootNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + ".g.cs");
                 var modelClassFileName = Path.Combine(workingDirectory, rootNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + ".cs");
-                
+
+                Directory.CreateDirectory(Path.GetDirectoryName(modelGeneratedClassFileName));
+
                 File.WriteAllText(modelGeneratedClassFileName, modelGTcs);
                 if (!File.Exists(modelClassFileName))
                     File.WriteAllText(modelClassFileName, modelTcs);
