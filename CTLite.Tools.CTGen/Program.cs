@@ -113,8 +113,7 @@ namespace CTLite.Tools.CTGen
                     childNamespaces.AppendLine($"using {modelClassNamespace}.{childDirectory.Name};");
                     childModelFactoryMethods.AppendLine($"public {childModelClassName} CreateNew{childModelClassName}() {{ return new {childModelClassName}(this); }}");
 
-                    childModelClassDictionaries.AppendLine("[DataMember]");
-                    childModelClassDictionaries.AppendLine($"\t\tinternal ConcurrentDictionary<long, {childModelClassName}> {concurrentDictionaryName};");
+                    childModelClassDictionaries.AppendLine($"[DataMember] internal ConcurrentDictionary<long, {childModelClassName}> {concurrentDictionaryName};");
                     childModelClassDictionaries.AppendLine($"\t\tprivate ReadOnlyDictionary<long, {childModelClassName}> {readOnlyDictionaryName};");
                     childModelClassDictionaries.AppendLine($"\t\tpublic IReadOnlyDictionary<long, {childModelClassName}> {iReadOnlyDictionaryName} {{ get {{ return {readOnlyDictionaryName}; }} }}");
                     childModelClassDictionaries.AppendLine();
@@ -155,7 +154,7 @@ namespace CTLite.Tools.CTGen
                     .Replace("{childModelClassDictionaries}", childModelClassDictionaries.ToString())
                     .Replace("{childModelFactoryMethods}", childModelFactoryMethods.ToString())
                     .Replace("{modelOnDeserailizedMethod}", modelOnDeserailizedMethod.ToString())
-                    .Replace("{parentIdProperty}", string.IsNullOrEmpty(parentModelClassName) ? string.Empty : $"{(parentModelClassName != rootClassName ? "[DataMember]" + Environment.NewLine : string.Empty)}public long {parentModelIdPropertyName} {{ get; set;}}")
+                    .Replace("{parentIdProperty}", string.IsNullOrEmpty(parentModelClassName) ? string.Empty : $"{(parentModelClassName != rootClassName ? "[DataMember] " : string.Empty)}public long {parentModelIdPropertyName} {{ get; set;}}")
                     .Replace("{parentProperty}", string.IsNullOrEmpty(parentModelClassName) ? string.Empty :  $"public {parentModelClassName} {parentModelClassName} {{ get; internal set;}}")
                     .Replace("{modelRemoveMethod}", string.IsNullOrEmpty(parentModelClassName) ? string.Empty : $"public void Remove() {{ {parentModelClassName}.{directory.Name.ToLower()}.TryRemove(Id, out _); }}")
                     .Replace("{internalConstructorCode}", internalConstructorCode.ToString());
