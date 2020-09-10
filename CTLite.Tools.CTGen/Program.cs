@@ -68,12 +68,12 @@ namespace CTLite.Tools.CTGen
             //GenerateModelCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty);
 
             Console.WriteLine("Generating presentation code ...");
-            GeneratePresentationCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty);
+            GeneratePresentationCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty, string.Empty);
 
             Console.WriteLine("Code generation complete!");
         }
 
-        private static void GeneratePresentationCode(IEnumerable<DirectoryInfo> rootDirectoryInfos, string workingDirectory, bool isRootDirectory, string rootNamespace, string rootClassName)
+        private static void GeneratePresentationCode(IEnumerable<DirectoryInfo> rootDirectoryInfos, string workingDirectory, bool isRootDirectory, string rootPresentationNamespace, string modelNamespace, string rootClassName)
         {
             foreach (var directory in rootDirectoryInfos)
             {
@@ -82,43 +82,48 @@ namespace CTLite.Tools.CTGen
                 var compositeRootInitializeCode = new StringBuilder();
                 var compositeContainers = new StringBuilder();
                 var compositeChildNamespaces = new StringBuilder();
-                var modelNamespaces = new StringBuilder();
+
 
                 var childModelClassDirectories = directory.GetDirectories();
 
                 var modelClassName = Regex.Replace(directory.Name, @"s$|es$", string.Empty);
                 var baseCompositeClass = isRootDirectory ? "CompositeRoot" : "Composite";
-                rootNamespace = isRootDirectory ? $"{modelClassName}.Presentation" : rootNamespace;
+                rootPresentationNamespace = isRootDirectory ? $"{modelClassName}.Presentation" : rootPresentationNamespace;
+                var testAssemblyName = string.Empty;
+                testAssemblyName = isRootDirectory ? $"{modelClassName}.Test" : testAssemblyName;
+                modelNamespace = string.IsNullOrEmpty(modelNamespace) ? $"using {modelClassName}.Model.{directory.Name}" : modelNamespace += $".{directory.Name}";
+                rootClassName = isRootDirectory ? $"{modelClassName}{baseCompositeClass}" : rootClassName;
 
-                var compositeClassNamespace = rootNamespace + directory.FullName.Replace(workingDirectory, string.Empty).Replace(Path.DirectorySeparatorChar, '.');
+                var compositeClassNamespace = rootPresentationNamespace + directory.FullName.Replace(workingDirectory, string.Empty).Replace(Path.DirectorySeparatorChar, '.');
 
                 foreach (var childDirectory in childModelClassDirectories)
                 {
                     var childModelClassName = Regex.Replace(childDirectory.Name, @"s$|es$", string.Empty);
                     createContainers.AppendLine($"\t\t\t{childDirectory.Name} = new {childModelClassName}CompositeContainer(this);");
                     compositeContainers.AppendLine($"[DataMember] public {childModelClassName}CompositeContainer {childDirectory.Name} {{ get; private set; }}");
-
+                    compositeChildNamespaces.AppendLine($"using {compositeClassNamespace}.{childDirectory.Name};");
                 }
-                
+
+                var compositeRootIdProperty = string.Empty;
+                var compositeStateProperty = string.Empty;
+
                 if (isRootDirectory)
                 {
                     constructorsCode.AppendLine($"public {modelClassName}{baseCompositeClass}() : base() {{ Initialize(); }}");
                     constructorsCode.AppendLine($"\t\tpublic {modelClassName}{baseCompositeClass}(params IService[] services) : base(services) {{ Initialize(); }}");
+                    compositeRootInitializeCode.AppendLine("private void Initialize()");
+                    compositeRootInitializeCode.AppendLine("\t\t{");
+                    compositeRootInitializeCode.AppendLine($"\t\t\t{modelClassName}Model = new {modelClassName}();");
+                    compositeRootInitializeCode.AppendLine(createContainers.ToString());
+                    compositeRootInitializeCode.AppendLine("\t\t}");
+                    compositeRootInitializeCode.AppendLine();
+                    compositeRootInitializeCode.AppendLine("\t\tpublic override void InitializeCompositeModel(object model)");
+                    compositeRootInitializeCode.AppendLine("\t\t{");
+                    compositeRootInitializeCode.AppendLine($"\t\t\t{modelClassName}Model = model as {modelClassName};");
+                    compositeRootInitializeCode.AppendLine("\t\t}");
+                    compositeRootIdProperty = isRootDirectory ? $"public override long Id => {modelClassName}Model.Id;" : $"[DataMember] public long Id {{ get {{ return {modelClassName}Model.Id; }} }}";
+                    compositeStateProperty = "public override CompositeState State { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }";
                 }
-
-                compositeRootInitializeCode.AppendLine("private void Initialize()");
-                compositeRootInitializeCode.AppendLine("\t\t{");
-                compositeRootInitializeCode.AppendLine($"\t\t\t{modelClassName}Model = new {modelClassName}();");
-                compositeRootInitializeCode.AppendLine(createContainers.ToString());
-                compositeRootInitializeCode.AppendLine("\t\t}");
-                compositeRootInitializeCode.AppendLine();
-                compositeRootInitializeCode.AppendLine("\t\tpublic override void InitializeCompositeModel(object model)");
-                compositeRootInitializeCode.AppendLine("\t\t{");
-                compositeRootInitializeCode.AppendLine($"\t\t\t{modelClassName}Model = model as {modelClassName};");
-                compositeRootInitializeCode.AppendLine("\t\t}");
-
-
-                var compositeRootIdProperty = isRootDirectory ? $"public override long Id => {modelClassName}Model.Id;" : $"[DataMember] public long Id {{ get {{ return {modelClassName}Model.Id; }} }}";
 
                 var presentationlGTcs = _presentationlGTcsTemplate
                                             .Replace("{modelClassName}", modelClassName)
@@ -127,12 +132,22 @@ namespace CTLite.Tools.CTGen
                                             .Replace("{compositeRootIdProperty}", compositeRootIdProperty)
                                             .Replace("{compositeRootInitializeCode}", compositeRootInitializeCode.ToString())
                                             .Replace("{compositeContainers}", compositeContainers.ToString())
-                                            .Replace("{compositeParentPropertyNameAttribute}", isRootDirectory ? string.Empty : "");
+                                            .Replace("{compositeParentPropertyNameAttribute}", isRootDirectory ? string.Empty : "") // TODO
+                                            .Replace("{compositeClassNamespace}", compositeClassNamespace)
+                                            .Replace("{compositeClassChildNamespaces}", compositeChildNamespaces.ToString())
+                                            .Replace("{modelNamespace}", modelNamespace + ";")
+                                            .Replace("{internalsVisibleToAttribute}", $"[assembly: InternalsVisibleTo(\"{testAssemblyName}\")]")
+                                            .Replace("{compositeStateProperty}", compositeStateProperty);
 
-                var presentationTcs = _presentationTcsTemplate.Replace("{compositeClassNamespace}", compositeClassNamespace).Replace("{modelClassName}", modelClassName);
 
-                var compositeGeneratedClassFileName = Path.Combine(workingDirectory, rootNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + ".g.cs");
-                var compositeClassFileName = Path.Combine(workingDirectory, rootNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + ".cs");
+
+                var presentationTcs = _presentationTcsTemplate
+                                        .Replace("{modelClassName}", modelClassName)
+                                        .Replace("{baseCompositeClass}", baseCompositeClass)
+                                        .Replace("{compositeClassNamespace}", compositeClassNamespace);
+
+                var compositeGeneratedClassFileName = Path.Combine(workingDirectory, rootPresentationNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + ".g.cs");
+                var compositeClassFileName = Path.Combine(workingDirectory, rootPresentationNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + ".cs");
 
                 Directory.CreateDirectory(Path.GetDirectoryName(compositeGeneratedClassFileName));
 
@@ -140,7 +155,7 @@ namespace CTLite.Tools.CTGen
                 if (!File.Exists(compositeClassFileName))
                     File.WriteAllText(compositeClassFileName, _presentationTcsTemplate);
 
-                GeneratePresentationCode(directory.GetDirectories(), workingDirectory, false, rootNamespace, rootClassName);
+                GeneratePresentationCode(directory.GetDirectories(), workingDirectory, false, rootPresentationNamespace, modelNamespace, rootClassName);
             }
 
 
