@@ -20,7 +20,7 @@ namespace {compositeClassNamespace}
 	{
 		{compositeStateProperty}
 
-		internal {modelClassName} {modelClassName}Model; 
+		{internalModel} 
 
 		{compositeParentProperty}
 
