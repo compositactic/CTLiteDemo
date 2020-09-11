@@ -2,8 +2,14 @@
 
 namespace {compositeClassNamespace}
 {
-	public partial class {modelClassName}{baseCompositeClass}
+	public partial class {modelClassName}CompositeContainer
 	{
-
+	    [Command]
+        public {modelClassName}Composite CreateNew{modelClassName}()
+        {
+			var new{modelClassName} = new {modelClassName}Composite(_new{modelClassName}Func.Invoke(), this);
+			{folderNameCamel}.Add(new{modelClassName}.Id, new{modelClassName});
+			return new{modelClassName};
+		}
 	}
 }

@@ -9,12 +9,26 @@ using System.Runtime.Serialization;
 namespace {compositeClassNamespace}
 {
 	[DataContract]
-    [ParentProperty(nameof({modelClassName}CompositeContainer.{parentClass}))]
+    [ParentProperty(nameof({modelClassName}CompositeContainer.{parentClassPropertyName}))]
     [CompositeContainer(nameof({modelClassName}CompositeContainer.{folderName}), nameof({modelClassName}CompositeContainer.{folderName}), nameof({modelClassName}CompositeContainer.{folderNameCamel}))]
 	public partial class {modelClassName}CompositeContainer : Composite
 	{
         public override CompositeState State { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+        public {parentClass} {parentClassPropertyName} { get; private set; }
+
+        internal {modelClassName}CompositeContainer({parentClass} {parentClassCamel})
+        {
+            this.InitializeCompositeContainer(out {folderNameCamel}, {parentClassCamel});
+            _new{modelClassName}Func = () => {parentClassPropertyName}.{parentClassPropertyName}Model.CreateNew{modelClassName}();
+        }
+
+        private readonly Func<{modelClassName}> _new{modelClassName}Func;
+
+        [NonSerialized]
+        internal CompositeDictionary<long, {modelClassName}Composite> {folderNameCamel};
+        [DataMember]
+        public ReadOnlyCompositeDictionary<long, {modelClassName}Composite> {folderName} { get; private set; }
 
 	}
 }

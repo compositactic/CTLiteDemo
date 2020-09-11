@@ -22,6 +22,8 @@ namespace {compositeClassNamespace}
 
 		internal {modelClassName} {modelClassName}Model; 
 
+		{compositeParentProperty}
+
 		{compositeRootConstructors}
 
 		{compositeInternalConstructor}
@@ -35,7 +37,6 @@ namespace {compositeClassNamespace}
 		{compositeRootInitializeCode}
 
 		{compositeContainers}
-
 
 	}
 }
