@@ -4,30 +4,16 @@
 using CTLite;
 using System;
 using System.Runtime.Serialization;
-{compositeClassChildNamespaces}
 {modelNamespace}
-
-{internalsVisibleToAttribute}
 
 namespace {compositeClassNamespace}
 {
 	[DataContract]
-	{compositeParentPropertyNameAttribute}
-	[KeyProperty(nameof({modelClassName}{baseCompositeClass}.Id), nameof({modelClassName}{baseCompositeClass}.OriginalId))]
-	[CompositeModel(nameof({modelClassName}{baseCompositeClass}.{modelClassName}Model))]
-	public partial class {modelClassName}{baseCompositeClass} : {baseCompositeClass}
+    [ParentProperty(nameof({modelClassName}CompositeContainer.{parentClass}))]
+    [CompositeContainer(nameof({modelClassName}CompositeContainer.{folderName}), nameof({modelClassName}CompositeContainer.{folderName}), nameof({modelClassName}CompositeContainer.{folderNameCamel}))]
+	public partial class {modelClassName}CompositeContainer : Composite
 	{
-		{compositeStateProperty}
-
-		internal {modelClassName} {modelClassName}Model; 
-
-		{compositeRootConstructors}
-
-		{compositeRootIdProperty}
-
-		{compositeRootInitializeCode}
-
-		{compositeContainers}
+        public override CompositeState State { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
 
 	}

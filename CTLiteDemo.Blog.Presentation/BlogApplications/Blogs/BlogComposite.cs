@@ -27,7 +27,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
     [DataContract]
     [KeyProperty(nameof(BlogComposite.Id), nameof(BlogComposite.OriginalId))]
     [ParentProperty(nameof(BlogComposite.Blogs))]
-    [CompositeModel(nameof(BlogModel))]
+    [CompositeModel(nameof(BlogComposite.BlogModel))]
     public class BlogComposite : Composite
     {
         public override CompositeState State { get => BlogModel.State; set => BlogModel.State = value; }

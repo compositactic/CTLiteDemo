@@ -28,7 +28,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
 {
     [DataContract]
     [ParentProperty(nameof(BlogCompositeContainer.BlogApplication))]
-    [CompositeContainer(nameof(BlogCompositeContainer.Blogs), nameof(Model.BlogApplications.BlogApplication.Blogs), nameof(BlogCompositeContainer.blogs))]
+    [CompositeContainer(nameof(BlogCompositeContainer.Blogs), nameof(BlogCompositeContainer.Blogs), nameof(BlogCompositeContainer.blogs))]
     public class BlogCompositeContainer : Composite
     {
         public override CompositeState State { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

@@ -4,6 +4,7 @@
 using CTLite;
 using System;
 using System.Runtime.Serialization;
+using System.Runtime.CompilerServices;
 {compositeClassChildNamespaces}
 {modelNamespace}
 
@@ -13,7 +14,7 @@ namespace {compositeClassNamespace}
 {
 	[DataContract]
 	{compositeParentPropertyNameAttribute}
-	[KeyProperty(nameof({modelClassName}{baseCompositeClass}.Id), nameof({modelClassName}{baseCompositeClass}.OriginalId))]
+	{keyPropertyAttribute}
 	[CompositeModel(nameof({modelClassName}{baseCompositeClass}.{modelClassName}Model))]
 	public partial class {modelClassName}{baseCompositeClass} : {baseCompositeClass}
 	{
@@ -23,7 +24,13 @@ namespace {compositeClassNamespace}
 
 		{compositeRootConstructors}
 
-		{compositeRootIdProperty}
+		{compositeInternalConstructor}
+
+		{compositeIdProperty}
+
+		{compositeOriginalIdProperty}
+
+		{compositeRemoveMethod}
 
 		{compositeRootInitializeCode}
 
