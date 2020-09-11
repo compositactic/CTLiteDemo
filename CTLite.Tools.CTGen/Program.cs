@@ -81,7 +81,7 @@ namespace CTLite.Tools.CTGen
                 return;
             }
 
-            //CreateSolutionAndProjects(rootDirectoryInfo, workingDirectory, directories);
+            CreateSolutionAndProjects(rootDirectoryInfo, workingDirectory, directories);
 
             Console.WriteLine("Generating model code ...");
             GenerateModelCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty);
