@@ -1,0 +1,18 @@
+﻿using CTLite.AspNetCore;
+using {rootPresentationNamespace}.{rootFolderName};
+using Microsoft.Extensions.Caching.Memory;
+
+namespace {modelClassName}.WebApi
+{
+    public class {modelClassName}Controller : CompositeRootControllerBase<{modelClassName}CompositeRoot>
+    {
+        public {modelClassName}Controller(IMemoryCache cache) : base(cache) { }
+        protected override {modelClassName}CompositeRoot CreateCompositeRoot()
+        {
+            return new {modelClassName}CompositeRoot
+            (
+                // TODO: IService dependencies here
+            );
+        }
+    }
+}

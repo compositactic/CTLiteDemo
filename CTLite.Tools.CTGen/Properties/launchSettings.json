@@ -2,7 +2,7 @@
   "profiles": {
     "CTLite.Tools.CTGen": {
       "commandName": "Project",
-      "commandLineArgs": "-r \"C:\\Users\\matt_\\AppData\\Local\\Temp\\Scratch\\BlogApplications\" -a api"
+      "commandLineArgs": "-r \"C:\\Users\\matt_\\AppData\\Local\\Temp\\Scratch\\BlogApplications\" -a webapi -c -p"
     }
   }
 }

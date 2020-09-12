@@ -33,6 +33,9 @@ namespace CTLite.Tools.CTGen
         private static readonly string _presentationTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "Composite.tcs"));
         private static readonly string _presentationContainerGTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "CompositeContainer.g.tcs"));
         private static readonly string _presentationContainerTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "CompositeContainer.tcs"));
+        private static readonly string _webApiControllerTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "WebApiController.tcs"));
+        private static readonly string _webApiStartupTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "WebApiStartup.tcs"));
+        private static readonly string _webApiStartupBaseTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "WebApiStartupBase.tcs"));
 
         static void Main(string[] args)
         {
@@ -42,16 +45,24 @@ namespace CTLite.Tools.CTGen
 
             var rootDirectory = string.Empty;
             var applicationType = string.Empty;
+            var shouldGenerateProjects = false;
+            var shouldGenerateCode = false;
 
             for (int i = 0; i < args.Length; i++)
             {
-                switch (args[i])
+                switch (args[i].ToLower())
                 {
                     case "-r":
                         rootDirectory = args[i + 1];
                         break;
                     case "-a":
                         applicationType = args[i + 1];
+                        break;
+                    case "-p":
+                        shouldGenerateProjects = true;
+                        break;
+                    case "-c":
+                        shouldGenerateCode = true;
                         break;
                     default:
                         break;
@@ -60,7 +71,7 @@ namespace CTLite.Tools.CTGen
 
             if (string.IsNullOrEmpty(rootDirectory))
             {
-                Console.Error.WriteLine($"Usage: {proc.ProcessName} -r [root directory] -a [application type]");
+                Console.Error.WriteLine($"Usage: {proc.ProcessName} -r [root directory] -a [application type] -p -c");
                 return;
             }
 
@@ -81,15 +92,62 @@ namespace CTLite.Tools.CTGen
                 return;
             }
 
-            CreateSolutionAndProjects(rootDirectoryInfo, workingDirectory, directories);
+            if(shouldGenerateProjects)
+                CreateSolutionAndProjects(rootDirectoryInfo, workingDirectory, directories, applicationType);
 
-            Console.WriteLine("Generating model code ...");
-            GenerateModelCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty);
+            if (shouldGenerateCode)
+            {
+                Console.WriteLine("Generating model code ...");
+                GenerateModelCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty);
 
-            Console.WriteLine("Generating presentation code ...");
-            GeneratePresentationCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+                Console.WriteLine("Generating presentation code ...");
+                GeneratePresentationCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
 
-            Console.WriteLine("Code generation complete!");
+                switch (applicationType)
+                {
+                    case "webapi":
+                        Console.WriteLine("Generating ASP.NET API code ...");
+                        GenerateWebApiCode(rootDirectoryInfo, workingDirectory);
+                        break;
+                    default:
+                        break;
+                }
+
+                Console.WriteLine("Code generation complete!");
+            }
+
+
+
+        }
+
+        private static void GenerateWebApiCode(DirectoryInfo rootDirectoryInfo, string workingDirectory)
+        {
+            var modelClassName = Regex.Replace(rootDirectoryInfo.Name, @"s$|es$", string.Empty);
+            var webApiProjectDirectory = Path.Combine(workingDirectory, $"{modelClassName}.WebApi");
+            var webApiStartupCsFilePath = Path.Combine(webApiProjectDirectory, "Startup.cs");
+            var webApiStartupBaseCsFilePath = Path.Combine(webApiProjectDirectory, "StartupBase.cs");
+            var webApiControllerCsFilePath = Path.Combine(webApiProjectDirectory, $"{modelClassName}Controller.cs");
+
+            if (!File.Exists(webApiStartupCsFilePath))
+            {
+                var _webApiStartupTcsCode = _webApiStartupTcsTemplate.Replace("{modelClassName}", modelClassName);
+                File.WriteAllText(webApiStartupCsFilePath, _webApiStartupTcsCode);
+            }
+
+            var webApiStartupBaseCsCode = _webApiStartupBaseTcsTemplate.Replace("{modelClassName}", modelClassName);
+            File.WriteAllText(webApiStartupBaseCsFilePath, webApiStartupBaseCsCode);
+
+            var rootPresentationNamespace = $"{modelClassName}.Presentation";
+            var rootFolderName = rootDirectoryInfo.Name;
+
+            var webApiControllerCode = _webApiControllerTcsTemplate
+                                        .Replace("{modelClassName}", modelClassName)
+                                        .Replace("{rootFolderName}", rootFolderName)
+                                        .Replace("{rootPresentationNamespace}", rootPresentationNamespace);
+
+            if (!File.Exists(webApiControllerCsFilePath))
+                File.WriteAllText(webApiControllerCsFilePath, webApiControllerCode);
+
         }
 
         private static void GeneratePresentationCode(IEnumerable<DirectoryInfo> rootDirectoryInfos, string workingDirectory, bool isRootDirectory, string rootPresentationNamespace, string rootModelNamespace, string rootClassName, string parentClass, string parentClassPropertyName)
@@ -136,7 +194,7 @@ namespace CTLite.Tools.CTGen
 
                 string compositeStateProperty;
                 string internalModel;
-                //		internal {modelClassName} {modelClassName}Model;
+
                 if (isRootDirectory)
                 {
                     constructorsCode.AppendLine($"public {modelClassName}{baseCompositeClass}() : base() {{ Initialize(); }}");
@@ -348,7 +406,7 @@ namespace CTLite.Tools.CTGen
             }
         }
 
-        private static void CreateSolutionAndProjects(DirectoryInfo rootDirectoryInfo, string workingDirectory, IEnumerable<DirectoryInfo> directories)
+        private static void CreateSolutionAndProjects(DirectoryInfo rootDirectoryInfo, string workingDirectory, IEnumerable<DirectoryInfo> directories, string applicationType)
         {
             var rootDirectoryNameSingular = Regex.Replace(rootDirectoryInfo.Name, @"s$|es$", string.Empty);
             var dotNet = new ProcessStartInfo("dotnet")
@@ -447,7 +505,10 @@ namespace CTLite.Tools.CTGen
             newDirs = directories.Select(d => d.FullName.Replace(workingDirectory, Path.Combine(workingDirectory, $"{rootDirectoryNameSingular}.Service")));
 
             foreach (var newDir in newDirs)
+            {
                 Directory.CreateDirectory(newDir);
+                File.WriteAllText(Path.Combine(newDir, "README.txt"), $"TODO: Create IService implementations in this directory");
+            }
 
             // dotnet add app/app.csproj reference lib/lib.csproj
             dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.Service\\{rootDirectoryNameSingular}.Service.csproj reference .\\{rootDirectoryNameSingular}.Model\\{rootDirectoryNameSingular}.Model.csproj";
@@ -500,43 +561,52 @@ namespace CTLite.Tools.CTGen
             dotNetProc.WaitForExit();
             // -------------------
 
-            // -------------------- WebApi
-            Console.Write($"Creating project {rootDirectoryNameSingular}.WebApi ...");
-            dotNet.Arguments = $"new webapi --framework netcoreapp3.1 --name {rootDirectoryNameSingular}.WebApi --output {rootDirectoryNameSingular}.WebApi";
-            dotNetProc = Process.Start(dotNet);
-            Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
-            dotNetProc.WaitForExit();
-            Directory.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi", "Controllers"), true);
-            File.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi", "WeatherForecast.cs"));
+            if(applicationType == "webapi")
+            {
+                // -------------------- WebApi
+                Console.Write($"Creating project {rootDirectoryNameSingular}.WebApi ...");
+                dotNet.Arguments = $"new webapi --framework netcoreapp3.1 --name {rootDirectoryNameSingular}.WebApi --output {rootDirectoryNameSingular}.WebApi";
+                dotNetProc = Process.Start(dotNet);
+                Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
+                dotNetProc.WaitForExit();
 
-            // dotnet add app/app.csproj reference lib/lib.csproj
-            dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.WebApi\\{rootDirectoryNameSingular}.WebApi.csproj reference .\\{rootDirectoryNameSingular}.Presentation\\{rootDirectoryNameSingular}.Presentation.csproj";
-            dotNetProc = Process.Start(dotNet);
-            Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
-            dotNetProc.WaitForExit();
+                var defaultWebApiControllerDirectory = Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi", "Controllers");
+                if (Directory.Exists(defaultWebApiControllerDirectory))
+                    Directory.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi", "Controllers"), true);
+
+                File.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi", "WeatherForecast.cs"));
+                File.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi", "Startup.cs"));
+
+                // dotnet add app/app.csproj reference lib/lib.csproj
+                dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.WebApi\\{rootDirectoryNameSingular}.WebApi.csproj reference .\\{rootDirectoryNameSingular}.Presentation\\{rootDirectoryNameSingular}.Presentation.csproj";
+                dotNetProc = Process.Start(dotNet);
+                Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
+                dotNetProc.WaitForExit();
 
 
-            // dotnet add app/app.csproj reference lib/lib.csproj
-            dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.WebApi\\{rootDirectoryNameSingular}.WebApi.csproj reference .\\{rootDirectoryNameSingular}.Service\\{rootDirectoryNameSingular}.Service.csproj";
-            dotNetProc = Process.Start(dotNet);
-            Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
-            dotNetProc.WaitForExit();
+                // dotnet add app/app.csproj reference lib/lib.csproj
+                dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.WebApi\\{rootDirectoryNameSingular}.WebApi.csproj reference .\\{rootDirectoryNameSingular}.Service\\{rootDirectoryNameSingular}.Service.csproj";
+                dotNetProc = Process.Start(dotNet);
+                Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
+                dotNetProc.WaitForExit();
 
-            dotNet.WorkingDirectory = Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi");
-            dotNet.Arguments = $"add package CTLite.AspNetCore";
-            dotNetProc = Process.Start(dotNet);
-            Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
-            dotNetProc.WaitForExit();
-            dotNet.Arguments = $"add package Microsoft.AspNetCore.Mvc.NewtonsoftJson";
-            dotNetProc = Process.Start(dotNet);
-            Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
-            dotNetProc.WaitForExit();
-            dotNet.WorkingDirectory = workingDirectory;
+                dotNet.WorkingDirectory = Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi");
+                dotNet.Arguments = $"add package CTLite.AspNetCore";
+                dotNetProc = Process.Start(dotNet);
+                Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
+                dotNetProc.WaitForExit();
+                dotNet.Arguments = $"add package Microsoft.AspNetCore.Mvc.NewtonsoftJson";
+                dotNetProc = Process.Start(dotNet);
+                Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
+                dotNetProc.WaitForExit();
+                dotNet.WorkingDirectory = workingDirectory;
 
-            dotNet.Arguments = $"sln add .\\{rootDirectoryNameSingular}.WebApi\\{rootDirectoryNameSingular}.WebApi.csproj";
-            dotNetProc = Process.Start(dotNet);
-            Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
-            dotNetProc.WaitForExit();
+                dotNet.Arguments = $"sln add .\\{rootDirectoryNameSingular}.WebApi\\{rootDirectoryNameSingular}.WebApi.csproj";
+                dotNetProc = Process.Start(dotNet);
+                Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
+                dotNetProc.WaitForExit();
+            }
+
         }
     }
 }

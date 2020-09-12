@@ -1,4 +1,4 @@
-// CTLiteDemo - Made in the USA - Indianapolis, IN  - Copyright (c) 2020 Matt J. Crouch
+﻿// CTLiteDemo - Made in the USA - Indianapolis, IN  - Copyright (c) 2020 Matt J. Crouch
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -15,23 +15,40 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 
 namespace CTLiteDemo.WebApi
 {
-    public class Startup : StartupBase
+    public abstract class StartupBase
     {
-        public override void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public virtual void ConfigureServices(IServiceCollection services)
         {
-            base.Configure(app, env);
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                options.SerializerSettings.Converters.Add(new StringEnumConverter());
+                options.SerializerSettings.Formatting = Formatting.Indented;
+            });
+
+            services.AddMemoryCache();
         }
 
-        public override void ConfigureServices(IServiceCollection services)
+        public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            base.ConfigureServices(services);
+            if (env.IsDevelopment())
+                app.UseDeveloperExceptionPage();
+
+            app.UseHttpsRedirection();
+            app.UseRouting();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }
 }

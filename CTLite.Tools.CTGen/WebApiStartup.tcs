@@ -1,0 +1,19 @@
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace {modelClassName}.WebApi
+{
+    public class Startup : StartupBase
+    {
+        public override void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            base.Configure(app, env);
+        }
+
+        public override void ConfigureServices(IServiceCollection services)
+        {
+            base.ConfigureServices(services);
+        }
+    }
+}
