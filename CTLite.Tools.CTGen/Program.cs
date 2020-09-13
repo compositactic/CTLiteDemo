@@ -15,6 +15,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,6 +23,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using CTLite.Data.MicrosoftSqlServer;
 
 namespace CTLite.Tools.CTGen
 {
@@ -36,6 +38,7 @@ namespace CTLite.Tools.CTGen
         private static readonly string _webApiControllerTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "WebApiController.tcs"));
         private static readonly string _webApiStartupTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "WebApiStartup.tcs"));
         private static readonly string _webApiStartupBaseTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "WebApiStartupBase.tcs"));
+        private static readonly string _sqlDatabaseCreateTsqlTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "SqlDatabaseCreate.tsql"));
 
         static void Main(string[] args)
         {
@@ -47,6 +50,10 @@ namespace CTLite.Tools.CTGen
             var applicationType = string.Empty;
             var shouldGenerateProjects = false;
             var shouldGenerateCode = false;
+            var shouldRunSqlScripts = false;
+            var shouldCreateDatabase = false;
+            var masterConnectionString = string.Empty;
+            var dbConnectionString = string.Empty;
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -64,6 +71,18 @@ namespace CTLite.Tools.CTGen
                     case "-c":
                         shouldGenerateCode = true;
                         break;
+                    case "-s":
+                        shouldRunSqlScripts = true;
+                        break;
+                    case "-sc":
+                        shouldCreateDatabase = true;
+                        break;
+                    case "-mcs":
+                        masterConnectionString = args[i + 1];
+                        break;
+                    case "-dbcs":
+                        dbConnectionString = args[i + 1];
+                        break;
                     default:
                         break;
                 }
@@ -71,7 +90,8 @@ namespace CTLite.Tools.CTGen
 
             if (string.IsNullOrEmpty(rootDirectory))
             {
-                Console.Error.WriteLine($"Usage: {proc.ProcessName} -r [root directory] -a [application type] -p -c");
+                Console.Error.WriteLine($"Usage: {proc.ProcessName} -r [root directory] -a [application type] -p -c -s -mcs [master db connection string]");
+                Console.Error.WriteLine($"-r : root directory of model hierarchy{Environment.NewLine}-a : application type to generate (ex. webapi){Environment.NewLine}-p : generate solution and projects{Environment.NewLine}-c : generate code{Environment.NewLine}-s : run sql scripts{Environment.NewLine}-mcs : master db connection string");
                 return;
             }
 
@@ -98,7 +118,7 @@ namespace CTLite.Tools.CTGen
             if (shouldGenerateCode)
             {
                 Console.WriteLine("Generating model code ...");
-                GenerateModelCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty);
+                GenerateModelCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty, string.Empty);
 
                 Console.WriteLine("Generating presentation code ...");
                 GeneratePresentationCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
@@ -116,8 +136,63 @@ namespace CTLite.Tools.CTGen
                 Console.WriteLine("Code generation complete!");
             }
 
+            var dbName = Regex.Replace(rootDirectoryInfo.Name, @"s$|es$", string.Empty);
+            dbConnectionString += $"Initial Catalog={dbName};";
 
+            if (shouldCreateDatabase)
+            {
+                Console.WriteLine("Creating database ...");
+                CreateDatabase(workingDirectory, masterConnectionString, dbName);
+            }
 
+            if(shouldRunSqlScripts)
+            {
+                Console.WriteLine("Running SQL scripts ...");
+                RunSqlScripts(Path.Combine(workingDirectory, $"{dbName}.Model", rootDirectoryInfo.Name), dbConnectionString);
+
+                Console.WriteLine("SQL scripts complete!");
+            }
+        }
+
+        private static void CreateDatabase(string workingDirectory, string masterDbConnectionString, string dbName)
+        {
+            var createDatabaseSqlFile = Path.Combine(workingDirectory, $"{dbName}.Model", $"000-{dbName}Database-Create.sql");
+            var repository = MicrosoftSqlServerRepository.Create();
+            using var connection = repository.OpenConnection(masterDbConnectionString);
+            repository.Execute<object>(connection, null, File.ReadAllText(createDatabaseSqlFile), null);
+        }
+
+        private static void RunSqlScripts(string rootDirectory, string dbConnectionString)
+        {
+            var repository = MicrosoftSqlServerRepository.Create();
+
+            using (var connection = repository.OpenConnection(dbConnectionString))
+            using (var transaction = repository.BeginTransaction(connection))
+            {
+                repository.CreateHelperStoredProcedures(connection, transaction);
+                repository.CommitTransaction(transaction);
+            }
+
+            using (var connection = repository.OpenConnection(dbConnectionString))
+            using (var transaction = repository.BeginTransaction(connection))
+            {
+                var directories =
+                    Directory.GetDirectories(rootDirectory, string.Empty, SearchOption.AllDirectories)
+                    .GroupBy(d => new { Depth = d.Split(Path.DirectorySeparatorChar).Count(), Directory = d })
+                    .OrderBy(g => g.Key.Depth).ThenBy(g => g.Key.Directory)
+                    .Select(g => g.Key.Directory);
+
+                foreach (var directory in directories)
+                {
+                    foreach (var sqlScriptFile in Directory.GetFiles(directory, "*.sql"))
+                    {
+                        var script = File.ReadAllText(sqlScriptFile);
+                        repository.Execute<object>(connection, transaction, script, null);
+                    }
+                }
+
+                repository.CommitTransaction(transaction);
+            }
         }
 
         private static void GenerateWebApiCode(DirectoryInfo rootDirectoryInfo, string workingDirectory)
@@ -296,14 +371,15 @@ namespace CTLite.Tools.CTGen
 
                 GeneratePresentationCode(directory.GetDirectories(), workingDirectory, false, rootPresentationNamespace, rootModelNamespace, rootClassName, parentClass, parentClassPropertyName);
             }
-
-
         }
 
-        private static void GenerateModelCode(IEnumerable<DirectoryInfo> rootDirectoryInfos, string workingDirectory, bool isRootDirectory, string rootNamespace, string rootClassName)
+        private static void GenerateModelCode(IEnumerable<DirectoryInfo> rootDirectoryInfos, string workingDirectory, bool isRootDirectory, string rootNamespace, string rootClassName, string parentClass)
         {
-            foreach(var directory in rootDirectoryInfos)
+
+            for (int directoryIndex = 0; directoryIndex < rootDirectoryInfos.Count(); directoryIndex++)
             {
+                var directory = rootDirectoryInfos.ElementAt(directoryIndex);
+
                 var childNamespaces = new StringBuilder();
                 var childModelFactoryMethods = new StringBuilder();
                 var childModelClassDictionaries = new StringBuilder();
@@ -395,14 +471,35 @@ namespace CTLite.Tools.CTGen
 
                 var modelGeneratedClassFileName = Path.Combine(workingDirectory, rootNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + ".g.cs");
                 var modelClassFileName = Path.Combine(workingDirectory, rootNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + ".cs");
+                
+                if(isRootDirectory)
+                {
+                    var sqlDatabaseCreateFile = Path.Combine(workingDirectory, rootNamespace, $"000-{modelClassName}Database-Create.sql");
+                    var sqlDatabaseCreateTsql = _sqlDatabaseCreateTsqlTemplate
+                                                .Replace("{modelClassName}", modelClassName);
 
+                    if (!File.Exists(sqlDatabaseCreateFile))
+                        File.WriteAllText(sqlDatabaseCreateFile, sqlDatabaseCreateTsql);
+                }
+                
                 Directory.CreateDirectory(Path.GetDirectoryName(modelGeneratedClassFileName));
 
                 File.WriteAllText(modelGeneratedClassFileName, modelGTcs);
                 if (!File.Exists(modelClassFileName))
                     File.WriteAllText(modelClassFileName, modelTcs);
 
-                GenerateModelCode(directory.GetDirectories(), workingDirectory, false, rootNamespace, rootClassName);
+                if(!isRootDirectory)
+                {
+                    var createTableSqlFilename = Path.Combine(workingDirectory, rootNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), directoryIndex.ToString().PadLeft(3,'0') + "-Table-" + modelClassName + ".sql");
+                    var createTableSql = parentClass != rootClassName ? $"EXEC CreateTable '{modelClassName}', '{parentClass}'" : $"EXEC CreateTable '{modelClassName}'";
+                    File.WriteAllText(createTableSqlFilename, createTableSql);
+                }
+
+                if (directoryIndex == rootDirectoryInfos.Count() - 1)
+                    parentClass = modelClassName;
+                
+
+                GenerateModelCode(directory.GetDirectories(), workingDirectory, false, rootNamespace, rootClassName, parentClass);
             }
         }
 
@@ -475,7 +572,6 @@ namespace CTLite.Tools.CTGen
             foreach (var newDir in newDirs)
                 Directory.CreateDirectory(newDir);
 
-            // dotnet add app/app.csproj reference lib/lib.csproj
             dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.Presentation\\{rootDirectoryNameSingular}.Presentation.csproj reference .\\{rootDirectoryNameSingular}.Model\\{rootDirectoryNameSingular}.Model.csproj";
             dotNetProc = Process.Start(dotNet);
             Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
@@ -576,6 +672,14 @@ namespace CTLite.Tools.CTGen
 
                 File.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi", "WeatherForecast.cs"));
                 File.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi", "Startup.cs"));
+
+                var launchSettingsJsonFileName = Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi", "Properties", "launchSettings.json");
+                var launchSettingsJson = JObject.Parse(File.ReadAllText(launchSettingsJsonFileName));
+                launchSettingsJson.Remove("profiles");
+                File.WriteAllText(launchSettingsJsonFileName, launchSettingsJson.ToString());
+
+                File.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi", "appsettings.json"));
+                File.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi", "appsettings.Development.json"));
 
                 // dotnet add app/app.csproj reference lib/lib.csproj
                 dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.WebApi\\{rootDirectoryNameSingular}.WebApi.csproj reference .\\{rootDirectoryNameSingular}.Presentation\\{rootDirectoryNameSingular}.Presentation.csproj";

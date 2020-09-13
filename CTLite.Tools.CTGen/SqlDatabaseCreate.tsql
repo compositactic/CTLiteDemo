@@ -1,0 +1,7 @@
+﻿IF (db_id(N'{modelClassName}') IS NULL) 
+	CREATE DATABASE {modelClassName}
+ELSE
+	BEGIN
+		ALTER DATABASE {modelClassName} SET single_user WITH ROLLBACK IMMEDIATE DROP DATABASE {modelClassName}
+		CREATE DATABASE {modelClassName}
+	END

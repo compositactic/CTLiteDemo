@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CT.Data.MicrosoftSqlServer\CTLite.Data.MicrosoftSqlServer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="CompositeContainer.g.tcs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -23,6 +31,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Model.g.tcs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="SqlDatabaseCreate.tsql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="WebApiController.tcs">
