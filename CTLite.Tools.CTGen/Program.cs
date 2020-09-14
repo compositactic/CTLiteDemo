@@ -24,21 +24,22 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using CTLite.Data.MicrosoftSqlServer;
+using CTLite.Tools.CTGen.Properties;
 
 namespace CTLite.Tools.CTGen
 {
     public class Program
     {
-        private static readonly string  _modelGTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "Model.g.tcs"));
-        private static readonly string  _modelTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "Model.tcs"));
-        private static readonly string _presentationlGTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "Composite.g.tcs"));
-        private static readonly string _presentationTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "Composite.tcs"));
-        private static readonly string _presentationContainerGTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "CompositeContainer.g.tcs"));
-        private static readonly string _presentationContainerTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "CompositeContainer.tcs"));
-        private static readonly string _webApiControllerTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "WebApiController.tcs"));
-        private static readonly string _webApiStartupTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "WebApiStartup.tcs"));
-        private static readonly string _webApiStartupBaseTcsTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "WebApiStartupBase.tcs"));
-        private static readonly string _sqlDatabaseCreateTsqlTemplate = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "SqlDatabaseCreate.tsql"));
+        private static readonly string  _modelGTcsTemplate = Encoding.UTF8.GetString(Resources.Model_g);
+        private static readonly string  _modelTcsTemplate = Encoding.UTF8.GetString(Resources.Model);
+        private static readonly string _presentationlGTcsTemplate = Encoding.UTF8.GetString(Resources.Composite_g);
+        private static readonly string _presentationTcsTemplate = Encoding.UTF8.GetString(Resources.Composite);
+        private static readonly string _presentationContainerGTcsTemplate = Encoding.UTF8.GetString(Resources.CompositeContainer_g);
+        private static readonly string _presentationContainerTcsTemplate = Encoding.UTF8.GetString(Resources.CompositeContainer);
+        private static readonly string _webApiControllerTcsTemplate = Encoding.UTF8.GetString(Resources.WebApiController);
+        private static readonly string _webApiStartupTcsTemplate = Encoding.UTF8.GetString(Resources.WebApiStartup);
+        private static readonly string _webApiStartupBaseTcsTemplate = Encoding.UTF8.GetString(Resources.WebApiStartupBase);
+        private static readonly string _sqlDatabaseCreateTsqlTemplate = Encoding.UTF8.GetString(Resources.SqlDatabaseCreate);
 
         static void Main(string[] args)
         {
