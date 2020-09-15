@@ -2,7 +2,7 @@
   "profiles": {
     "CTLite.Tools.CTGen": {
       "commandName": "Project",
-      "commandLineArgs": "-r \"C:\\Users\\matt_\\AppData\\Local\\Temp\\Scratch\\BlogApplications\" -a webapi -c  -p -s -sc -mcs \"Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog=master;Integrated Security=SSPI;\" -dbcs \"Data Source=(LocalDb)\\MSSQLLocalDB;Integrated Security=SSPI;\""
+      "commandLineArgs": "-r \"C:\\Users\\matt_\\AppData\\Local\\Temp\\NorthwindDemo\\NorthwindApplications\" -a webapi -c  -p -s -sc -mcs \"Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog=master;Integrated Security=SSPI;\" -dbcs \"Data Source=(LocalDb)\\MSSQLLocalDB;Integrated Security=SSPI;\""
     }
   }
 }

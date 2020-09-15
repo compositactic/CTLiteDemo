@@ -25,6 +25,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using CTLite.Data.MicrosoftSqlServer;
 using CTLite.Tools.CTGen.Properties;
+using Newtonsoft.Json.Converters;
 
 namespace CTLite.Tools.CTGen
 {
@@ -122,7 +123,7 @@ namespace CTLite.Tools.CTGen
                 GenerateModelCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty, string.Empty);
 
                 Console.WriteLine("Generating presentation code ...");
-                GeneratePresentationCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+                GeneratePresentationCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty, string.Empty);
 
                 switch (applicationType)
                 {
@@ -137,7 +138,7 @@ namespace CTLite.Tools.CTGen
                 Console.WriteLine("Code generation complete!");
             }
 
-            var dbName = Regex.Replace(rootDirectoryInfo.Name, @"s$|es$", string.Empty);
+            var dbName = PluralToSingular(rootDirectoryInfo.Name);
             dbConnectionString += $"Initial Catalog={dbName};";
 
             if (shouldCreateDatabase)
@@ -153,6 +154,18 @@ namespace CTLite.Tools.CTGen
 
                 Console.WriteLine("SQL scripts complete!");
             }
+        }
+
+        private static string PluralToSingular(string pluralName)
+        {
+            if (Regex.IsMatch(pluralName, "ies$"))
+                return Regex.Replace(pluralName, "ies$", "y");
+            else if (Regex.IsMatch(pluralName, "es$"))
+                return Regex.Replace(pluralName, "es$", "e");
+            else if (Regex.IsMatch(pluralName, "s$"))
+                return Regex.Replace(pluralName, "s$", string.Empty);
+            else
+                return string.Empty;
         }
 
         private static void CreateDatabase(string workingDirectory, string masterDbConnectionString, string dbName)
@@ -198,7 +211,7 @@ namespace CTLite.Tools.CTGen
 
         private static void GenerateWebApiCode(DirectoryInfo rootDirectoryInfo, string workingDirectory)
         {
-            var modelClassName = Regex.Replace(rootDirectoryInfo.Name, @"s$|es$", string.Empty);
+            var modelClassName = PluralToSingular(rootDirectoryInfo.Name);
             var webApiProjectDirectory = Path.Combine(workingDirectory, $"{modelClassName}.WebApi");
             var webApiStartupCsFilePath = Path.Combine(webApiProjectDirectory, "Startup.cs");
             var webApiStartupBaseCsFilePath = Path.Combine(webApiProjectDirectory, "StartupBase.cs");
@@ -226,11 +239,23 @@ namespace CTLite.Tools.CTGen
 
         }
 
-        private static void GeneratePresentationCode(IEnumerable<DirectoryInfo> rootDirectoryInfos, string workingDirectory, bool isRootDirectory, string rootPresentationNamespace, string rootModelNamespace, string rootClassName, string parentClass, string parentClassPropertyName)
+        private static void GeneratePresentationCode(IEnumerable<DirectoryInfo> rootDirectoryInfos, string workingDirectory, bool isRootDirectory, string rootPresentationNamespace, string rootModelNamespace, string rootClassName)
         {
             for(int directoryIndex = 0; directoryIndex < rootDirectoryInfos.Count(); directoryIndex++)
             {
                 var directory = rootDirectoryInfos.ElementAt(directoryIndex);
+
+                var baseCompositeClass = isRootDirectory ? "CompositeRoot" : "Composite";
+
+                var parentClass = string.Empty;
+                var parentClassPropertyName = string.Empty;
+
+                if (!isRootDirectory)
+                {
+                    parentClass = $"{PluralToSingular(directory.Parent.Name)}{(Regex.Replace(rootClassName, "CompositeRoot$", string.Empty) == PluralToSingular(directory.Parent.Name) ? "CompositeRoot" : "Composite")}";
+                    parentClassPropertyName = PluralToSingular(directory.Parent.Name);
+                }
+
                 var createContainers = new StringBuilder();
                 var constructorsCode = new StringBuilder();
                 var compositeRootInitializeCode = new StringBuilder();
@@ -239,8 +264,7 @@ namespace CTLite.Tools.CTGen
 
                 var childModelClassDirectories = directory.GetDirectories();
 
-                var modelClassName = Regex.Replace(directory.Name, @"s$|es$", string.Empty);
-                var baseCompositeClass = isRootDirectory ? "CompositeRoot" : "Composite";
+                var modelClassName = PluralToSingular(directory.Name);
                 rootPresentationNamespace = isRootDirectory ? $"{modelClassName}.Presentation" : rootPresentationNamespace;
 
                 rootModelNamespace = isRootDirectory ? $"using {modelClassName}.Model" : rootModelNamespace;
@@ -254,7 +278,7 @@ namespace CTLite.Tools.CTGen
 
                 foreach (var childDirectory in childModelClassDirectories)
                 {
-                    var childModelClassName = Regex.Replace(childDirectory.Name, @"s$|es$", string.Empty);
+                    var childModelClassName = PluralToSingular(childDirectory.Name);
                     createContainers.AppendLine($"\t\t\t{childDirectory.Name} = new {childModelClassName}CompositeContainer(this);");
                     compositeContainers.AppendLine($"[DataMember] public {childModelClassName}CompositeContainer {childDirectory.Name} {{ get; private set; }}");
                     compositeChildNamespaces.AppendLine($"using {compositeClassNamespace}.{childDirectory.Name};");
@@ -364,13 +388,7 @@ namespace CTLite.Tools.CTGen
                         File.WriteAllText(compositeContainerClassFileName, presentationContainerTcs);
                 }
 
-                if(directoryIndex == rootDirectoryInfos.Count() - 1)
-                {
-                    parentClass = $"{modelClassName}{baseCompositeClass}";
-                    parentClassPropertyName = modelClassName;
-                }
-
-                GeneratePresentationCode(directory.GetDirectories(), workingDirectory, false, rootPresentationNamespace, rootModelNamespace, rootClassName, parentClass, parentClassPropertyName);
+                GeneratePresentationCode(directory.GetDirectories(), workingDirectory, false, rootPresentationNamespace, rootModelNamespace, rootClassName);
             }
         }
 
@@ -388,13 +406,13 @@ namespace CTLite.Tools.CTGen
                 var modelOnDeserailizedMethod = new StringBuilder();
                 var internalConstructorCode = new StringBuilder();
 
-                var modelClassName = Regex.Replace(directory.Name, @"s$|es$", string.Empty);
+                var modelClassName = PluralToSingular(directory.Name);
                 rootNamespace = isRootDirectory ? $"{modelClassName}.Model" : rootNamespace;
                 rootClassName = isRootDirectory ? modelClassName : rootClassName;
                 var modelClassNamespace = rootNamespace + directory.FullName.Replace(workingDirectory, string.Empty).Replace(Path.DirectorySeparatorChar, '.');
                 var childModelClassDirectories = directory.GetDirectories();
 
-                var parentModelClassName = isRootDirectory ? string.Empty : Regex.Replace(directory.Parent.Name, @"s$|es$", string.Empty);
+                var parentModelClassName = isRootDirectory ? string.Empty : PluralToSingular(directory.Parent.Name);
                 var parentModelIdPropertyName = string.IsNullOrEmpty(parentModelClassName) ? string.Empty : $"{parentModelClassName}Id";
 
                 if (!string.IsNullOrEmpty(parentModelClassName))
@@ -415,7 +433,7 @@ namespace CTLite.Tools.CTGen
 
                 foreach (var childDirectory in childModelClassDirectories)
                 {
-                    var childModelClassName = Regex.Replace(childDirectory.Name, @"s$|es$", string.Empty);
+                    var childModelClassName = PluralToSingular(childDirectory.Name);
                     var concurrentDictionaryName = childDirectory.Name.ToLower();
                     var readOnlyDictionaryName = $"_{concurrentDictionaryName}";
                     var iReadOnlyDictionaryName = childDirectory.Name;
@@ -506,7 +524,7 @@ namespace CTLite.Tools.CTGen
 
         private static void CreateSolutionAndProjects(DirectoryInfo rootDirectoryInfo, string workingDirectory, IEnumerable<DirectoryInfo> directories, string applicationType)
         {
-            var rootDirectoryNameSingular = Regex.Replace(rootDirectoryInfo.Name, @"s$|es$", string.Empty);
+            var rootDirectoryNameSingular = PluralToSingular(rootDirectoryInfo.Name);
             var dotNet = new ProcessStartInfo("dotnet")
             {
                 WorkingDirectory = workingDirectory,
@@ -607,13 +625,11 @@ namespace CTLite.Tools.CTGen
                 File.WriteAllText(Path.Combine(newDir, "README.txt"), $"TODO: Create IService implementations in this directory");
             }
 
-            // dotnet add app/app.csproj reference lib/lib.csproj
             dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.Service\\{rootDirectoryNameSingular}.Service.csproj reference .\\{rootDirectoryNameSingular}.Model\\{rootDirectoryNameSingular}.Model.csproj";
             dotNetProc = Process.Start(dotNet);
             Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
             dotNetProc.WaitForExit();
 
-            // dotnet add app/app.csproj reference lib/lib.csproj
             dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.Service\\{rootDirectoryNameSingular}.Service.csproj reference .\\{rootDirectoryNameSingular}.Presentation\\{rootDirectoryNameSingular}.Presentation.csproj";
             dotNetProc = Process.Start(dotNet);
             Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
@@ -632,20 +648,16 @@ namespace CTLite.Tools.CTGen
             Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
             dotNetProc.WaitForExit();
 
-            // dotnet add app/app.csproj reference lib/lib.csproj
             dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.Test\\{rootDirectoryNameSingular}.Test.csproj reference .\\{rootDirectoryNameSingular}.Model\\{rootDirectoryNameSingular}.Model.csproj";
             dotNetProc = Process.Start(dotNet);
             Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
             dotNetProc.WaitForExit();
 
-            // dotnet add app/app.csproj reference lib/lib.csproj
             dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.Test\\{rootDirectoryNameSingular}.Test.csproj reference .\\{rootDirectoryNameSingular}.Presentation\\{rootDirectoryNameSingular}.Presentation.csproj";
             dotNetProc = Process.Start(dotNet);
             Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
             dotNetProc.WaitForExit();
 
-
-            // dotnet add app/app.csproj reference lib/lib.csproj
             dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.Test\\{rootDirectoryNameSingular}.Test.csproj reference .\\{rootDirectoryNameSingular}.Service\\{rootDirectoryNameSingular}.Service.csproj";
             dotNetProc = Process.Start(dotNet);
             Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
@@ -682,14 +694,11 @@ namespace CTLite.Tools.CTGen
                 File.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi", "appsettings.json"));
                 File.Delete(Path.Combine(dotNet.WorkingDirectory, $"{rootDirectoryNameSingular}.WebApi", "appsettings.Development.json"));
 
-                // dotnet add app/app.csproj reference lib/lib.csproj
                 dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.WebApi\\{rootDirectoryNameSingular}.WebApi.csproj reference .\\{rootDirectoryNameSingular}.Presentation\\{rootDirectoryNameSingular}.Presentation.csproj";
                 dotNetProc = Process.Start(dotNet);
                 Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
                 dotNetProc.WaitForExit();
 
-
-                // dotnet add app/app.csproj reference lib/lib.csproj
                 dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.WebApi\\{rootDirectoryNameSingular}.WebApi.csproj reference .\\{rootDirectoryNameSingular}.Service\\{rootDirectoryNameSingular}.Service.csproj";
                 dotNetProc = Process.Start(dotNet);
                 Console.WriteLine(dotNetProc.StandardOutput.ReadToEnd());
