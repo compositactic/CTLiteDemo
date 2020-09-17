@@ -25,7 +25,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using CTLite.Data.MicrosoftSqlServer;
 using CTLite.Tools.CTGen.Properties;
-using Newtonsoft.Json.Converters;
 
 namespace CTLite.Tools.CTGen
 {

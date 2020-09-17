@@ -4,6 +4,73 @@ namespace {compositeClassNamespace}
 {
 	public partial class {modelClassName}{baseCompositeClass}
 	{
+        #region Documentation
+		// TODO: create your properties and methods for the {modelClassName}{baseCompositeClass} here
+
+
+        // * Implementation of sample property 'Name' that refers to the contained Model class '{modelClassName}' and its property 'Name'
+        // * NotifyPropertyChanged should be called when the Model class property is changed to ensure event PropertyChanged event subscriptions are notified
+        
+        /*
+		[DataMember]
+        [Help("Optional -- Help text for {modelClassName}{baseCompositeClass}.Name goes here")]
+        public string Name
+        {
+            get { return {modelClassName}{baseCompositeClass}Model.Name; }
+            set
+            {
+                {modelClassName}Model.Name = value;
+                NotifyPropertyChanged(nameof({modelClassName}{baseCompositeClass}.Name));
+            }
+        }
+        */
+
+        // * Example method 'DoSomething' which accepts various parameters
+        // * Methods exposed to CTLite must include the [Command] attribute
+        // * CTLite supports non-nullable/nullable primitive types and enumerations as parameters
+        // * Return types supported are non-nullable/nullable primitive types and enumerations, Composites, and arrays of these types
+        // * [Help] attribute can be applied to method, parameters and return type
+        /*
+        [Command]
+        [Help("Help text for the DoSomething method goes here")]
+        [return: Help("Help text for the return value of DoSomething goes here")]
+        public {modelClassName}{baseCompositeClass} DoSomething(
+            [Help("help text for someString parameter here")] string someString,
+            [Help("help text for isOnOrOff parameter here")] bool isOnOrOff,
+            [Help("help text for someDate parameter here")] DateTime someDate,
+            [Help("help text for favoriteColor parameter here")] ConsoleColor favoriteColor,
+            [Help("help text for magicNumber parameter here")] int? magicNumber,
+            [Help("help text for dreamSalary parameter here")] decimal dreamSalary)
+        {
+            return this;
+        }
+        */
+
+
+        // * Example method with CompositeRootHttpContext
+        // * Include one parameter among method parameters with CompositeRootHttpContext type
+        // * Use the CompositeRootHttpContext parameter to access the HTTP request/response 
+        /*
+        [Command]
+        public void DoSomethingWithWebRequestAndResponse(CompositeRootHttpContext context, bool someOtherParameter)
+        {
+            
+        }
+        */
+
+        // * Example method that returns a binary response
+        // * Return type must be byte[]
+        // * Set the CompositeRootHttpContext.Response.ContentType to an appropriate mimetype
+        /*
+        [Command]
+        public byte[] GetSomeBinaryData(CompositeRootHttpContext context)
+        {
+            context.Response.ContentType = "application/octet-stream";
+            return new byte[] { 0,1,2,3 };
+        }
+        */
+
+        #endregion
 
 	}
 }

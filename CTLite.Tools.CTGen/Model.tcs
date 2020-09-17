@@ -1,9 +1,15 @@
 ﻿using CTLite;
+using System.Runtime.Serialization;
 
 namespace {modelClassNamespace}
 {
 	public partial class {modelClassName}
 	{
-
+		// TODO: Create your properties and methods for the '{modelClassName}' Model class here. Include [DataMember] attribute on properties to be persisted.
+		// TODO: (Optional) - implement data validation logic in property setters for '{modelClassName}' Model class
+		// TODO: (Optional) - Add a corresponding database column for any properties implemented for the '{modelClassName}' Model class in nnn-Table-{modelClassName}.sql - ex. EXEC CreateOrModifyColumn '{modelClassName}', 'Name', 'nvarchar(50)'  
+		
+		// [DataMember]
+		// public string Name { get; set; }
 	}
 }
