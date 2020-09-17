@@ -1,4 +1,7 @@
 ﻿using CTLite;
+using System;
+using System.IO;
+using System.Runtime.Serialization;
 
 namespace {compositeClassNamespace}
 {
@@ -16,7 +19,7 @@ namespace {compositeClassNamespace}
         [Help("Optional -- Help text for {modelClassName}{baseCompositeClass}.Name goes here")]
         public string Name
         {
-            get { return {modelClassName}{baseCompositeClass}Model.Name; }
+            get { return {modelClassName}Model.Name; }
             set
             {
                 {modelClassName}Model.Name = value;
@@ -50,11 +53,13 @@ namespace {compositeClassNamespace}
         // * Example method with CompositeRootHttpContext
         // * Include one parameter among method parameters with CompositeRootHttpContext type
         // * Use the CompositeRootHttpContext parameter to access the HTTP request/response 
+        // * This example method retrieves uploaded files sent in the HTTP request and saves their contents
         /*
         [Command]
         public void DoSomethingWithWebRequestAndResponse(CompositeRootHttpContext context, bool someOtherParameter)
         {
-            
+            foreach(var uploadedFile in context.Request.UploadedFiles)    
+                File.WriteAllBytes(Path.Combine(Path.GetTempPath(), uploadedFile.FileName), uploadedFile.GetContent());
         }
         */
 

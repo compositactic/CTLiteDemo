@@ -41,6 +41,7 @@ namespace CTLite.Tools.CTGen
         private static readonly string _webApiStartupBaseTcsTemplate = Encoding.UTF8.GetString(Resources.WebApiStartupBase);
         private static readonly string _sqlDatabaseCreateTsqlTemplate = Encoding.UTF8.GetString(Resources.SqlDatabaseCreate);
 
+        private static string _dbConnectionString = string.Empty;
         static void Main(string[] args)
         {
             Console.WriteLine("CTGen - code generation for CTLite");
@@ -54,7 +55,7 @@ namespace CTLite.Tools.CTGen
             var shouldRunSqlScripts = false;
             var shouldCreateDatabase = false;
             var masterConnectionString = string.Empty;
-            var dbConnectionString = string.Empty;
+            _dbConnectionString = string.Empty;
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -82,7 +83,7 @@ namespace CTLite.Tools.CTGen
                         masterConnectionString = args[i + 1];
                         break;
                     case "-dbcs":
-                        dbConnectionString = args[i + 1];
+                        _dbConnectionString = args[i + 1];
                         break;
                     default:
                         break;
@@ -138,7 +139,7 @@ namespace CTLite.Tools.CTGen
             }
 
             var dbName = PluralToSingular(rootDirectoryInfo.Name);
-            dbConnectionString += $"Initial Catalog={dbName};";
+            _dbConnectionString += $"Initial Catalog={dbName};";
 
             if (shouldCreateDatabase)
             {
@@ -149,7 +150,7 @@ namespace CTLite.Tools.CTGen
             if(shouldRunSqlScripts)
             {
                 Console.WriteLine("Running SQL scripts ...");
-                RunSqlScripts(Path.Combine(workingDirectory, $"{dbName}.Model", rootDirectoryInfo.Name), dbConnectionString);
+                RunSqlScripts(Path.Combine(workingDirectory, $"{dbName}.Model", rootDirectoryInfo.Name), _dbConnectionString);
 
                 Console.WriteLine("SQL scripts complete!");
             }
@@ -377,7 +378,10 @@ namespace CTLite.Tools.CTGen
                     var presentationContainerTcs = _presentationContainerTcsTemplate
                                 .Replace("{compositeClassNamespace}", compositeClassNamespace)
                                 .Replace("{modelClassName}", modelClassName)
-                                .Replace("{folderNameCamel}", $"{char.ToLowerInvariant(directory.Name[0]) + directory.Name.Substring(1)}");
+                                .Replace("{folderNameCamel}", $"{char.ToLowerInvariant(directory.Name[0]) + directory.Name.Substring(1)}")
+                                .Replace("{folderName}", directory.Name)
+                                .Replace("{connectionString}", _dbConnectionString);
+
 
                     var compositeGeneratedContainerClassFileName = Path.Combine(workingDirectory, rootPresentationNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + baseCompositeClass + "Container.g.cs");
                     var compositeContainerClassFileName = Path.Combine(workingDirectory, rootPresentationNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + baseCompositeClass + "Container.cs");
