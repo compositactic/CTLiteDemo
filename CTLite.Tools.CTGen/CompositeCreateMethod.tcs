@@ -1,0 +1,11 @@
+﻿		// * This is a sample factory method for creating new instances of {modelClassName}Composite and adding the newly created instance to the {modelClassName}CompositeContainer dictionary
+		// * Methods exposed to CTLite must include the [Command] attribute
+		// * Use the _new{modelClassName}Func delegate to create new instances of the {modelClassName} for passing into the {modelClassName}Composite constructor
+		// * Setting the State property to CompositeState.New indicates that new{modelClassName} should be inserted to the database when using CTLite.Data API  
+	    [Command]
+        public {modelClassName}Composite CreateNew{modelClassName}()
+        {
+			var new{modelClassName} = new {modelClassName}Composite(_new{modelClassName}Func.Invoke(), this) { State = CompositeState.New };
+			{folderNameCamel}.Add(new{modelClassName}.Id, new{modelClassName});
+			return new{modelClassName};
+		}

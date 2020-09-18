@@ -40,6 +40,12 @@ namespace CTLite.Tools.CTGen
         private static readonly string _webApiStartupTcsTemplate = Encoding.UTF8.GetString(Resources.WebApiStartup);
         private static readonly string _webApiStartupBaseTcsTemplate = Encoding.UTF8.GetString(Resources.WebApiStartupBase);
         private static readonly string _sqlDatabaseCreateTsqlTemplate = Encoding.UTF8.GetString(Resources.SqlDatabaseCreate);
+        private static readonly string _iServiceInterfaceTcsTemplate = Encoding.UTF8.GetString(Resources.IServiceInterface);
+        private static readonly string _serviceTcsTemplate = Encoding.UTF8.GetString(Resources.Service);
+        private static readonly string _compositeDocsTcsTemplate = Encoding.UTF8.GetString(Resources.CompositeDocs);
+        private static readonly string _compositeCreateMethodTemplate = Encoding.UTF8.GetString(Resources.CompositeCreateMethod);
+        private static readonly string _compositeContainerDocsTcsTemplate = Encoding.UTF8.GetString(Resources.CompositeContainerDocs);
+        private static readonly string _usage = Resources.Usage;
 
         private static string _dbConnectionString = string.Empty;
         static void Main(string[] args)
@@ -54,6 +60,11 @@ namespace CTLite.Tools.CTGen
             var shouldGenerateCode = false;
             var shouldRunSqlScripts = false;
             var shouldCreateDatabase = false;
+            var shouldCreateCodeSampleDocs = false;
+            var shouldCreateCompositeCreateSampleMethod = false;
+            var shouldCreateCompositeRemoveSampleMethod = false;
+            var shouldCreateSqlScripts = false;
+            var shouldCreateServiceCode = false;
             var masterConnectionString = string.Empty;
             _dbConnectionString = string.Empty;
 
@@ -73,10 +84,25 @@ namespace CTLite.Tools.CTGen
                     case "-c":
                         shouldGenerateCode = true;
                         break;
-                    case "-s":
-                        shouldRunSqlScripts = true;
+                    case "-cd":
+                        shouldCreateCodeSampleDocs = true;
+                        break;
+                    case "-cc":
+                        shouldCreateCompositeCreateSampleMethod = true;
+                        break;
+                    case "-cr":
+                        shouldCreateCompositeRemoveSampleMethod = true;
+                        break;
+                    case "-csvc":
+                        shouldCreateServiceCode = true;
                         break;
                     case "-sc":
+                        shouldCreateSqlScripts = true;
+                        break;
+                    case "-sr":
+                        shouldRunSqlScripts = true;
+                        break;
+                    case "-srcdb":
                         shouldCreateDatabase = true;
                         break;
                     case "-mcs":
@@ -92,8 +118,7 @@ namespace CTLite.Tools.CTGen
 
             if (string.IsNullOrEmpty(rootDirectory))
             {
-                Console.Error.WriteLine($"Usage: {proc.ProcessName} -r [root directory] -a [application type] -p -c -s -mcs [master db connection string]");
-                Console.Error.WriteLine($"-r : root directory of model hierarchy{Environment.NewLine}-a : application type to generate (ex. webapi){Environment.NewLine}-p : generate solution and projects{Environment.NewLine}-c : generate code{Environment.NewLine}-s : run sql scripts{Environment.NewLine}-mcs : master db connection string");
+                Console.Error.WriteLine(_usage);
                 return;
             }
 
@@ -114,16 +139,28 @@ namespace CTLite.Tools.CTGen
                 return;
             }
 
-            if(shouldGenerateProjects)
+            var dbName = PluralToSingular(rootDirectoryInfo.Name);
+            _dbConnectionString += $"Initial Catalog={dbName};";
+
+            if (shouldGenerateProjects)
                 CreateSolutionAndProjects(rootDirectoryInfo, workingDirectory, directories, applicationType);
 
             if (shouldGenerateCode)
             {
                 Console.WriteLine("Generating model code ...");
-                GenerateModelCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty, string.Empty);
+                GenerateModelCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty, string.Empty, shouldCreateSqlScripts);
 
                 Console.WriteLine("Generating presentation code ...");
-                GeneratePresentationCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty, string.Empty);
+                GeneratePresentationCode(new DirectoryInfo[] { rootDirectoryInfo },
+                                            workingDirectory,
+                                            true,
+                                            string.Empty,
+                                            string.Empty,
+                                            string.Empty,
+                                            shouldCreateCodeSampleDocs,
+                                            shouldCreateCompositeCreateSampleMethod,
+                                            shouldCreateCompositeRemoveSampleMethod,
+                                            shouldCreateServiceCode);
 
                 switch (applicationType)
                 {
@@ -135,13 +172,16 @@ namespace CTLite.Tools.CTGen
                         break;
                 }
 
+                if(shouldCreateServiceCode)
+                {
+                    Console.WriteLine("Generating service code ...");
+                    GenerateServiceCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty);
+                }
+
                 Console.WriteLine("Code generation complete!");
             }
 
-            var dbName = PluralToSingular(rootDirectoryInfo.Name);
-            _dbConnectionString += $"Initial Catalog={dbName};";
-
-            if (shouldCreateDatabase)
+            if (shouldRunSqlScripts && shouldCreateDatabase)
             {
                 Console.WriteLine("Creating database ...");
                 CreateDatabase(workingDirectory, masterConnectionString, dbName);
@@ -239,7 +279,34 @@ namespace CTLite.Tools.CTGen
 
         }
 
-        private static void GeneratePresentationCode(IEnumerable<DirectoryInfo> rootDirectoryInfos, string workingDirectory, bool isRootDirectory, string rootPresentationNamespace, string rootModelNamespace, string rootClassName)
+        private static void GenerateServiceCode(IEnumerable<DirectoryInfo> rootDirectoryInfos, string workingDirectory, bool isRootDirectory, string rootServiceNamespace, string rootPresentationNamespace)
+        {
+            for (int directoryIndex = 0; directoryIndex < rootDirectoryInfos.Count(); directoryIndex++)
+            {
+                var directory = rootDirectoryInfos.ElementAt(directoryIndex);
+                var modelClassName = PluralToSingular(directory.Name);
+
+                rootServiceNamespace = isRootDirectory ? $"{modelClassName}.Service" : rootServiceNamespace;
+                rootPresentationNamespace = isRootDirectory ? $"{modelClassName}.Presentation" : rootPresentationNamespace;
+
+                var serviceClassNamespace = rootServiceNamespace + directory.FullName.Replace(workingDirectory, string.Empty).Replace(Path.DirectorySeparatorChar, '.');
+                var compositeClassNamespace = rootPresentationNamespace + directory.FullName.Replace(workingDirectory, string.Empty).Replace(Path.DirectorySeparatorChar, '.');
+
+
+                var serviceTcs = _serviceTcsTemplate
+                    .Replace("{compositeClassNamespace}", compositeClassNamespace)
+                    .Replace("{serviceClassNamespace}", serviceClassNamespace)
+                    .Replace("{modelClassName}", modelClassName);
+
+                var serviceClassFileName = Path.Combine(workingDirectory, rootServiceNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + "Service.cs");
+                if (!File.Exists(serviceClassFileName))
+                    File.WriteAllText(serviceClassFileName, serviceTcs);
+
+                GenerateServiceCode(directory.GetDirectories(), workingDirectory, false, rootServiceNamespace, rootPresentationNamespace);
+            }
+        }
+
+        private static void GeneratePresentationCode(IEnumerable<DirectoryInfo> rootDirectoryInfos, string workingDirectory, bool isRootDirectory, string rootPresentationNamespace, string rootModelNamespace, string rootClassName, bool shouldCreateCodeSampleDocs, bool shouldCreateCompositeCreateMethod, bool shouldCreateCompositeRemoveMethod, bool shouldCreateServiceCode)
         {
             for(int directoryIndex = 0; directoryIndex < rootDirectoryInfos.Count(); directoryIndex++)
             {
@@ -341,7 +408,7 @@ namespace CTLite.Tools.CTGen
                                             .Replace("{internalsVisibleToAttribute}", isRootDirectory ?  $"[assembly: InternalsVisibleTo(\"{testAssemblyName}\")]" : string.Empty)
                                             .Replace("{compositeStateProperty}", compositeStateProperty)
                                             .Replace("{compositeOriginalIdProperty}", compositeOriginalIdProperty)
-                                            .Replace("{compositeRemoveMethod}", compositeRemoveMethod)
+                                            .Replace("{compositeRemoveMethod}", shouldCreateCompositeRemoveMethod ? compositeRemoveMethod : string.Empty)
                                             .Replace("{compositeInternalConstructor}", compositeInternalConstructor)
                                             .Replace("{keyPropertyAttribute}", keyPropertyAttribute)
                                             .Replace("{compositeParentProperty}", compositeParentProperty)
@@ -351,7 +418,8 @@ namespace CTLite.Tools.CTGen
                 var presentationTcs = _presentationTcsTemplate
                                         .Replace("{modelClassName}", modelClassName)
                                         .Replace("{baseCompositeClass}", baseCompositeClass)
-                                        .Replace("{compositeClassNamespace}", compositeClassNamespace);
+                                        .Replace("{compositeClassNamespace}", compositeClassNamespace)
+                                        .Replace("{compositeDocs}", shouldCreateCodeSampleDocs ? _compositeDocsTcsTemplate : string.Empty);
 
                 var compositeGeneratedClassFileName = Path.Combine(workingDirectory, rootPresentationNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + baseCompositeClass + ".g.cs");
                 var compositeClassFileName = Path.Combine(workingDirectory, rootPresentationNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + baseCompositeClass + ".cs");
@@ -376,11 +444,13 @@ namespace CTLite.Tools.CTGen
                                 .Replace("{parentClassPropertyName}", parentClassPropertyName);
 
                     var presentationContainerTcs = _presentationContainerTcsTemplate
+                                .Replace("{compositeCreateMethod}", shouldCreateCompositeCreateMethod ? _compositeCreateMethodTemplate : string.Empty)
                                 .Replace("{compositeClassNamespace}", compositeClassNamespace)
                                 .Replace("{modelClassName}", modelClassName)
                                 .Replace("{folderNameCamel}", $"{char.ToLowerInvariant(directory.Name[0]) + directory.Name.Substring(1)}")
                                 .Replace("{folderName}", directory.Name)
-                                .Replace("{connectionString}", _dbConnectionString);
+                                .Replace("{connectionString}", _dbConnectionString)
+                                .Replace("{compositeContainerDocs}", shouldCreateCodeSampleDocs ? _compositeContainerDocsTcsTemplate : string.Empty);
 
 
                     var compositeGeneratedContainerClassFileName = Path.Combine(workingDirectory, rootPresentationNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + baseCompositeClass + "Container.g.cs");
@@ -391,11 +461,23 @@ namespace CTLite.Tools.CTGen
                         File.WriteAllText(compositeContainerClassFileName, presentationContainerTcs);
                 }
 
-                GeneratePresentationCode(directory.GetDirectories(), workingDirectory, false, rootPresentationNamespace, rootModelNamespace, rootClassName);
+                if(shouldCreateServiceCode)
+                {
+                    var iServiceInterfaceTcs = _iServiceInterfaceTcsTemplate
+                        .Replace("{compositeClassNamespace}", compositeClassNamespace)
+                        .Replace("{modelClassName}", modelClassName);
+
+                    var iServiceInterfaceFilename = Path.Combine(workingDirectory, rootPresentationNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), "I" + modelClassName + "Service.cs");
+                    if (!File.Exists(iServiceInterfaceFilename))
+                        File.WriteAllText(iServiceInterfaceFilename, iServiceInterfaceTcs);
+                }
+
+
+                GeneratePresentationCode(directory.GetDirectories(), workingDirectory, false, rootPresentationNamespace, rootModelNamespace, rootClassName, shouldCreateCodeSampleDocs, shouldCreateCompositeCreateMethod, shouldCreateCompositeRemoveMethod, shouldCreateServiceCode);
             }
         }
 
-        private static void GenerateModelCode(IEnumerable<DirectoryInfo> rootDirectoryInfos, string workingDirectory, bool isRootDirectory, string rootNamespace, string rootClassName, string parentClass)
+        private static void GenerateModelCode(IEnumerable<DirectoryInfo> rootDirectoryInfos, string workingDirectory, bool isRootDirectory, string rootNamespace, string rootClassName, string parentClass, bool shouldGenerateSqlScripts)
         {
 
             for (int directoryIndex = 0; directoryIndex < rootDirectoryInfos.Count(); directoryIndex++)
@@ -494,7 +576,7 @@ namespace CTLite.Tools.CTGen
                 var modelGeneratedClassFileName = Path.Combine(workingDirectory, rootNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + ".g.cs");
                 var modelClassFileName = Path.Combine(workingDirectory, rootNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + ".cs");
                 
-                if(isRootDirectory)
+                if(isRootDirectory && shouldGenerateSqlScripts)
                 {
                     var sqlDatabaseCreateFile = Path.Combine(workingDirectory, rootNamespace, $"000-{modelClassName}Database-Create.sql");
                     var sqlDatabaseCreateTsql = _sqlDatabaseCreateTsqlTemplate
@@ -510,18 +592,19 @@ namespace CTLite.Tools.CTGen
                 if (!File.Exists(modelClassFileName))
                     File.WriteAllText(modelClassFileName, modelTcs);
 
-                if(!isRootDirectory)
+                if(!isRootDirectory && shouldGenerateSqlScripts)
                 {
                     var createTableSqlFilename = Path.Combine(workingDirectory, rootNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), directoryIndex.ToString().PadLeft(3,'0') + "-Table-" + modelClassName + ".sql");
                     var createTableSql = parentClass != rootClassName ? $"EXEC CreateTable '{modelClassName}', '{parentClass}'" : $"EXEC CreateTable '{modelClassName}'";
-                    File.WriteAllText(createTableSqlFilename, createTableSql);
+                    if(!File.Exists(createTableSqlFilename))
+                        File.WriteAllText(createTableSqlFilename, createTableSql);
                 }
 
                 if (directoryIndex == rootDirectoryInfos.Count() - 1)
                     parentClass = modelClassName;
                 
 
-                GenerateModelCode(directory.GetDirectories(), workingDirectory, false, rootNamespace, rootClassName, parentClass);
+                GenerateModelCode(directory.GetDirectories(), workingDirectory, false, rootNamespace, rootClassName, parentClass, shouldGenerateSqlScripts);
             }
         }
 
@@ -623,10 +706,7 @@ namespace CTLite.Tools.CTGen
             newDirs = directories.Select(d => d.FullName.Replace(workingDirectory, Path.Combine(workingDirectory, $"{rootDirectoryNameSingular}.Service")));
 
             foreach (var newDir in newDirs)
-            {
                 Directory.CreateDirectory(newDir);
-                File.WriteAllText(Path.Combine(newDir, "README.txt"), $"TODO: Create IService implementations in this directory");
-            }
 
             dotNet.Arguments = $"add .\\{rootDirectoryNameSingular}.Service\\{rootDirectoryNameSingular}.Service.csproj reference .\\{rootDirectoryNameSingular}.Model\\{rootDirectoryNameSingular}.Model.csproj";
             dotNetProc = Process.Start(dotNet);

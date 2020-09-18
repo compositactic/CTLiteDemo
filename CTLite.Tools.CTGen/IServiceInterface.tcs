@@ -1,0 +1,13 @@
+﻿using CTLite;
+using System;
+
+namespace {compositeClassNamespace}
+{
+
+	// TODO: (Optional) - Presentation layer may call external services via an CTLite IService interface. Define such service interfaces for {modelClassName} here. 
+	/*
+	public interface I{modelClassName}Service : IService
+	{
+	}
+	*/
+}

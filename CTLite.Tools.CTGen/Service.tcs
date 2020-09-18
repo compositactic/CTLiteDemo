@@ -1,0 +1,14 @@
+﻿using CTLite;
+using System;
+using {compositeClassNamespace};
+
+namespace {serviceClassNamespace}
+{
+	// TODO: (optional) - provide an implementation of the I{modelClassName}Service
+	/*
+	public class {modelClassName}Service : I{modelClassName}Service
+	{
+		public CompositeRoot CompositeRoot { get; set; }
+	}
+	*/
+}

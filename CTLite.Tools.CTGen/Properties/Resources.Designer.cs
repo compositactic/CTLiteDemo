@@ -103,6 +103,46 @@ namespace CTLite.Tools.CTGen.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] CompositeContainerDocs {
+            get {
+                object obj = ResourceManager.GetObject("CompositeContainerDocs", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] CompositeCreateMethod {
+            get {
+                object obj = ResourceManager.GetObject("CompositeCreateMethod", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] CompositeDocs {
+            get {
+                object obj = ResourceManager.GetObject("CompositeDocs", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] IServiceInterface {
+            get {
+                object obj = ResourceManager.GetObject("IServiceInterface", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] Model {
             get {
                 object obj = ResourceManager.GetObject("Model", resourceCulture);
@@ -123,10 +163,41 @@ namespace CTLite.Tools.CTGen.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] Service {
+            get {
+                object obj = ResourceManager.GetObject("Service", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] SqlDatabaseCreate {
             get {
                 object obj = ResourceManager.GetObject("SqlDatabaseCreate", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CTGen Usage
+        ///
+        ///-r : root directory of model hierarchy
+        ///-a : application type to generate (ex. webapi)
+        ///-p : generate solution file (.sln) and projects (.csproj)
+        ///-c : generate code (.cs)
+        ///-cd : generate code sample docs
+        ///-cc : generate composite (presentation) sample &quot;Create&quot; method
+        ///-cr : generate composite (presentation) sample &quot;Remove&quot; method
+        ///-sc : generate sql scripts
+        ///-sr : run sql scripts
+        ///-srcdb : run database create database (WARNING: DEFAULT SCRIPT DELETES ANY EXISTING DATABASE)
+        ///-mcs : master db  [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string Usage {
+            get {
+                return ResourceManager.GetString("Usage", resourceCulture);
             }
         }
         

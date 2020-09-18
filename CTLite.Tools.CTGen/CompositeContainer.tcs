@@ -6,62 +6,11 @@ namespace {compositeClassNamespace}
 {
 	public partial class {modelClassName}CompositeContainer
 	{
-
-		
-		// * This is a sample factory method for creating new instances of {modelClassName}Composite and adding the newly created instance to the {modelClassName}CompositeContainer dictionary
-		// * Methods exposed to CTLite must include the [Command] attribute
-		// * Use the _new{modelClassName}Func delegate to create new instances of the {modelClassName} for passing into the {modelClassName}Composite constructor
-		// * Setting the State property to CompositeState.New indicates that new{modelClassName} should be inserted to the database when using CTLite.Data API  
-	    [Command]
-        public {modelClassName}Composite CreateNew{modelClassName}()
-        {
-			var new{modelClassName} = new {modelClassName}Composite(_new{modelClassName}Func.Invoke(), this) { State = CompositeState.New };
-			{folderNameCamel}.Add(new{modelClassName}.Id, new{modelClassName});
-			return new{modelClassName};
-		}
+		{compositeCreateMethod}
 
 		// TODO: (optional) - add other properties and methods to the {modelClassName}CompositeContainer class for saving, loading, and processing groups of {modelClassName}Composite instances in the {modelClassName}CompositeContainer dictionary 
 		
-
-		#region Documentation
+		{compositeContainerDocs}
 		
-		// This is a sample method that loads all {modelClassName} records from the database and adds them to the container dictionary
-		/*
-		[Command]
-        public void Load{folderName}()
-        {
-            var repository = CompositeRoot.GetService<IMicrosoftSqlServerRepository>();
-
-            using var connection = repository.OpenConnection(@"{connectionString}");
-
-            {folderNameCamel}.AddRange(repository.Load(connection, null,
-                @"
-                        SELECT * 
-                        FROM {modelClassName}
-                ",
-                null,
-                _new{modelClassName}Func)
-                .Select(c => new {modelClassName}Composite(c, this)));
-        }
-		*/
-
-
-		// This is a sample method that saves all {modelClassName}Composite records to the database in the container dictionary
-		/*
-		public void SaveAll()
-		{
-			var repository = CompositeRoot.GetService<IMicrosoftSqlServerRepository>();
-
-            using var connection = repository.OpenConnection(@"{connectionString}");
-            using var transaction = repository.BeginTransaction(connection);
-            repository.Save(connection, transaction, this, true);
-            transaction.Commit();
-		}
-
-		*/
-
-		// See {modelClassName}Composite.cs for additional examples
-
-		#endregion
 	}
 }

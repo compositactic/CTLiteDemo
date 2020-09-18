@@ -124,11 +124,23 @@
   <data name="CompositeContainer" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\CompositeContainer.tcs;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="CompositeContainerDocs" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\CompositeContainerDocs.tcs;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="CompositeContainer_g" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\CompositeContainer.g.tcs;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="CompositeCreateMethod" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\CompositeCreateMethod.tcs;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="CompositeDocs" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\CompositeDocs.tcs;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="Composite_g" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Composite.g.tcs;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="IServiceInterface" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\IServiceInterface.tcs;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="Model" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Model.tcs;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -136,8 +148,14 @@
   <data name="Model_g" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Model.g.tcs;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="Service" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Service.tcs;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="SqlDatabaseCreate" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\SqlDatabaseCreate.tsql;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Usage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Usage.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="WebApiController" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\WebApiController.tcs;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

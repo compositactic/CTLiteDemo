@@ -1,0 +1,22 @@
+﻿CTGen Usage
+
+-r : root directory of model hierarchy
+-a : application type to generate (ex. webapi)
+-p : generate solution file (.sln) and projects (.csproj)
+-c : generate code (.cs)
+-cd : generate code sample docs
+-cc : generate composite (presentation) sample "Create" method
+-cr : generate composite (presentation) sample "Remove" method
+-csvc : generate service (interfaces and classes) samples
+-sc : generate sql scripts
+-sr : run sql scripts
+-srcdb : run database create database (WARNING: DEFAULT SCRIPT DELETES ANY EXISTING DATABASE)
+-mcs : master db connection string
+-dbcs : application db connection string
+
+
+Examples:
+
+Generate a new solution, projects, database, and ASP.NET Core application for "NorthwindApplication"
+
+CTGen -r "C:\NorthwindDemo\NorthwindApplications" -a webapi -p -c -cd -cc -cr -csvc -sc -sc -sr -srcdb -mcs "Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=master;Integrated Security=SSPI;" -dbcs "Data Source=(LocalDb)\MSSQLLocalDB;Integrated Security=SSPI;"

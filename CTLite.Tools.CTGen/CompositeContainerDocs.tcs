@@ -1,0 +1,40 @@
+﻿		#region Documentation
+		
+		// This is a sample method that loads all {modelClassName} records from the database and adds them to the container dictionary
+		/*
+		[Command]
+        public void Load{folderName}()
+        {
+            var repository = CompositeRoot.GetService<IMicrosoftSqlServerRepository>();
+
+            using var connection = repository.OpenConnection(@"{connectionString}");
+
+            {folderNameCamel}.AddRange(repository.Load(connection, null,
+                @"
+                        SELECT * 
+                        FROM {modelClassName}
+                ",
+                null,
+                _new{modelClassName}Func)
+                .Select(c => new {modelClassName}Composite(c, this)));
+        }
+		*/
+
+
+		// This is a sample method that saves all {modelClassName}Composite records to the database in the container dictionary
+		/*
+		public void SaveAll()
+		{
+			var repository = CompositeRoot.GetService<IMicrosoftSqlServerRepository>();
+
+            using var connection = repository.OpenConnection(@"{connectionString}");
+            using var transaction = repository.BeginTransaction(connection);
+            repository.Save(connection, transaction, this, true);
+            transaction.Commit();
+		}
+
+		*/
+
+		// See {modelClassName}Composite.cs for additional examples
+
+		#endregion
