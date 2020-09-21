@@ -697,6 +697,37 @@ namespace CTLite
             return TypeDescriptor.GetConverter(type).CanConvertFrom(typeof(string)) ||
                 (Nullable.GetUnderlyingType(type) != null && TypeDescriptor.GetConverter(Nullable.GetUnderlyingType(type)).CanConvertFrom(typeof(string)));
         }
+
+        public static void RestoreParentReferences(this object value)
+        {
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            RestoreParentReferences(value, value.GetType(), null);
+        }
+
+        private const BindingFlags _privateFields = BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance;
+        private static void RestoreParentReferences(object @object, Type objectType, object parentObject)
+        {
+            if (parentObject != null)
+            {
+                var parentPropertyName = objectType.FindCustomAttribute<ParentPropertyAttribute>()?.ParentPropertyName;
+                if (parentPropertyName != null)
+                    objectType.GetProperty(parentPropertyName).SetValue(@object, parentObject);
+                else
+                {
+                    if (@object is IDictionary dictionary)
+                        foreach (var e in dictionary.Values)
+                            RestoreParentReferences(e, e.GetType(), parentObject);
+                }
+            }
+
+            foreach (var field in objectType.GetMembers(_privateFields).Where(f => f.GetCustomAttributes<DataMemberAttribute>(false).Any()))
+            {
+                var fieldInfo = objectType.GetField(field.Name, _privateFields);
+                RestoreParentReferences(fieldInfo.GetValue(@object), fieldInfo.FieldType, @object);
+            }
+        }
     }
 
 

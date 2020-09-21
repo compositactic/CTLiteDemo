@@ -62,6 +62,7 @@ namespace CTLiteDemo.Presentation.BlogApplications
         public override void InitializeCompositeModel(object model)
         {
             BlogApplicationModel = model as BlogApplication;
+            BlogApplicationModel.RestoreParentReferences();
             Blogs = new BlogCompositeContainer(this);
         }
 
