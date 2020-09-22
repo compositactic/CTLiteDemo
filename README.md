@@ -1,4 +1,4 @@
-# CTLite
+![CTLite Logo](CTLiteLogo.png)
 
 CTLite automatically generates .NET Core applications, SQL databases, and APIs from a **code-free domain model**. CTLite outputs a complete, ready-to-run code solution that implements a layered Presentation Model/Model-View-ViewModel architecture. Use (and reuse!) CTLite code with ASP.NET Core, Windows Presentation Foundation, Xamarin.Forms, Windows Forms, console applications, and more.
 
