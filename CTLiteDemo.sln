@@ -28,6 +28,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE = LICENSE
 		ModelProjectExpanded.png = ModelProjectExpanded.png
 		NorthwindSolution.png = NorthwindSolution.png
+		PresentationProjectExpanded.png = PresentationProjectExpanded.png
 		README.md = README.md
 	EndProjectSection
 EndProject
