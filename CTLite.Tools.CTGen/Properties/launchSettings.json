@@ -2,7 +2,7 @@
   "profiles": {
     "CTLite.Tools.CTGen": {
       "commandName": "Project",
-      "commandLineArgs": "-r \"C:\\NorthwindDemo\\NorthwindApplications\" -a webapi -c -p -c -cd -cc -cr  -csvc -sc -sr -srcdb -mcs \"Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog=master;Integrated Security=SSPI;\" -dbcs \"Data Source=(LocalDb)\\MSSQLLocalDB;Integrated Security=SSPI;\""
+      "commandLineArgs": "-r \"C:\\NorthwindDemo\\NorthwindApplications\" -a webapi -c -p -c -cc -cr  -csvc -sc -sr -srcdb -mcs \"Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog=master;Integrated Security=SSPI;\" -dbcs \"Data Source=(LocalDb)\\MSSQLLocalDB;Integrated Security=SSPI;\""
     }
   }
 }

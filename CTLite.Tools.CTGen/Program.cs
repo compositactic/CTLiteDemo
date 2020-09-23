@@ -148,7 +148,7 @@ namespace CTLite.Tools.CTGen
             if (shouldGenerateCode)
             {
                 Console.WriteLine("Generating model code ...");
-                GenerateModelCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty, string.Empty, shouldCreateSqlScripts);
+                GenerateModelCode(new DirectoryInfo[] { rootDirectoryInfo }, workingDirectory, true, string.Empty, string.Empty, shouldCreateSqlScripts);
 
                 Console.WriteLine("Generating presentation code ...");
                 GeneratePresentationCode(new DirectoryInfo[] { rootDirectoryInfo },
@@ -477,12 +477,17 @@ namespace CTLite.Tools.CTGen
             }
         }
 
-        private static void GenerateModelCode(IEnumerable<DirectoryInfo> rootDirectoryInfos, string workingDirectory, bool isRootDirectory, string rootNamespace, string rootClassName, string parentClass, bool shouldGenerateSqlScripts)
+        private static void GenerateModelCode(IEnumerable<DirectoryInfo> rootDirectoryInfos, string workingDirectory, bool isRootDirectory, string rootNamespace, string rootClassName, bool shouldGenerateSqlScripts)
         {
 
             for (int directoryIndex = 0; directoryIndex < rootDirectoryInfos.Count(); directoryIndex++)
             {
                 var directory = rootDirectoryInfos.ElementAt(directoryIndex);
+
+                var parentClass = string.Empty;
+
+                if (!isRootDirectory)
+                    parentClass = PluralToSingular(directory.Parent.Name);
 
                 var childNamespaces = new StringBuilder();
                 var childModelFactoryMethods = new StringBuilder();
@@ -600,11 +605,7 @@ namespace CTLite.Tools.CTGen
                         File.WriteAllText(createTableSqlFilename, createTableSql);
                 }
 
-                if (directoryIndex == rootDirectoryInfos.Count() - 1)
-                    parentClass = modelClassName;
-                
-
-                GenerateModelCode(directory.GetDirectories(), workingDirectory, false, rootNamespace, rootClassName, parentClass, shouldGenerateSqlScripts);
+                GenerateModelCode(directory.GetDirectories(), workingDirectory, false, rootNamespace, rootClassName, shouldGenerateSqlScripts);
             }
         }
 

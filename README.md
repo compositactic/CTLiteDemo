@@ -203,9 +203,9 @@ namespace NorthwindApplication.Model.NorthwindApplications.Customers.Orders
 ## Presentation Project
 The Presentation Project represents the public, external state and commands of the Model Project. Presentation classes host model classes and "present" them in an appropriate way for consumption by views. Generally speaking, a "view" is anything that hosts classes of the Presentation project, and need not be visual. CTLite.AspNetCore is one such host of Presentation classes.
 
-The Presentation Project also defines interfaces implemented by classes in the Service Project. Calls to the dependent Service classes are made through these interfaces, whose implementation dependencies are injected upon application startup.   
+The Presentation Project also defines interfaces (implementing the ```CTLite.IService```) implemented by classes in the Service Project. Calls to the dependent Service classes are made through these interfaces, whose implementation dependencies are injected upon application startup. CTGen will output commented-out ```IService``` interface definitions as samples to follow when defining your own ```IService``` interfaces.   
 
-> Presentation (composite) classes should contain properties and methods that expose corresponding properties and methods on model classes. Presentation classes should implement presentation/view logic, and calls to external services only.
+> Presentation (composite) classes should contain properties and methods that expose corresponding properties and methods on model classes. Presentation classes should implement presentation/view logic, and calls to classes in the Services Project only.
 
 Presentation classes are of two types: **Composite** and **Container**. A Composite class contains a model class, and exposes the model class's properties and methods. A Container class contains a dictionary which contains Composite child classes as well as factory methods for Composites in the container's dictionary, and other properties and methods.
 
@@ -428,7 +428,62 @@ namespace NorthwindApplication.Presentation.NorthwindApplications.Customers.Orde
 ```
 
 ## Service Project
-TODO
+The **Service Project** implements dependencies whose ```CTLite.IService``` interfaces are defined in the Presentation Project. CTGen will create commented-out, stubbed out implementations of the Presentation Project's ```IService``` interface definitions.
+
+Per our Northwind example domain model, a Service class (ex. the *CategoryService* class) looks like the following:
+
+ICategoryService.cs in the Presentation Project contains an ```ICategoryService``` interface definition
+```csharp
+using CTLite;
+using System;
+
+namespace NorthwindApplication.Presentation.NorthwindApplications.Categories
+{
+    public interface ICategoryService : IService
+    {
+        public void DoSomething(CategoryComposite categoryComposite);
+    }
+}
+```   
+CategoryService.cs in the Service Project contains the implementation of ```ICategoryService```
+```csharp
+using System;
+using NorthwindApplication.Presentation.NorthwindApplications.Categories;
+
+namespace NorthwindApplication.Service.NorthwindApplications.Categories
+{
+    public class CategoryService : ICategoryService
+    {
+        public CompositeRoot CompositeRoot { get; set; }
+
+        public void DoSomething(CategoryComposite categoryComposite)
+        {
+            Console.WriteLine($"Hello {categoryComposite} {categoryComposite.Id} from {nameof(CategoryService)}.{nameof(DoSomething)}");
+        }
+    }
+}
+```
+
+CategoryComposite.cs in the Presentation Project contains a ```[CTLite.Command]```-decorated method to obtain a reference to the ```ICategoryService``` and calls the ```CategoryService```
+```csharp
+using CTLite;
+using System;
+using System.IO;
+using System.Runtime.Serialization;
+
+namespace NorthwindApplication.Presentation.NorthwindApplications.Categories
+{
+	public partial class CategoryComposite
+	{
+		[Command]
+		public void CallCategoryService()
+		{
+			var categoryService = CompositeRoot.GetService<ICategoryService>();
+			categoryService.DoSomething(this);
+		}
+	}
+}
+```
 
 ## Test Project
 TODO 
@@ -436,7 +491,68 @@ TODO
 ## SQL DDL Scripts
 CTGen will generate **SQL DDL Scripts** in the Model Project when the ```-sc``` option is specified. The filename generated is ```[NNN]-Table-[ModelClassName]```, where ```[NNN]``` is a sequential number, and ```[ModelClassName]``` is the name of the model class. 
 
+
+
 CTGen runs SQL scripts contained in the root directory and its subdirectory with the ```-sr``` option. GTGen runs SQL scripts recursively starting from the root directory, running each sub-directory's scripts in ascending filename order.
+
+CTGen creates a series of *helper stored procedures* to aid in creating/updating the CTLite generated database table definitions. ```CTLite.Data.MicrosoftSqlServer``` and CTGen will create this stored procedures:
+
+* ```CreateCheckConstraint```
+	```sql
+	@tableName NVARCHAR(MAX),
+	@constraintName NVARCHAR(MAX),
+	@constraintExpression NVARCHAR(MAX)
+	```
+* ```CreateForeignKeyConstraint```
+ 	```sql
+	@tableName NVARCHAR(MAX),
+	@parentTableName NVARCHAR(MAX),
+	@keyColumnName NVARCHAR(MAX),
+	@parentKeyColumnName NVARCHAR(MAX),
+	@constraintName NVARCHAR(MAX) = null
+	```
+* ```CreateIndex```
+ 	```sql
+	@tableName NVARCHAR(MAX),
+	@columnName NVARCHAR(MAX)
+	```
+ * ```CreateOrModifyColumn```
+ 	```sql
+	@tableName NVARCHAR(MAX),
+	@columnName NVARCHAR(MAX),
+	@columnType NVARCHAR(MAX)
+	```
+* ```CreateTable```
+ 	```sql
+	@tableName NVARCHAR(MAX),
+	@parentTableName NVARCHAR(MAX) = '',
+	@baseTableName NVARCHAR(MAX) = ''
+	```
+* ```DropColumn```
+ 	```sql
+	@tableName NVARCHAR(MAX),
+	@columnName NVARCHAR(MAX)
+	```
+* ```DropConstraint```
+ 	```sql
+	@tableName NVARCHAR(MAX),
+	@constraintName NVARCHAR(MAX)
+	```
+* ```DropIndex```
+ 	```sql
+	@tableName NVARCHAR(MAX),
+	@columnName NVARCHAR(MAX)
+	```
+* ```DropTable```
+ 	```sql
+    @tableName NVARCHAR(MAX)
+	```
+
+Example script:
+```sql
+EXEC CreateTable 'Category'
+EXEC CreateOrModifyColumn 'Category', 'Name', 'nvarchar(50)'
+```
 
 GTGen generates a ```CREATE DATABASE``` script as part of the Model Project SQL script generation. The script drops the existing database, and re-creates the database. **DO NOT** invoke the ```-srcdb``` option unless you wish to delete the database and all its data.
 
