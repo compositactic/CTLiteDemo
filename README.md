@@ -438,7 +438,7 @@ CTGen will generate **SQL DDL Scripts** in the Model Project when the ```-sc``` 
 
 CTGen runs SQL scripts contained in the root directory and its subdirectory with the ```-sr``` option. GTGen runs SQL scripts recursively starting from the root directory, running each sub-directory's scripts in ascending filename order.
 
-GTGen generates a ```CREATE DATABASE`` script as part of the Model Project SQL script generation. The script drops the existing database, and re-creates the database. **DO NOT** invoke the ```-srcdb``` option unless you wish to delete the database and all its data.
+GTGen generates a ```CREATE DATABASE``` script as part of the Model Project SQL script generation. The script drops the existing database, and re-creates the database. **DO NOT** invoke the ```-srcdb``` option unless you wish to delete the database and all its data.
 
 # CTLite NuGet Packages
 CTLite consists of several packages to support application/services development of several varieties.
