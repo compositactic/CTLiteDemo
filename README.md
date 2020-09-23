@@ -486,7 +486,34 @@ namespace NorthwindApplication.Presentation.NorthwindApplications.Categories
 ```
 
 ## Test Project
-TODO 
+CTGen creates a stub Test Project where automated tests can be written that run the Model Project code and/or Presentation Project code. An example test appears below, that creates a new Northwind Application, create a new Category composite, and calls the Category service:
+
+```csharp
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NorthwindApplication.Presentation.NorthwindApplications;
+using NorthwindApplication.Service.NorthwindApplications.Categories;
+
+namespace NorthwindApplication.Test
+{
+    [TestClass]
+    public class UnitTest1
+    {
+        [TestMethod]
+        public void TestMethod1()
+        {
+            NorthwindApplicationCompositeRoot northwindApplication = new NorthwindApplicationCompositeRoot
+            (
+                new CategoryService()
+            );
+
+            var newCategory = northwindApplication.Categories.CreateNewCategory();
+
+            newCategory.CallCategoryService();
+        }
+    }
+}
+```
+ 
 
 ## SQL DDL Scripts
 CTGen will generate **SQL DDL Scripts** in the Model Project when the ```-sc``` option is specified. The filename generated is ```[NNN]-Table-[ModelClassName]```, where ```[NNN]``` is a sequential number, and ```[ModelClassName]``` is the name of the model class. 
@@ -495,7 +522,7 @@ CTGen will generate **SQL DDL Scripts** in the Model Project when the ```-sc``` 
 
 CTGen runs SQL scripts contained in the root directory and its subdirectory with the ```-sr``` option. GTGen runs SQL scripts recursively starting from the root directory, running each sub-directory's scripts in ascending filename order.
 
-CTGen creates a series of *helper stored procedures* to aid in creating/updating the CTLite generated database table definitions. ```CTLite.Data.MicrosoftSqlServer``` and CTGen will create this stored procedures:
+CTGen creates a series of *helper stored procedures* to aid in creating/updating the CTLite generated database table definitions. ```CTLite.Data.MicrosoftSqlServer``` and CTGen will create these stored procedures:
 
 * ```CreateCheckConstraint```
 	```sql
@@ -554,7 +581,11 @@ EXEC CreateTable 'Category'
 EXEC CreateOrModifyColumn 'Category', 'Name', 'nvarchar(50)'
 ```
 
-GTGen generates a ```CREATE DATABASE``` script as part of the Model Project SQL script generation. The script drops the existing database, and re-creates the database. **DO NOT** invoke the ```-srcdb``` option unless you wish to delete the database and all its data.
+CTGen generates a **```CREATE DATABASE```** script as part of the Model Project SQL script generation. 
+
+The **```CREATE DATABASE```** script  filename generated is ```[NNN]-[RootModelClassName]Database-Create```, where ```[NNN]``` is a sequential number, and ```[RootModelClassName]``` is the name of the model class.
+
+The script drops the existing database, and re-creates the database. **DO NOT** invoke the ```-srcdb``` option unless you wish to delete the database and all its data.
 
 # CTLite NuGet Packages
 CTLite consists of several packages to support application/services development of several varieties.
