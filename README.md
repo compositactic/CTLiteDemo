@@ -430,6 +430,8 @@ namespace NorthwindApplication.Presentation.NorthwindApplications.Customers.Orde
 ## Service Project
 The **Service Project** implements dependencies whose ```CTLite.IService``` interfaces are defined in the Presentation Project. CTGen will create commented-out, stubbed out implementations of the Presentation Project's ```IService``` interface definitions.
 
+![The Northwind Service Project](ServiceProjectExpanded.png)
+
 Per our Northwind example domain model, a Service class (ex. the *CategoryService* class) looks like the following:
 
 ICategoryService.cs in the Presentation Project contains an ```ICategoryService``` interface definition
@@ -514,7 +516,6 @@ namespace NorthwindApplication.Test
 }
 ```
  
-
 ## SQL DDL Scripts
 CTGen will generate **SQL DDL Scripts** in the Model Project when the ```-sc``` option is specified. The filename generated is ```[NNN]-Table-[ModelClassName]```, where ```[NNN]``` is a sequential number, and ```[ModelClassName]``` is the name of the model class. 
 
