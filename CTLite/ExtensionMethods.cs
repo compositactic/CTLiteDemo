@@ -403,31 +403,31 @@ namespace CTLite
 
             foreach (var commandRequest in commandRequests)
             {
-                var commandResponseReturnValuePlaceholderMatches = Regex.Matches(commandRequest.CommandPath, @"{(?'commandId'\d+)/?(?'path'.+?)?}").Cast<Match>();
-
-                foreach (var commandResponseReturnValuePlaceholderMatch in commandResponseReturnValuePlaceholderMatches)
-                {
-                    var commandResponseReturnValue = commandResponses.Single(cr => cr.Id == int.Parse(commandResponseReturnValuePlaceholderMatch.Groups["commandId"].Value, CultureInfo.InvariantCulture)).ReturnValue;
-                    var commandResponseReturnValuePath = commandResponseReturnValuePlaceholderMatch.Groups["path"].Value;
-                    var commandResponseReturnValueComposite = commandResponseReturnValue as Composite;
-                    var returnValuePlaceholder = commandRequest.CommandPath.Substring(commandResponseReturnValuePlaceholderMatch.Index, commandResponseReturnValuePlaceholderMatch.Length);
-                    if (commandResponseReturnValueComposite != null && !string.IsNullOrEmpty(commandResponseReturnValuePath))
+                commandRequest.CommandPath = Regex.Replace(commandRequest.CommandPath, @"{(?'commandId'\d+)/?(?'path'.+?)?}", 
+                    new MatchEvaluator(delegate (Match commandResponseReturnValuePlaceholderMatch)
                     {
-                        var valueForPlaceholder = commandResponseReturnValueComposite.Execute(commandResponseReturnValuePath, context, null, uploadedFiles);
-                        if (!valueForPlaceholder.ReturnValue.GetType().IsConvertable())
-                            throw new ArgumentException(
-                                string.Format(CultureInfo.CurrentCulture, Resources.PlaceholderValueConversionError,
-                                                        valueForPlaceholder.ReturnValue.GetType().FullName,
-                                                        nameof(TypeConverter),
-                                                        nameof(String)));
+                        var commandResponseReturnValue = commandResponses.Single(cr => cr.Id == int.Parse(commandResponseReturnValuePlaceholderMatch.Groups["commandId"].Value, CultureInfo.InvariantCulture)).ReturnValue;
+                        var commandResponseReturnValuePath = commandResponseReturnValuePlaceholderMatch.Groups["path"].Value;
+                        var commandResponseReturnValueComposite = commandResponseReturnValue as Composite;
+                        var returnValuePlaceholder = commandRequest.CommandPath.Substring(commandResponseReturnValuePlaceholderMatch.Index, commandResponseReturnValuePlaceholderMatch.Length);
+                        if (commandResponseReturnValueComposite != null && !string.IsNullOrEmpty(commandResponseReturnValuePath))
+                        {
+                            var valueForPlaceholder = commandResponseReturnValueComposite.Execute(commandResponseReturnValuePath, context, null, uploadedFiles);
+                            if (!valueForPlaceholder.ReturnValue.GetType().IsConvertable())
+                                throw new ArgumentException(
+                                    string.Format(CultureInfo.CurrentCulture, Resources.PlaceholderValueConversionError,
+                                                            valueForPlaceholder.ReturnValue.GetType().FullName,
+                                                            nameof(TypeConverter),
+                                                            nameof(String)));
 
-                        commandRequest.CommandPath = commandRequest.CommandPath.Replace(returnValuePlaceholder, valueForPlaceholder.ReturnValue.ToString());
-                    }
-                    else if (commandResponseReturnValueComposite != null && string.IsNullOrEmpty(commandResponseReturnValuePath))
-                        throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.PlaceholderPathRequiredError, commandResponseReturnValueComposite.GetType().FullName));
-                    else
-                        commandRequest.CommandPath = commandRequest.CommandPath.Replace(returnValuePlaceholder, commandResponseReturnValue.ToString());
-                }
+                            return valueForPlaceholder.ReturnValue.ToString();
+                        }
+                        else if (commandResponseReturnValueComposite != null && string.IsNullOrEmpty(commandResponseReturnValuePath))
+                            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.PlaceholderPathRequiredError, commandResponseReturnValueComposite.GetType().FullName));
+                        else
+                            return commandResponseReturnValue.ToString();
+
+                    }));
 
                 var commandResponse = context != null ? compositeRoot.Execute(commandRequest.CommandPath, context, uploadedFiles) :
                                                         compositeRoot.Execute(commandRequest.CommandPath, compositeRootHttpContext, uploadedFiles);

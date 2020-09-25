@@ -600,3 +600,370 @@ CTLite has a core package **CTLite.dll**, which contains functionality to suppor
 
 ## CTLite.AspNetCore
 **CTLite.AspNetCore** provides support for hosting the CTLite Presentation Project as an ASP.NET Core *front API controller*.
+
+CTGen's ```-a webapi``` option creates an ASP.NET Core API project with an API controller that hosts the ```CompositeRoot``` Presentation class of your application. 
+
+![The Northwind WebApi Project](WebApiProjectExpanded.png)
+
+### CompositeRootControllerBase
+```CompositeRootControllerBase``` allows a ```CompositeRoot``` class to be accessed by HTTP requests. ```CompositeRootControllerBase``` is based on ```Microsoft.AspNetCore.Mvc.ControllerBase```
+
+```csharp
+public abstract class CompositeRootControllerBase<TCompositeRoot> : ControllerBase where TCompositeRoot : CompositeRoot, new()
+```
+
+CTGen creates a ```CompositeRootControllerBase``` class for the ```CompositeRoot``` class in the Presentation Project. Per our Northwind example, CTGen creates the ```NorthwindApplicationController```:
+
+```csharp
+using CTLite.AspNetCore;
+using NorthwindApplication.Presentation.NorthwindApplications;
+using Microsoft.Extensions.Caching.Memory;
+
+namespace NorthwindApplication.WebApi
+{
+    public class NorthwindApplicationController : CompositeRootControllerBase<NorthwindApplicationCompositeRoot>
+    {
+        public NorthwindApplicationController(IMemoryCache cache) : base(cache) { }
+        protected override NorthwindApplicationCompositeRoot CreateCompositeRoot()
+        {
+            return new NorthwindApplicationCompositeRoot
+            (
+                // TODO: IService dependencies here
+            );
+        }
+    }
+}
+```
+
+### Service class dependency injection
+```CompositeRootControllerBase``` implements the virtual method ```CreateCompositeRoot```. The base implementation of ```CreateCompositeRoot``` creates a new instance of the ```CompositeRoot``` specified by ```TCompositeRoot```, scans assemblies in the application's working directory for ```CTLite.IService``` service class implementations, and creates new instances of the service classes, and adds them to the service locator.  
+
+Overriding ```CreateCompositeRoot``` gives the opportunity to create an instance of a ```TCompositeRoot``` with a custom set of dependencies. The overloaded constructor of the ```TCompositeRoot``` class contains a parameter ```params IService[] services```, where any number of ```IService``` implementations may be specified. Use this constructor to specify any combination of mocked services and actual services.   
+
+### Running the WebApi Project
+Launch the WebApi Project EXE.
+![](WebApiAppRunning.png)
+
+### Calling Properties and Methods
+Most usages of the WebApi Project begin with a call to the ```CompositeRoot``` to create a new instance of the ```CompositeRoot``` and to obtain its *session id*. 
+
+Per our Northwind example, we send this HTTP request:  
+```http
+POST /NorthwindApplication HTTP/1.1
+Host: localhost:5001
+Content-Type: application/x-www-form-urlencoded
+
+```  
+
+The controller returns the Command Request response:
+
+```json
+[
+    {
+        "success": true,
+        "errors": null,
+        "returnValue": {
+            "id": 637366475283222367,
+            "categories": {
+                "categories": {}
+            },
+            "customers": {
+                "customers": {}
+            },
+            "employees": {
+                "employees": {}
+            },
+            "regions": {
+                "regions": {}
+            },
+            "suppliers": {
+                "suppliers": {}
+            }
+        },
+        "returnValueContentType": null,
+        "returnValueContentEncoding": null,
+        "id": 1
+    }
+]
+```
+
+CTLite automatically caches the new instance of ```NorthwindApplicationCompositeRoot``` created by this call. The```CompositeRoot``` ```Id``` property contains an identifier used for recalling the cached instance of the ```CompositeRoot```. The following HTTP request returns the cached instance:
+
+```
+POST /NorthwindApplication/637366475283222367 HTTP/1.1
+Host: localhost:5001
+Content-Type: application/x-www-form-urlencoded
+
+```
+> CTLite's ```CompositeRootControllerBase``` may accept GET or POST HTTP requests.
+
+Command Request responses return an array of response objects with the following format. Command Requests containing a single command, such as those specified in the URL/query-string, return a single response object with an id of 1. Command Requests containing multiple Commands have a unique user-assigned integer identifier for each Command:
+
+```json
+[
+  {
+    "success": true,
+    "errors": null,
+    "returnValue": { ... },
+    "returnValueContentType": null,
+    "returnValueContentEncoding": null,
+    "id": 1
+  }
+]
+```
+
+* ```success``` - false if an unhandled exception occurred during Command Request execution, otherwise true
+* ```errors``` - when an unhandled exception occurs, errors contains an array of error message strings, otherwise null
+* ```returnValue``` - the value returned from the Command or Property referenced by the Command Request, or null
+* ```returnValueContentType``` - for Commands returning a binary (byte[]) value, the MIME content type of the binary value
+* ```returnValueContentEncoding``` - the value of the HTTP Content-Encoding header for the ```returnValue```
+* ```id``` - the user-assigned integer unique identifier specified to the Command, if multiple Commands are specified in the Command Request
+
+```CompositeRootControllerBase``` also accepts Command Requests in multipart/form-data format. (multiple file uploads). These types of Command Requests are only supported with Command Requests containing a single Command.
+
+Calling ```CompositeRoot``` properties and methods hosted by ```CompositeRootControllerBase``` with HTTP follows syntax closely to calls made to the same properties and methods with .NET languages like C#. 
+
+#### Calling Methods
+In the Northwind example, this modified ```CreateNewCategory``` method of the ```CategoryCompositeContainer``` class (with additional parameters):
+
+```csharp
+using CTLite;
+using CTLite.Data.MicrosoftSqlServer;
+using System;
+using System.Linq;
+
+namespace NorthwindApplication.Presentation.NorthwindApplications.Categories
+{
+	public partial class CategoryCompositeContainer
+	{
+		﻿// * This is a sample factory method for creating new instances of CategoryComposite and adding the newly created instance to the CategoryCompositeContainer dictionary
+		// * Methods exposed to CTLite must include the [Command] attribute
+		// * Use the _newCategoryFunc delegate to create new instances of the Category for passing into the CategoryComposite constructor
+		// * Setting the State property to CompositeState.New indicates that newCategory should be inserted to the database when using CTLite.Data API  
+	    [Command]
+		[Help("Help text for the CreateNewCategory method goes here")]
+		[return: Help("Help text for the return value of CreateNewCategory goes here")]
+		public CategoryComposite CreateNewCategory(
+			[Help("help text for someString parameter here")] string someString,
+			[Help("help text for isOnOrOff parameter here")] bool isOnOrOff,
+			[Help("help text for someDate parameter here")] DateTime someDate,
+			[Help("help text for favoriteColor parameter here")] ConsoleColor favoriteColor,
+			[Help("help text for magicNumber parameter here")] int? magicNumber,
+			[Help("help text for dreamSalary parameter here")] decimal dreamSalary)
+		{
+			var newCategory = new CategoryComposite(_newCategoryFunc.Invoke(), this) { State = CompositeState.New };
+			categories.Add(newCategory.Id, newCategory);
+			return newCategory;
+		}
+
+		// TODO: (optional) - add other properties and methods to the CategoryCompositeContainer class for saving, loading, and processing groups of CategoryComposite instances in the CategoryCompositeContainer dictionary 
+
+	}
+}
+```
+
+...is called by this C# code
+
+```csharp
+var northwindApplication = new NorthwindApplicationCompositeRoot();
+northwindApplication.Categories.CreateNewCategory(someString: "abc", isOnOrOff: true, someDate: DateTime.Parse("02/02/2002"), favoriteColor: ConsoleColor.Red, magicNumber: 123, dreamSalary: 1000000000.25M);
+
+```
+
+...and the equivalent HTTP request would be:
+
+```
+GET /NorthwindApplication/637366475283222367/Categories/CreateNewCategory?someString=abc&isOnOrOff=true&someDate=02/02/2002&favoriteColor=Red&magicNumber=123&dreamSalary=1000000000.25 HTTP/1.1
+Host: localhost:5001
+Content-Type: application/x-www-form-urlencoded
+
+```
+
+...or HTTP POST:
+```
+POST /NorthwindApplication/637366475283222367/Categories/CreateNewCategory HTTP/1.1
+Host: localhost:5001
+Content-Type: application/x-www-form-urlencoded
+
+someString=abc&isOnOrOff=true&someDate=02/02/2002&favoriteColor=Red&magicNumber=123&dreamSalary=1000000000.25
+```
+
+#### Calling Properties
+Adding a new example property to the ```CategoryCompositeContainer``` class, we define:
+
+```csharp
+[DataMember]
+public string Label { get; set; }
+```
+
+To *get* the value of this property, in C# the code is:
+
+```csharp
+var labelValue = northwindApplication.Categories.Label;
+```
+
+To *get* the value of this property using HTTP:
+
+```
+GET /NorthwindApplication/637366475283222367/Categories/Label HTTP/1.1
+Host: localhost:5001
+Content-Type: application/x-www-form-urlencoded
+
+```
+To *set* the value of this property using HTTP:
+
+```
+GET /NorthwindApplication/637366475283222367/Categories/Label?MyLabelValue HTTP/1.1
+Host: localhost:5001
+Content-Type: application/x-www-form-urlencoded
+
+```
+
+...or using a HTTP POST
+```
+POST /NorthwindApplication/637366604403629856/Categories/Label HTTP/1.1
+Host: localhost:5001
+Content-Type: application/x-www-form-urlencoded
+
+MyLabelValue
+```
+
+Setting a ```null``` value:
+```
+GET /NorthwindApplication/637366604403629856/Categories/Label? HTTP/1.1
+Host: localhost:5001
+Content-Type: application/x-www-form-urlencoded
+
+
+```
+
+Setting an empty string value:
+```
+GET /NorthwindApplication/637366604403629856/Categories/Label?%00 HTTP/1.1
+Host: localhost:5001
+Content-Type: application/x-www-form-urlencoded
+
+
+```
+
+#### Accessing dictionary Composites
+CTLite.AspNetCore supports accessing Container class dictionaries by index and by Id. 
+
+By zero-based index:
+```
+GET /NorthwindApplication/637366633329178049/Categories/Categories/0 HTTP/1.1
+Host: localhost:5001
+Content-Type: application/x-www-form-urlencoded
+```
+
+By Id:
+
+```
+GET /NorthwindApplication/637366633329178049/Categories/Categories/[637366633479185689] HTTP/1.1
+Host: localhost:5001
+Content-Type: application/x-www-form-urlencoded
+```
+
+#### Multiple Commands
+CTLite.AspNetCore may receive a **multiple command request**, where several commands may be sent in a sequential list. CTLite.AspNetCore also allows any return value from an individual command to be used as parameter input to a subsequent command.
+
+
+
+
+#### Command Help
+CTLite.AspNetCore allows the developer to get help documentation delivered back from any point in the Presentation Project classes. For our Northwind example, this HTTP request tells CTLite.AspNetCore to list all the properties and methods of the ```CategoryCompositeContainer``` class:
+
+```
+GET /NorthwindApplication/637366639281153778/Categories/?? HTTP/1.1
+Host: localhost:5001
+Content-Type: application/x-www-form-urlencoded
+
+
+```
+
+Returns:
+```json
+[
+    {
+        "success": true,
+        "errors": null,
+        "returnValue": {
+            "properties": [
+                {
+                    "helpText": null,
+                    "propertyEnumValues": null,
+                    "propertyName": "Categories",
+                    "propertyType": "CTLite.ReadOnlyCompositeDictionary`2[[System.Int64, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[NorthwindApplication.Presentation.NorthwindApplications.Categories.CategoryComposite, NorthwindApplication.Presentation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+                    "isReadOnly": true
+                }
+            ],
+            "commands": [
+                {
+                    "helpText": "Help text for the CreateNewCategory method goes here",
+                    "commandName": "CreateNewCategory",
+                    "parameters": [
+                        {
+                            "parameterName": "someString",
+                            "helpText": "help text for someString parameter here",
+                            "parameterType": "System.String",
+                            "parameterEnumValues": null
+                        },
+                        {
+                            "parameterName": "isOnOrOff",
+                            "helpText": "help text for isOnOrOff parameter here",
+                            "parameterType": "System.Boolean",
+                            "parameterEnumValues": null
+                        },
+                        {
+                            "parameterName": "someDate",
+                            "helpText": "help text for someDate parameter here",
+                            "parameterType": "System.DateTime",
+                            "parameterEnumValues": null
+                        },
+                        {
+                            "parameterName": "favoriteColor",
+                            "helpText": "help text for favoriteColor parameter here",
+                            "parameterType": "System.ConsoleColor",
+                            "parameterEnumValues": [
+                                "Black",
+                                "DarkBlue",
+                                "DarkGreen",
+                                "DarkCyan",
+                                "DarkRed",
+                                "DarkMagenta",
+                                "DarkYellow",
+                                "Gray",
+                                "DarkGray",
+                                "Blue",
+                                "Green",
+                                "Cyan",
+                                "Red",
+                                "Magenta",
+                                "Yellow",
+                                "White"
+                            ]
+                        },
+                        {
+                            "parameterName": "magicNumber",
+                            "helpText": "help text for magicNumber parameter here",
+                            "parameterType": "System.Nullable`1[[System.Int32, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+                            "parameterEnumValues": null
+                        },
+                        {
+                            "parameterName": "dreamSalary",
+                            "helpText": "help text for dreamSalary parameter here",
+                            "parameterType": "System.Decimal",
+                            "parameterEnumValues": null
+                        }
+                    ],
+                    "returnType": "NorthwindApplication.Presentation.NorthwindApplications.Categories.CategoryComposite",
+                    "returnTypeHelp": "Help text for the return value of CreateNewCategory goes here"
+                }
+            ]
+        },
+        "returnValueContentType": null,
+        "returnValueContentEncoding": null,
+        "id": 1
+    }
+]
+```
