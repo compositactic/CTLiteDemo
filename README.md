@@ -867,7 +867,73 @@ Content-Type: application/x-www-form-urlencoded
 #### Multiple Commands
 CTLite.AspNetCore may receive a **multiple command request**, where several commands may be sent in a sequential list. CTLite.AspNetCore also allows any return value from an individual command to be used as parameter input to a subsequent command.
 
+Per our Northwind example, this request creates a new customer, creates an new order for the new customer, and creates a new order item for the new order:
 
+```
+POST /NorthwindApplication/637366633329178049 HTTP/1.1
+Host: localhost:5001
+Content-Type: application/json
+
+[
+    { "CommandPath": "Customers/CreateNewCustomer", "Id" : 1 },
+    { "CommandPath": "Customers/Customers/[{1/Id}]/Orders/CreateNewOrder", "Id" : 2 },
+    { "CommandPath": "Customers/Customers/[{1/Id}]/Orders/Orders/[{2/Id}]/Items/CreateNewItem", "Id" : 3 }
+]
+```
+
+CtLite.AspNetCore returns an array of responses, showing the return value of each command:
+```json
+[
+    {
+        "success": true,
+        "errors": null,
+        "returnValue": {
+            "id": 637366709676754063,
+            "orders": {
+                "orders": {}
+            }
+        },
+        "returnValueContentType": null,
+        "returnValueContentEncoding": null,
+        "id": 1
+    },
+    {
+        "success": true,
+        "errors": null,
+        "returnValue": {
+            "id": 637366709676790731,
+            "items": {
+                "items": {}
+            },
+            "employeeReferences": {
+                "employeeReferences": {}
+            }
+        },
+        "returnValueContentType": null,
+        "returnValueContentEncoding": null,
+        "id": 2
+    },
+    {
+        "success": true,
+        "errors": null,
+        "returnValue": {
+            "id": 637366709676900083,
+            "productReferences": {
+                "productReferences": {}
+            }
+        },
+        "returnValueContentType": null,
+        "returnValueContentEncoding": null,
+        "id": 3
+    }
+]
+```
+
+
+A CTLite.AspNetCore multi-command request must have a unique, sequential Id for each command.
+
+CTLite.AspNetCore multi-command requests can use the return value of one command in a template for another command. The template is: ```{n/PathToValue}```, where ```n``` is the ```Id``` of the command, and ```PathToValue``` when the return value is a ```Composite```. For other return value types, use ```{n/}```.
+ 
 
 
 #### Command Help
