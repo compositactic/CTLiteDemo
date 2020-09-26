@@ -40,14 +40,14 @@ namespace CTLite.AspNetCore
             _cache = cache;
         }
 
-        protected virtual void SetCache(long cacheId, string jsonValue)
+        protected virtual void SetCache(long compositeRootId, string jsonValue)
         {
-            _cache.Set(cacheId, jsonValue);
+            _cache.Set(compositeRootId, jsonValue);
         }
 
-        protected virtual string GetCache(long cacheId)
+        protected virtual string GetCache(long compositeRootId)
         {
-            return _cache.Get(cacheId) as string;
+            return _cache.Get(compositeRootId) as string;
         }
 
         protected virtual TCompositeRoot CreateCompositeRoot()
@@ -83,13 +83,13 @@ namespace CTLite.AspNetCore
 
                 var pathAndQuery = $"{Regex.Replace(Request.Path.Value, @"\0$", "%00")}{(string.IsNullOrEmpty(Request.QueryString.Value) && !string.IsNullOrEmpty(requestBody) ? (!requestBody.StartsWith("?") ? "?" : string.Empty) + requestBody : Request.QueryString.Value)}";
                 var controllerName = ControllerContext.ActionDescriptor.ControllerName;
-                var requestPattern = $"^/{controllerName}/?(?'cacheId'[0-9]+)?/?";
-                Match cacheIdMatch;
-                var cacheId = 0L;
-                if ((cacheIdMatch = Regex.Match(pathAndQuery, requestPattern)).Success) 
+                var requestPattern = $"^/{controllerName}/?(?'compositeRootId'[0-9]+)?/?";
+                Match compositeRootIdMatch;
+                var compositeRootId = 0L;
+                if ((compositeRootIdMatch = Regex.Match(pathAndQuery, requestPattern, RegexOptions.IgnoreCase)).Success) 
                 {
-                    var cacheIdValue = cacheIdMatch.Groups["cacheId"].Value;
-                    cacheId = string.IsNullOrEmpty(cacheIdValue) ? 0 : long.Parse(cacheIdValue);
+                    var compositeRoootIdValue = compositeRootIdMatch.Groups["compositeRootId"].Value;
+                    compositeRootId = string.IsNullOrEmpty(compositeRoootIdValue) ? 0 : long.Parse(compositeRoootIdValue);
                 }
 
                 commandRequests ??= new CompositeRootCommandRequest[]
@@ -104,7 +104,7 @@ namespace CTLite.AspNetCore
                 var compositeRootModelField = compositeRoot.GetType().GetField(compositeRootModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
                 var compositeRootModelFieldType = compositeRootModelField.FieldType;
 
-                var compositeRootModelJson = GetCache(cacheId);
+                var compositeRootModelJson = GetCache(compositeRootId);
                 if (!string.IsNullOrWhiteSpace(compositeRootModelJson))
                 {
                     var compositeRootModel = JsonConvert.DeserializeObject(compositeRootModelJson, compositeRootModelFieldType);
@@ -113,7 +113,7 @@ namespace CTLite.AspNetCore
                 }
                 else
                 {
-                    if (cacheId == 0)
+                    if (compositeRootId == 0)
                         SetCache(compositeRoot.Id, JsonConvert.SerializeObject(compositeRootModelField.GetValue(compositeRoot)));
                     else
                         throw new UnauthorizedAccessException();
