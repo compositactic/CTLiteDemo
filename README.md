@@ -7,17 +7,26 @@
   * [Visual Studio Solution](#Visual-Studio-Solution)
     * [Model Project](#Model-Project)
     * [Presentation Project](#Presentation-Project)
+      * [CTLite.AspNetCore - Presentation class methods](#CTLite.AspNetCore-Presentation-class-methods)
     * [Service Project](#Service-Project)
     * [Test Project](#Test-Project)
     * [SQL DDL Scripts](#SQL-DDL-Scripts)
 * [CTLite Nuget packages](#CTLite-Nuget-packages)
   * [CTLite](#CTLite)
   * [CTLite.Data.MicrosoftSqlServer](#CTLite.Data.MicrosoftSqlServer)
+    * [Tracking Composite object changes](#Tracking-Composite-object-changes)
+    * [Loading Composites from the database](#Loading-Composites-from-the-database)
+    * [Saving Composites to the database](#Saving-Composites-to-the-database)
   * [CTLite.AspNetCore](#CTLite.AspNetCore)
     * [CompositeRootControllerBase](#CompositeRootControllerBase)
     * [Service class dependency injection](#Service-class-dependency-injection)
     * [Running the WebApi project](#Running-the-WebApi-project)
     * [Calling Properties and Methods](#Calling-Properties-and-Methods)
+      * [Calling Methods](#Calling-methods)
+      * [Calling Properties](#Calling-properties)
+      * [Accessing dictionary Composites](#Accessing-dictionary-Composites)
+      * [Multiple Commands](#Multiple-Commands)
+      * [Command Help](#Command-Help)
 
 # Introduction
 CTLite automatically generates .NET Core applications, SQL databases, and APIs from a **code-free domain model**. CTLite outputs a complete, ready-to-run code solution that implements a layered Presentation Model/Model-View-ViewModel architecture. Use (and reuse!) CTLite code with ASP.NET Core, Windows Presentation Foundation, Xamarin.Forms, Windows Forms, console applications, and more.
@@ -29,7 +38,7 @@ CTLite offers:
 * Domain-based code organization - keeps the code focused on functional domain requirements.
 * Low dependency, small code library - includes an integrated database object-relational mapper, dependency injection system, and SQL DDL management support   
 
-<a href="javascript:history.back()">[Go Back]</a>
+
 # Domain Model
 CTLite domain models are specified using **ordinary, empty directories on your disk**. The directories' and sub-directories' names establish the class names and the one-to-many relationships of the classes in the domain model. The example domain model below is based on Microsoft's "Northwind" sample database, a fictitious e-commerce company:
 
@@ -448,7 +457,7 @@ namespace NorthwindApplication.Presentation.NorthwindApplications.Customers.Orde
 }
 ```
 
-#### (CTLite.AspNetCore) - Presentation class methods
+#### CTLite.AspNetCore - Presentation class methods
 For ```CompositeRoot``` classes hosted by CTLite.AspNetCore's ```CompositeRootControllerBase```, CTLite provides access to the HTTP Request/Response associated with the method invocation.
 
 Including a parameter in the Presentation class method with the type ```CTLite.CompositeRootHttpContext``` provides the HTTP Request/Response data.
@@ -643,6 +652,62 @@ CTLite has a core package **CTLite.dll**, which contains functionality to suppor
 
 ## CTLite.Data.MicrosoftSqlServer
 **CTLite.Data.MicrosoftSqlServer.dll** implements specific Microsoft SQL Server functionality to support CTLite's object-relational mapper implemented in the **CTLite.Data** namespace. 
+
+### Tracking Composite object changes
+CTLite tracks changes to ```Composite``` object properties by setting the ```State``` property. Calling the ```NotifyPropertyChanged``` method will also set the ```State``` property. The ```CompositeState``` indicates the change condition of the Composite class: 
+
+```csharp
+public enum CompositeState
+{
+    Unchanged = 0,
+    New,
+    Modified
+}
+```   
+
+..where:
+
+* ```Unchanged``` indicates that no changes were made to properties since last loaded
+* ```New``` indicates that the class object does not currently exist, and should be INSERTed upon Save
+* ```Modified``` indicates one or more property values were changed since last loaded
+
+
+
+### Loading Composites from the database
+Per our Northwind example, the ```CategoryCompositeContainer``` defines an example method ```LoadCategories```. This method will load Category model classes from the database, create a ```CategoryComposite``` and add the new ```CategoryComposite``` to the container dictionary:   
+```csharp
+[Command]
+public void LoadCategories()
+{
+    var repository = CompositeRoot.GetService<IMicrosoftSqlServerRepository>();
+    using var connection = repository.OpenConnection(@"your-connection-string-here");
+
+    categories.AddRange(repository.Load(connection, null,
+        @"
+                SELECT * 
+                FROM Category
+        ",
+        null,
+        _newCategoryFunc)
+        .Select(c => new CategoryComposite(c, this)));
+}
+```
+
+### Saving Composites to the database
+Per our Northwind example, the ```CategoryCompositeContainer``` defines an example method ```SaveAll```. This method will save all ```Composite``` classes (either execute an insert, update, or delete) in all container classes recursively.
+
+```csharp
+[Command]
+public void SaveAll()
+{
+    var repository = CompositeRoot.GetService<IMicrosoftSqlServerRepository>();
+    using var connection = repository.OpenConnection(@"your-connection-string-here");
+    using var transaction = repository.BeginTransaction(connection);
+    repository.Save(connection, transaction, this, true);
+    transaction.Commit();
+}
+```
+
 
 ## CTLite.AspNetCore
 **CTLite.AspNetCore** provides support for hosting the CTLite Presentation Project as an ASP.NET Core *front API controller*.
