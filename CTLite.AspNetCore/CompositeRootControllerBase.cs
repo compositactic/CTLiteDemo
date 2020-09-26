@@ -69,6 +69,7 @@ namespace CTLite.AspNetCore
             CompositeRootHttpContext compositeRootHttpContext = null;
             IEnumerable<CompositeRootCommandRequest> commandRequests = null;
             IEnumerable<CompositeUploadedFile> uploadedFiles = null;
+            var requestId = 0L;
 
             try
             {
@@ -119,9 +120,10 @@ namespace CTLite.AspNetCore
                         throw new UnauthorizedAccessException();
                 }
 
-                OnBeforeExecute(commandRequests, compositeRootHttpContext, uploadedFiles);
+                requestId = requestId.NewId();
+                OnBeforeExecute(commandRequests, compositeRootHttpContext, uploadedFiles, requestId);
                 commandResponses = compositeRoot.Execute(commandRequests, compositeRootHttpContext, uploadedFiles).ToList();
-                OnAfterExecute(commandResponses, compositeRootHttpContext);
+                OnAfterExecute(commandResponses, compositeRootHttpContext, requestId);
 
                 SetCache(compositeRoot.Id, JsonConvert.SerializeObject(compositeRootModelField.GetValue(compositeRoot)));
 
@@ -141,21 +143,21 @@ namespace CTLite.AspNetCore
             }
             catch(Exception e)
             {
-                OnError(e, commandRequests, compositeRootHttpContext, uploadedFiles);
+                OnError(e, commandRequests, compositeRootHttpContext, uploadedFiles, requestId);
                 commandResponses.Add(new CompositeRootCommandResponse { Success = false, Errors = GetErrorMessages(e) });
                 return commandResponses;
             }
         }
 
-        protected virtual void OnError(Exception exception, IEnumerable<CompositeRootCommandRequest> commandRequests, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        protected virtual void OnError(Exception exception, IEnumerable<CompositeRootCommandRequest> commandRequests, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles, long requestId)
         {
         }
 
-        protected virtual void OnAfterExecute(IEnumerable<CompositeRootCommandResponse> commandResponses, CompositeRootHttpContext compositeRootHttpContext)
+        protected virtual void OnAfterExecute(IEnumerable<CompositeRootCommandResponse> commandResponses, CompositeRootHttpContext compositeRootHttpContext, long requestId)
         {
         }
 
-        protected virtual void OnBeforeExecute(IEnumerable<CompositeRootCommandRequest> commandRequests, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        protected virtual void OnBeforeExecute(IEnumerable<CompositeRootCommandRequest> commandRequests, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles, long requestId)
         {
         }
 

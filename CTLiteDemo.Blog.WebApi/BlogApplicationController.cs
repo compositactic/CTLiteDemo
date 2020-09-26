@@ -37,14 +37,14 @@ namespace CTLiteDemo.WebApi
             );
         }
 
-        protected override void OnAfterExecute(IEnumerable<CompositeRootCommandResponse> commandResponses, CompositeRootHttpContext compositeRootHttpContext)
+        protected override void OnAfterExecute(IEnumerable<CompositeRootCommandResponse> commandResponses, CompositeRootHttpContext compositeRootHttpContext, long requestId)
         {
-            base.OnAfterExecute(commandResponses, compositeRootHttpContext);
+            base.OnAfterExecute(commandResponses, compositeRootHttpContext, requestId);
         }
 
-        protected override void OnBeforeExecute(IEnumerable<CompositeRootCommandRequest> commandRequests, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        protected override void OnBeforeExecute(IEnumerable<CompositeRootCommandRequest> commandRequests, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles, long requestId)
         {
-            base.OnBeforeExecute(commandRequests, compositeRootHttpContext, uploadedFiles);
+            base.OnBeforeExecute(commandRequests, compositeRootHttpContext, uploadedFiles, requestId);
         }
     }
 }
