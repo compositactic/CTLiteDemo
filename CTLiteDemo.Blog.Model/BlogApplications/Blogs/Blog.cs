@@ -99,5 +99,9 @@ namespace CTLiteDemo.Model.BlogApplications.Blogs
 
         [DataMember]
         public decimal Earnings { get; set; }
+
+        [DataMember]
+        [NoDb]
+        public string NoDbSampleProperty { get; set; }
     }
 }

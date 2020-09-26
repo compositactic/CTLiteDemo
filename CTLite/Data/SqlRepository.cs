@@ -220,7 +220,7 @@ namespace CTLite.Data
                     var columnProperties = modelFieldInfo
                                             .FieldType
                                             .GetProperties()
-                                            .Where(p => p.GetCustomAttribute<DataMemberAttribute>() != null && p.PropertyType != typeof(CompositeState) && p.Name != keyName);
+                                            .Where(p => p.GetCustomAttribute<NoDbAttribute>() == null && p.GetCustomAttribute<DataMemberAttribute>() != null && p.PropertyType != typeof(CompositeState) && p.Name != keyName);
 
                     var columnList = columnProperties.Select(dataMemberProperty => dataMemberProperty.GetCustomAttribute<DataMemberAttribute>().Name ?? dataMemberProperty.Name);
 

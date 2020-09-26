@@ -146,7 +146,7 @@ namespace CTLite
                 var model = modelFieldInfo.GetValue(composite);
 
                 if (modelProperties == null)
-                    modelProperties = model.GetType().GetProperties().Where(p => p.GetCustomAttributes<DataMemberAttribute>().Any() && p.PropertyType != typeof(CompositeState));
+                    modelProperties = model.GetType().GetProperties().Where(p => p.GetCustomAttribute<NoDbAttribute>() == null && p.GetCustomAttributes<DataMemberAttribute>().Any() && p.PropertyType != typeof(CompositeState));
 
                 if (dataTable == null)
                 {
@@ -203,7 +203,7 @@ namespace CTLite
             {
                 var columnName = record.GetName(columnIndex);
 
-                if ((propertyInfo = modelProperties.SingleOrDefault(p => (p.GetCustomAttribute<DataMemberAttribute>()?.Name ?? p.Name).ToLowerInvariant() == columnName.ToLowerInvariant())) == null)
+                if ((propertyInfo = modelProperties.SingleOrDefault(p => p.GetCustomAttribute<NoDbAttribute>() == null && (p.GetCustomAttribute<DataMemberAttribute>()?.Name ?? p.Name).ToLowerInvariant() == columnName.ToLowerInvariant())) == null)
                     continue;
 
                 propertyInfo.SetValue(model, record.IsDBNull(columnIndex) ? null : record[columnIndex]);
