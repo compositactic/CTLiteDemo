@@ -118,7 +118,10 @@ namespace CTLite.AspNetCore
                         throw new UnauthorizedAccessException();
                 }
 
+                OnBeforeExecute(commandRequests, compositeRootHttpContext, uploadedFiles);
                 commandResponses = compositeRoot.Execute(commandRequests, compositeRootHttpContext, uploadedFiles).ToList();
+                OnAfterExecute(commandResponses, compositeRootHttpContext);
+
                 SetCache(compositeRoot.Id, JsonConvert.SerializeObject(compositeRootModelField.GetValue(compositeRoot)));
 
                 if (commandResponses.First().ReturnValue is byte[] bytes)
@@ -140,6 +143,14 @@ namespace CTLite.AspNetCore
                 commandResponses.Add(new CompositeRootCommandResponse { Success = false, Errors = GetErrorMessages(e) });
                 return commandResponses;
             }
+        }
+
+        protected virtual void OnAfterExecute(IEnumerable<CompositeRootCommandResponse> commandResponses, CompositeRootHttpContext compositeRootHttpContext)
+        {
+        }
+
+        protected virtual void OnBeforeExecute(IEnumerable<CompositeRootCommandRequest> commandRequests, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        {
         }
 
         private static IEnumerable<string> GetErrorMessages(Exception e)

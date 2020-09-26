@@ -15,11 +15,13 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using CTLite;
 using CTLite.AspNetCore;
 using CTLite.Data.MicrosoftSqlServer;
 using CTLiteDemo.Presentation.BlogApplications;
 using CTLiteDemo.Service.BlogApplications.Blogs.Posts.Attachments;
 using Microsoft.Extensions.Caching.Memory;
+using System.Collections.Generic;
 
 namespace CTLiteDemo.WebApi
 {
@@ -33,6 +35,16 @@ namespace CTLiteDemo.WebApi
                 MicrosoftSqlServerRepository.Create(),
                 new AttachmentArchiveService()
             );
+        }
+
+        protected override void OnAfterExecute(IEnumerable<CompositeRootCommandResponse> commandResponses, CompositeRootHttpContext compositeRootHttpContext)
+        {
+            base.OnAfterExecute(commandResponses, compositeRootHttpContext);
+        }
+
+        protected override void OnBeforeExecute(IEnumerable<CompositeRootCommandRequest> commandRequests, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        {
+            base.OnBeforeExecute(commandRequests, compositeRootHttpContext, uploadedFiles);
         }
     }
 }
