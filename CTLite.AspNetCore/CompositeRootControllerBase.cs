@@ -66,14 +66,15 @@ namespace CTLite.AspNetCore
         public object ReceiveRequest()
         {
             var commandResponses = new List<CompositeRootCommandResponse>();
+            CompositeRootHttpContext compositeRootHttpContext = null;
+            IEnumerable<CompositeRootCommandRequest> commandRequests = null;
+            IEnumerable<CompositeUploadedFile> uploadedFiles = null;
 
             try
             {
                 Authenticate(HttpContext);
 
                 var request = Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty;
-                IEnumerable<CompositeUploadedFile> uploadedFiles = null;
-                IEnumerable<CompositeRootCommandRequest> commandRequests = null;
 
                 var requestParts = request.Split('?');
                 string requestBody = requestParts.Length >= 3 ? requestParts[2] : null;
@@ -96,7 +97,7 @@ namespace CTLite.AspNetCore
                     CompositeRootCommandRequest.Create(1, Regex.Replace(pathAndQuery, requestPattern, string.Empty))
                 };
 
-                var compositeRootHttpContext = GetContext(requestBody, uploadedFiles);
+                compositeRootHttpContext = GetContext(requestBody, uploadedFiles);
 
                 var compositeRoot = CreateCompositeRoot();
                 var compositeRootModelFieldName = compositeRoot.GetType().GetCustomAttribute<CompositeModelAttribute>()?.ModelFieldName;
@@ -140,9 +141,14 @@ namespace CTLite.AspNetCore
             }
             catch(Exception e)
             {
+                OnError(commandRequests, compositeRootHttpContext, uploadedFiles);
                 commandResponses.Add(new CompositeRootCommandResponse { Success = false, Errors = GetErrorMessages(e) });
                 return commandResponses;
             }
+        }
+
+        protected virtual void OnError(IEnumerable<CompositeRootCommandRequest> commandRequests, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        {
         }
 
         protected virtual void OnAfterExecute(IEnumerable<CompositeRootCommandResponse> commandResponses, CompositeRootHttpContext compositeRootHttpContext)
