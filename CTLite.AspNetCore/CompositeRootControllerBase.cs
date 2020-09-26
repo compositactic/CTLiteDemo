@@ -141,13 +141,13 @@ namespace CTLite.AspNetCore
             }
             catch(Exception e)
             {
-                OnError(commandRequests, compositeRootHttpContext, uploadedFiles);
+                OnError(e, commandRequests, compositeRootHttpContext, uploadedFiles);
                 commandResponses.Add(new CompositeRootCommandResponse { Success = false, Errors = GetErrorMessages(e) });
                 return commandResponses;
             }
         }
 
-        protected virtual void OnError(IEnumerable<CompositeRootCommandRequest> commandRequests, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles)
+        protected virtual void OnError(Exception exception, IEnumerable<CompositeRootCommandRequest> commandRequests, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles)
         {
         }
 
