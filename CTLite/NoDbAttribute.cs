@@ -19,6 +19,6 @@ using System;
 
 namespace CTLite
 {
-    [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public sealed class NoDbAttribute : Attribute { }
 }

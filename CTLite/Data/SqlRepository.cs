@@ -95,9 +95,13 @@ namespace CTLite.Data
                     {
                         var deletedCompositeType = compositeDictionary.GetType().GetGenericArguments()[1];
                         var deletedModelType = deletedCompositeType.GetField(deletedCompositeType.GetCustomAttribute<CompositeModelAttribute>().ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic).FieldType;
-                        var tableName = deletedModelType.GetCustomAttribute<DataContractAttribute>().Name ?? deletedModelType.Name;
-                        var tableKeyPropertyName = deletedModelType.GetCustomAttribute<KeyPropertyAttribute>().KeyPropertyName;
-                        OnDelete(connection, transaction, tableName, tableKeyPropertyName, deletedIds);
+                        if(deletedModelType.GetCustomAttribute<NoDbAttribute>() == null)
+                        {
+                            var tableName = deletedModelType.GetCustomAttribute<DataContractAttribute>().Name ?? deletedModelType.Name;
+                            var tableKeyPropertyName = deletedModelType.GetCustomAttribute<KeyPropertyAttribute>().KeyPropertyName;
+                            OnDelete(connection, transaction, tableName, tableKeyPropertyName, deletedIds);
+                        }
+
                         dynamic internalCompositeDictionary = compositeType.GetField(compositeType.GetCustomAttribute<CompositeContainerAttribute>().InternalCompositeContainerDictionaryPropertyName, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(c);
                         internalCompositeDictionary.ClearRemovedIds();
                     }
@@ -105,56 +109,60 @@ namespace CTLite.Data
 
                 if ((compositeModelAttribute = compositeType.FindCustomAttribute<CompositeModelAttribute>()) != null)
                 {
+                    var modelFieldInfo = compositeType.GetField(compositeModelAttribute.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+                    if (modelFieldInfo == null)
+                        throw new MemberAccessException(Resources.CannotFindCompositeModelProperty);
+
                     switch (c.State)
                     {
                         case CompositeState.Modified:
 
-                            var modelFieldInfo = compositeType.GetField(compositeModelAttribute?.ModelFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-                            var dataContractAttribute = modelFieldInfo?.FieldType.GetCustomAttribute<DataContractAttribute>();
-                            var modelKeyPropertyAttribute = modelFieldInfo?.FieldType.GetCustomAttribute<KeyPropertyAttribute>();
-                            var modelKeyProperty = modelFieldInfo?.FieldType.GetProperty(modelKeyPropertyAttribute.KeyPropertyName);
-                            var modelKeyDataMemberAttribute = modelKeyProperty?.GetCustomAttribute<DataMemberAttribute>();
+                            if(modelFieldInfo.FieldType.GetCustomAttribute<NoDbAttribute>() == null)
+                            {
+                                var dataContractAttribute = modelFieldInfo.FieldType.GetCustomAttribute<DataContractAttribute>();
+                                var modelKeyPropertyAttribute = modelFieldInfo.FieldType.GetCustomAttribute<KeyPropertyAttribute>();
+                                var modelKeyProperty = modelFieldInfo.FieldType.GetProperty(modelKeyPropertyAttribute.KeyPropertyName);
+                                var modelKeyDataMemberAttribute = modelKeyProperty?.GetCustomAttribute<DataMemberAttribute>();
 
-                            if (modelFieldInfo == null)
-                                throw new MemberAccessException(Resources.CannotFindCompositeModelProperty);
+                                if (dataContractAttribute == null)
+                                    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataContractAttribute, modelFieldInfo.FieldType.Name));
 
-                            if (dataContractAttribute == null)
-                                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataContractAttribute, modelFieldInfo.FieldType.Name));
+                                if (modelKeyPropertyAttribute == null)
+                                    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveKeyPropertyAttribute, modelFieldInfo.FieldType.Name));
 
-                            if (modelKeyPropertyAttribute == null)
-                                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveKeyPropertyAttribute, modelFieldInfo.FieldType.Name));
+                                if (modelKeyProperty == null)
+                                    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPropertyName, modelKeyPropertyAttribute.KeyPropertyName));
 
-                            if (modelKeyProperty == null)
-                                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidPropertyName, modelKeyPropertyAttribute.KeyPropertyName));
+                                if (modelKeyDataMemberAttribute == null)
+                                    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataMemberAttribute, modelKeyPropertyAttribute.KeyPropertyName));
 
-                            if (modelKeyDataMemberAttribute == null)
-                                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.MustHaveDataMemberAttribute, modelKeyPropertyAttribute.KeyPropertyName));
+                                var dataRow = new Composite[] { c }.ToDataTable().Rows[0];
+                                var columnValues = dataRow.Table.Columns.Cast<DataColumn>().Where(column => column.ColumnName != "__model").ToDictionary(column => column.ColumnName, column => dataRow[column]);
 
-                            var dataRow = new Composite[] { c }.ToDataTable().Rows[0];
-                            var columnValues = dataRow.Table.Columns.Cast<DataColumn>().Where(column => column.ColumnName != "__model").ToDictionary(column => column.ColumnName, column => dataRow[column]);
+                                var keyColumnName = modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name;
+                                var keyValue = dataRow[keyColumnName];
 
-                            var keyColumnName = modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name;
-                            var keyValue = dataRow[keyColumnName];
+                                var tableName = dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name;
+                                var tableKeyPropertyName = modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name;
 
-                            var tableName = dataContractAttribute.Name ?? modelFieldInfo.FieldType.Name;
-                            var tableKeyPropertyName = modelKeyDataMemberAttribute.Name ?? modelKeyProperty.Name;
+                                if (!Regex.IsMatch(tableName, @"^[A-Za-z0-9_]+$"))
+                                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidTableName, tableName));
 
-                            if (!Regex.IsMatch(tableName, @"^[A-Za-z0-9_]+$"))
-                                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidTableName, tableName));
+                                if (!Regex.IsMatch(tableKeyPropertyName, @"^[A-Za-z0-9_]+$"))
+                                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidColumnName, tableKeyPropertyName));
 
-                            if (!Regex.IsMatch(tableKeyPropertyName, @"^[A-Za-z0-9_]+$"))
-                                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidColumnName, tableKeyPropertyName));
+                                string invalidColumnName = null;
+                                if ((invalidColumnName = columnValues.Keys.FirstOrDefault(column => !Regex.IsMatch(column, @"^[A-Za-z0-9_]+$"))) != null)
+                                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidColumnName, invalidColumnName));
 
-                            string invalidColumnName = null;
-                            if ((invalidColumnName = columnValues.Keys.FirstOrDefault(column => !Regex.IsMatch(column, @"^[A-Za-z0-9_]+$"))) != null)
-                                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.InvalidColumnName, invalidColumnName));
-
-                            OnUpdate(connection, transaction, tableName, tableKeyPropertyName, keyValue, columnValues);
-                            c.State = CompositeState.Unchanged;
+                                OnUpdate(connection, transaction, tableName, tableKeyPropertyName, keyValue, columnValues);
+                                c.State = CompositeState.Unchanged;
+                            }
 
                             break;
                         case CompositeState.New:
-                            newComposites.Add(c);
+                            if (modelFieldInfo.FieldType.GetCustomAttribute<NoDbAttribute>() == null)
+                                newComposites.Add(c);
                             break;
                         default:
                             break;
