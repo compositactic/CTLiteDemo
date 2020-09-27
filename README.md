@@ -17,6 +17,7 @@
     * [Tracking Composite object changes](#Tracking-Composite-object-changes)
     * [Loading Composites from the database](#Loading-Composites-from-the-database)
     * [Saving Composites to the database](#Saving-Composites-to-the-database)
+    * [NoDbAttribute](#NoDbAttribute)
   * [CTLite.AspNetCore](#CTLite.AspNetCore)
     * [CompositeRootControllerBase](#CompositeRootControllerBase)
     * [Service class dependency injection](#Service-class-dependency-injection)
@@ -654,9 +655,6 @@ CTLite has a core package **CTLite.dll**, which contains functionality to suppor
 ## CTLite.Data.MicrosoftSqlServer
 **CTLite.Data.MicrosoftSqlServer.dll** implements specific Microsoft SQL Server functionality to support CTLite's object-relational mapper implemented in the **CTLite.Data** namespace. 
 
-### NoDbAttribute
-```CTLite.Data.SqlRepository``` will ignore database changes for Model Classes with the ```NoDbAttribute``` attribute applied. When applied to Model Class properties, the ```NoDbAttribute``` attribute will cause ```CTLite.Data.SqlRepository``` to skip the database column assigned to the Model Class property (via ```[DataMember]``` attribute) during any insert or update operation.
-
 ### Tracking Composite object changes
 CTLite tracks changes to ```Composite``` object properties by setting the ```State``` property. Calling the ```NotifyPropertyChanged``` method will also set the ```State``` property. The ```CompositeState``` indicates the change condition of the Composite class: 
 
@@ -709,7 +707,8 @@ public void SaveAll()
     transaction.Commit();
 }
 ```
-
+### NoDbAttribute
+```CTLite.Data.SqlRepository``` will ignore database changes for Model Classes with the ```NoDbAttribute``` attribute applied. When applied to Model Class properties, the ```NoDbAttribute``` attribute will cause ```CTLite.Data.SqlRepository``` to skip the database column assigned to the Model Class property (via ```[DataMember]``` attribute) during any insert or update operation.
 
 ## CTLite.AspNetCore
 **CTLite.AspNetCore** provides support for hosting the CTLite Presentation Project as an ASP.NET Core *front API controller*.
