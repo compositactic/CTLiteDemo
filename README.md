@@ -67,6 +67,8 @@ CTLite includes a command-line utility called **CTGen**. CTGen creates and refre
   * (others to come!)
 
 ## CTGen
+> [Download the latest build of CTGen](https://github.com/compositactic/CTLiteDemo/raw/master/CTLite.Tools.CTGen/CTGen.zip) - [Requires .NET Core 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1)
+
 Syntax for CTGen follows:
 ```
 CTGen Usage
