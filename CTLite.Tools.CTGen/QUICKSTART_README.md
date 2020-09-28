@@ -4,6 +4,7 @@ Prerequisites:
 * .NET Core 3.1 must be installed (https://dotnet.microsoft.com/download/dotnet-core/3.1)
 * LocalDB (https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb?view=sql-server-ver15) (For Microsoft SQL Server database functionality)
 
+[Download the latest build of CTLite's **CTGen** command-line utility (~1.39 MB .ZIP)](https://github.com/compositactic/CTLiteDemo/raw/master/CTLite.Tools.CTGen/CTGen.zip)
 
 
 The **Quick Start Batch Script** will:
