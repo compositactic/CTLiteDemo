@@ -48,6 +48,54 @@
     <None Update="Model.g.tcs">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Update="NorthwindDemo\NorthwindApplications\Categories\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NorthwindDemo\NorthwindApplications\Customers\Orders\EmployeeReferences\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NorthwindDemo\NorthwindApplications\Customers\Orders\Items\ProductReferences\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NorthwindDemo\NorthwindApplications\Customers\Orders\Items\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NorthwindDemo\NorthwindApplications\Customers\Orders\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NorthwindDemo\NorthwindApplications\Customers\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NorthwindDemo\NorthwindApplications\Employees\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NorthwindDemo\NorthwindApplications\Employees\TerritoryReferences\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NorthwindDemo\NorthwindApplications\Regions\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NorthwindDemo\NorthwindApplications\Regions\Territories\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NorthwindDemo\NorthwindApplications\Suppliers\Products\CategoryReferences\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NorthwindDemo\NorthwindApplications\Suppliers\Products\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NorthwindDemo\NorthwindApplications\Suppliers\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NorthwindDemo\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QUICKSTART.bat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="QUICKSTART_README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="SqlDatabaseCreate.tsql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
