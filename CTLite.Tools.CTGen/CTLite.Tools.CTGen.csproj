@@ -90,6 +90,12 @@
     <None Update="NorthwindDemo\README.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="RUN.bat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="REFRESH.bat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="QUICKSTART.bat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

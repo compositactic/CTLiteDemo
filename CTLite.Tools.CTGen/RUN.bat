@@ -1,0 +1,2 @@
+cd NorthwindDemo\NorthwindApplication.WebApi
+dotnet run
