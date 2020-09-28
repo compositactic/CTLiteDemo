@@ -2,6 +2,9 @@
 
 > [Download the latest build of CTLite's **CTGen** command-line utility (~1.39 MB .ZIP)](https://github.com/compositactic/CTLiteDemo/raw/master/CTLite.Tools.CTGen/CTGen.zip) - [Requires .NET Core 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1)
 
+> After downloading GTGen, read the [Quick Start Guide](CTLite.Tools.CTGen/QUICKSTART_README.md).
+
+
 * [Introduction](#Introduction)
 * [Domain Model](#Domain-Model)
 * [Code Generation](#Code-Generation)
