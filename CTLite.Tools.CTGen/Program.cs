@@ -298,7 +298,11 @@ namespace CTLite.Tools.CTGen
                     .Replace("{serviceClassNamespace}", serviceClassNamespace)
                     .Replace("{modelClassName}", modelClassName);
 
+
                 var serviceClassFileName = Path.Combine(workingDirectory, rootServiceNamespace, directory.FullName.Replace(workingDirectory + Path.DirectorySeparatorChar, string.Empty), modelClassName + "Service.cs");
+
+                Directory.CreateDirectory(Path.GetDirectoryName(serviceClassFileName));
+
                 if (!File.Exists(serviceClassFileName))
                     File.WriteAllText(serviceClassFileName, serviceTcs);
 
