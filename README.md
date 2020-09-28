@@ -1,5 +1,7 @@
 ﻿![CTLite Logo](CTLiteLogo.png)
 
+> [Download the latest build of CTLite's **CTGen** command-line utility (~1.39 MB .ZIP)](https://github.com/compositactic/CTLiteDemo/raw/master/CTLite.Tools.CTGen/CTGen.zip) - [Requires .NET Core 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1)
+
 * [Introduction](#Introduction)
 * [Domain Model](#Domain-Model)
 * [Code Generation](#Code-Generation)
@@ -67,7 +69,7 @@ CTLite includes a command-line utility called **CTGen**. CTGen creates and refre
   * (others to come!)
 
 ## CTGen
-> [Download the latest build of CTGen](https://github.com/compositactic/CTLiteDemo/raw/master/CTLite.Tools.CTGen/CTGen.zip) - [Requires .NET Core 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1)
+> [Download the latest build of CTLite's **CTGen** command-line utility (~1.39 MB .ZIP)](https://github.com/compositactic/CTLiteDemo/raw/master/CTLite.Tools.CTGen/CTGen.zip) - [Requires .NET Core 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1)
 
 Syntax for CTGen follows:
 ```
