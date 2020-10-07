@@ -25,11 +25,14 @@ namespace CTLite
     [Serializable]
     public class CompositeMemberInfo
     {
-        internal CompositeMemberInfo(IEnumerable<CompositePropertyInfo> compositePropertyInfos, IEnumerable<CompositeCommandInfo> compositeCommandInfos)
+        internal CompositeMemberInfo(IEnumerable<CompositePropertyInfo> compositePropertyInfos, IEnumerable<CompositeCommandInfo> compositeCommandInfos, string path)
         {
             Properties = compositePropertyInfos;
             Commands = compositeCommandInfos;
+            Path = path;
         }
+
+        public string Path { get; }
 
         [DataMember]
         public IEnumerable<CompositePropertyInfo> Properties { get; }

@@ -280,6 +280,69 @@ namespace CTLite
             }
         }
 
+        public static string GetPath(this Composite composite)
+        {
+            if (composite == null)
+                throw new ArgumentNullException(nameof(composite));
+
+            var propertyPathBuilder = new StringBuilder();
+            GetPropertyPath(null, null, composite, propertyPathBuilder);
+            return propertyPathBuilder.ToString();
+        }
+
+        internal static string GetPropertyPath(this Composite composite, PropertyInfo propertyInfo)
+        {
+            var propertyPathBuilder = new StringBuilder();
+            GetPropertyPath(propertyInfo, propertyInfo, composite, propertyPathBuilder);
+
+            return propertyPathBuilder.ToString();
+        }
+
+        private static void GetPropertyPath(PropertyInfo startingProperty, PropertyInfo property, Composite composite, StringBuilder propertyPathBuilder)
+        {
+            var compositeType = composite.GetType();
+            if (compositeType.IsSubclassOf(typeof(CompositeRoot)))
+            {
+                if (startingProperty != null && !propertyPathBuilder.ToString().EndsWith("/" + startingProperty.Name))
+                {
+                    if (propertyPathBuilder.Length != 0)
+                        propertyPathBuilder.Append("/");
+
+                    propertyPathBuilder.Append(startingProperty.Name);
+                }
+
+                return;
+            }
+
+            var parentPropertyAttribute = compositeType.FindCustomAttribute<ParentPropertyAttribute>();
+            if (parentPropertyAttribute == null)
+                return;
+
+            var parentProperty = composite.GetType().GetProperty(parentPropertyAttribute.ParentPropertyName);
+
+            var dictionaryPropertyAttribute = compositeType.FindCustomAttribute<CompositeContainerAttribute>();
+            var keyPropertyAttribute = compositeType.FindCustomAttribute<KeyPropertyAttribute>();
+
+            if (keyPropertyAttribute != null && parentPropertyAttribute != null && dictionaryPropertyAttribute == null)
+            {
+                var keyPropertyValue = compositeType.GetProperty(keyPropertyAttribute.KeyPropertyName).GetValue(composite);
+                propertyPathBuilder.Insert(0, "/[" + keyPropertyValue + "]" + (property != null && property.PropertyType.IsConvertable() ? "/" + property.Name : string.Empty));
+            }
+            else if (dictionaryPropertyAttribute != null)
+                propertyPathBuilder.Insert(0, "/" + (property != null ?
+                                                    property.Name :
+                                                    compositeType.GetProperty(dictionaryPropertyAttribute.CompositeContainerDictionaryPropertyName).PropertyType.GenericTypeArguments[1].FindCustomAttribute<ParentPropertyAttribute>().ParentPropertyName) +
+                                                    (propertyPathBuilder.Length > 0 ? "/" + dictionaryPropertyAttribute.CompositeContainerDictionaryPropertyName : string.Empty));
+            else
+                propertyPathBuilder.Insert(0, "/" + parentPropertyAttribute.ParentCompositePropertyName);
+
+            if (parentPropertyAttribute != null)
+            {
+                var parentComposite = parentProperty.GetValue(composite) as Composite;
+                GetPropertyPath(startingProperty, parentProperty, parentComposite, propertyPathBuilder);
+            }
+        }
+
         public static string GetRequest(this Stream stream, Encoding contentEncoding, string contentType, string urlQueryString, CultureInfo cultureInfo, out IEnumerable<CompositeUploadedFile> uploadedFiles, out IEnumerable<CompositeRootCommandRequest> multipleCommandRequest)
         {
             multipleCommandRequest = null;

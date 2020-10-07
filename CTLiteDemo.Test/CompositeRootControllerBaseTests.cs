@@ -16,7 +16,6 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using CTLite;
-using CTLiteDemo.Presentation.BlogApplications;
 using CTLiteDemo.Presentation.BlogApplications.Blogs;
 using CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments;
 using CTLiteDemo.WebApi;
@@ -130,9 +129,9 @@ namespace CTLiteDemo.Test
             return (TResponse)blogApplicationController.ReceiveRequest();
         }
 
-        private long GetNewSessionId()
+        private static long GetNewSessionId()
         {
-            return ((BlogApplicationCompositeRoot)SendRequest<IEnumerable<CompositeRootCommandResponse>>(string.Empty, string.Empty, string.Empty).First().ReturnValue).Id;
+            return ((CompositeRoot)SendRequest<IEnumerable<CompositeRootCommandResponse>>(string.Empty, string.Empty, string.Empty).First().ReturnValue).Id;
         }
 
 

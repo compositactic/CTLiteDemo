@@ -121,9 +121,9 @@ namespace CTLite.AspNetCore
                 }
 
                 requestId = requestId.NewId();
-                OnBeforeExecute(commandRequests, compositeRootHttpContext, uploadedFiles, requestId);
+                var objectState = OnBeforeExecute(commandRequests, compositeRootHttpContext, uploadedFiles, requestId);
                 commandResponses = compositeRoot.Execute(commandRequests, compositeRootHttpContext, uploadedFiles).ToList();
-                OnAfterExecute(commandResponses, compositeRootHttpContext, requestId);
+                OnAfterExecute(commandResponses, compositeRootHttpContext, requestId, objectState);
 
                 SetCache(compositeRoot.Id, JsonConvert.SerializeObject(compositeRootModelField.GetValue(compositeRoot)));
 
@@ -153,12 +153,13 @@ namespace CTLite.AspNetCore
         {
         }
 
-        protected virtual void OnAfterExecute(IEnumerable<CompositeRootCommandResponse> commandResponses, CompositeRootHttpContext compositeRootHttpContext, long requestId)
+        protected virtual void OnAfterExecute(IEnumerable<CompositeRootCommandResponse> commandResponses, CompositeRootHttpContext compositeRootHttpContext, long requestId, object objectState)
         {
         }
 
-        protected virtual void OnBeforeExecute(IEnumerable<CompositeRootCommandRequest> commandRequests, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles, long requestId)
+        protected virtual object OnBeforeExecute(IEnumerable<CompositeRootCommandRequest> commandRequests, CompositeRootHttpContext compositeRootHttpContext, IEnumerable<CompositeUploadedFile> uploadedFiles, long requestId)
         {
+            return null;
         }
 
         private static IEnumerable<string> GetErrorMessages(Exception e)

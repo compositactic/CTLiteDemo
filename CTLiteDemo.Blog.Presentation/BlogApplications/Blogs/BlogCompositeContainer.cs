@@ -49,6 +49,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
         public ReadOnlyCompositeDictionary<long, BlogComposite> Blogs { get; private set; }
 
         [Command]
+        [PresentationStateControl(nameof(CanCreateNewBlog))]
         [Help(typeof(Resources), nameof(Resources.BlogCompositeContainer_CreateNewBlogHelp))]
         [return: Help(typeof(Resources), nameof(Resources.BlogCompositeContainer_CreateNewBlog_ReturnValueHelp))]
         public BlogComposite CreateNewBlog(
@@ -73,6 +74,16 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
             blogs.Add(newBlog.Id, newBlog);
 
             return newBlog;
+        }
+
+        public bool CanCreateNewBlog()
+        {
+            return true;
+        }
+
+        public object GetPresentationData()
+        {
+            return new { @class = "blag", onclick = "alert('hi')" };
         }
 
         [Command]

@@ -42,6 +42,10 @@ namespace CTLite
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        [DataMember]
+        [NoDb]
+        public string Path { get { return this.GetPath(); } }
+
         public CompositeRoot CompositeRoot
         {
             get { return GetParentComposite(this, null, null) as CompositeRoot; }
@@ -83,22 +87,48 @@ namespace CTLite
             compositeMemberInfos
                 .Where(mi => mi.MemberType == MemberTypes.Property)
                 .Cast<PropertyInfo>().ToList()
-                .ForEach(pi => compositePropertyInfos.Add(new CompositePropertyInfo(pi.Name, pi.PropertyType, pi.GetSetMethod(false) == null, pi.GetCustomAttribute<HelpAttribute>()?.Text)));
+                .ForEach
+                (
+                    pi => compositePropertyInfos
+                        .Add
+                        (
+                            new CompositePropertyInfo
+                            (
+                                pi.Name,
+                                pi.PropertyType,
+                                pi.GetSetMethod(false) == null,
+                                pi.GetCustomAttribute<HelpAttribute>()?.Text,
+                                pi.GetCustomAttribute<PresentationStateControlAttribute>() == null || (GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsVisibleMethodName) == null || (bool)GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsVisibleMethodName).Invoke(this, null)),
+                                pi.GetCustomAttribute<PresentationStateControlAttribute>() == null || (GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsEnabledMethodName) == null || (bool)GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsEnabledMethodName).Invoke(this, null))
+                            )
+                        )
+                );
+
 
             var compositeCommandInfos = new List<CompositeCommandInfo>();
             var compositeCommandParameterInfos = new List<CompositeCommandParameterInfo>();
             foreach (var cmi in compositeMemberInfos.Where(mi => mi.MemberType == MemberTypes.Method).Cast<MethodInfo>())
             {
+                PresentationStateControlAttribute psc;
+                var isMethodEnabled = true;
+                var isMethodVisible = true;
+
+                if ((psc = cmi.GetCustomAttribute<PresentationStateControlAttribute>()) != null)
+                {
+                    isMethodVisible = GetType().GetMethod(psc.IsVisibleMethodName) == null || (bool)GetType().GetMethod(psc.IsVisibleMethodName).Invoke(this, null);
+                    isMethodEnabled = GetType().GetMethod(psc.IsEnabledMethodName) == null || (bool)GetType().GetMethod(psc.IsEnabledMethodName).Invoke(this, null);
+                }
+
                 foreach (var parameterInfo in cmi.GetParameters().Where(pi => pi.ParameterType != typeof(CompositeRootHttpContext)))
                     compositeCommandParameterInfos.Add(new CompositeCommandParameterInfo(parameterInfo.Name, parameterInfo.ParameterType, parameterInfo.GetCustomAttribute<HelpAttribute>()?.Text, parameterInfo.ParameterType.GetTypeEnumValues()));
 
                 var returnValueHelpText = cmi.ReturnTypeCustomAttributes.GetCustomAttributes(typeof(HelpAttribute), true).Cast<HelpAttribute>().FirstOrDefault()?.Text;
 
-                compositeCommandInfos.Add(new CompositeCommandInfo(cmi.Name, cmi.GetCustomAttribute<HelpAttribute>()?.Text, compositeCommandParameterInfos, cmi.ReturnType, returnValueHelpText));
+                compositeCommandInfos.Add(new CompositeCommandInfo(cmi.Name, cmi.GetCustomAttribute<HelpAttribute>()?.Text, compositeCommandParameterInfos, cmi.ReturnType, returnValueHelpText, isMethodVisible, isMethodEnabled));
                 compositeCommandParameterInfos.Clear();
             }
 
-            return new CompositeMemberInfo(compositePropertyInfos, compositeCommandInfos);
+            return new CompositeMemberInfo(compositePropertyInfos, compositeCommandInfos, this.GetPath());
         }
     }
 }

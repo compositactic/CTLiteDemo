@@ -73,7 +73,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs.Posts.Attachments
         public byte[] GetAttachment(CompositeRootHttpContext context)
         {
             var attachmentBytes = CompositeRoot.GetService<IAttachmentArchiveService>().GetAttachment(FilePath);
-            context.Response.ContentType = ContentTypes.GetContentTypeFromFileExtension(Path.GetExtension(FilePath));
+            context.Response.ContentType = ContentTypes.GetContentTypeFromFileExtension(System.IO.Path.GetExtension(FilePath));
             return attachmentBytes;
         }
     }

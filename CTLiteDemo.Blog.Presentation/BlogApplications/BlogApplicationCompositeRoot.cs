@@ -77,7 +77,7 @@ namespace CTLiteDemo.Presentation.BlogApplications
             {
                 if(string.IsNullOrEmpty(_blogDbConnectionString))
                 {
-                    var applicationPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    var applicationPath = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                     var blogApplicationSettings = GetSettings(applicationPath);
                     var sqlConnectionString = blogApplicationSettings.TryGetValue($"{Environment.MachineName}.ConnectionString", out string connectionString) ? connectionString : blogApplicationSettings["Local.ConnectionString"];
                     _blogDbConnectionString = string.Format(sqlConnectionString, blogApplicationSettings.TryGetValue($"{Environment.MachineName}.Database.BlogDb", out string blogDbConnString) ? blogDbConnString : blogApplicationSettings["Local.Database.BlogDb"]);
@@ -94,7 +94,7 @@ namespace CTLiteDemo.Presentation.BlogApplications
             {
                 if (string.IsNullOrEmpty(_masterDbConnectionString))
                 {
-                    var applicationPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    var applicationPath = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                     var blogApplicationSettings = GetSettings(applicationPath);
                     var sqlConnectionString = blogApplicationSettings.TryGetValue($"{Environment.MachineName}.ConnectionString", out string connectionString) ? connectionString : blogApplicationSettings["Local.ConnectionString"];
                     _masterDbConnectionString = string.Format(sqlConnectionString, blogApplicationSettings.TryGetValue($"{Environment.MachineName}.Database.Master", out string masterDbConnString) ? masterDbConnString : blogApplicationSettings["Local.Database.Master"]);
@@ -112,14 +112,14 @@ namespace CTLiteDemo.Presentation.BlogApplications
 
         public static Dictionary<string, string> GetSettings(string applicationPath)
         {
-            return JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(applicationPath, "BlogApplicationSettings.json")));
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(System.IO.Path.Combine(applicationPath, "BlogApplicationSettings.json")));
         }
 
         [Command]
         public void CreateDatabase()
         {
-            var applicationPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var createDatabaseSqlScriptFile = Path.Combine(applicationPath, "000-BlogDatabase.sql");
+            var applicationPath = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var createDatabaseSqlScriptFile = System.IO.Path.Combine(applicationPath, "000-BlogDatabase.sql");
 
             var repository = GetService<IMicrosoftSqlServerRepository>();
 
@@ -139,7 +139,7 @@ namespace CTLiteDemo.Presentation.BlogApplications
         public void SetupDatabase()
         {
             var repository = GetService<IMicrosoftSqlServerRepository>();
-            var applicationPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var applicationPath = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             using (var connection = repository.OpenConnection(BlogDbConnectionString))
             using (var transaction = repository.BeginTransaction(connection))
@@ -152,8 +152,8 @@ namespace CTLiteDemo.Presentation.BlogApplications
             using (var transaction = repository.BeginTransaction(connection))
             {
                 var directories = 
-                    Directory.GetDirectories(Path.Combine(applicationPath, "BlogApplications"), string.Empty, SearchOption.AllDirectories)
-                    .GroupBy(d => new { Depth = d.Split(Path.DirectorySeparatorChar).Count(), Directory = d })
+                    Directory.GetDirectories(System.IO.Path.Combine(applicationPath, "BlogApplications"), string.Empty, SearchOption.AllDirectories)
+                    .GroupBy(d => new { Depth = d.Split(System.IO.Path.DirectorySeparatorChar).Count(), Directory = d })
                     .OrderBy(g => g.Key.Depth).ThenBy(g => g.Key.Directory)
                     .Select(g => g.Key.Directory);
 
