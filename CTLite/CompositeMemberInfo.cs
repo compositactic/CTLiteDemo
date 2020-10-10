@@ -32,6 +32,7 @@ namespace CTLite
             Path = path;
         }
 
+        [DataMember]
         public string Path { get; }
 
         [DataMember]

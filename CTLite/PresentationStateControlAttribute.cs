@@ -48,9 +48,19 @@ namespace CTLite
             PresentationDataMethodName = presentationDataMethodName;
         }
 
+        public PresentationStateControlAttribute(string isEnabledMethodName, string isVisibleMethodName, string isReadOnlyMethodName, string presentationDataMethodName, string presentationLabelDataMethodName)
+        {
+            IsEnabledMethodName = isEnabledMethodName;
+            IsVisibleMethodName = isVisibleMethodName;
+            IsReadOnlyMethodName = isReadOnlyMethodName;
+            PresentationDataMethodName = presentationDataMethodName;
+            PresentationLabelDataMethodName = presentationLabelDataMethodName;
+        }
+
         public string IsVisibleMethodName { get; }
         public string IsEnabledMethodName { get; }
         public string IsReadOnlyMethodName { get; }
         public string PresentationDataMethodName { get; } 
+        public string PresentationLabelDataMethodName { get; }
     }
 }

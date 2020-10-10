@@ -20,6 +20,7 @@ using CTLite.Data.MicrosoftSqlServer;
 using CTLiteDemo.Model.BlogApplications.Blogs;
 using CTLiteDemo.Presentation.Properties;
 using System;
+using System.ComponentModel;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -27,6 +28,7 @@ using System.Runtime.Serialization;
 namespace CTLiteDemo.Presentation.BlogApplications.Blogs
 {
     [DataContract]
+    [Category("Tee")]
     [ParentProperty(nameof(BlogCompositeContainer.BlogApplication))]
     [CompositeContainer(nameof(BlogCompositeContainer.Blogs), nameof(BlogCompositeContainer.Blogs), nameof(BlogCompositeContainer.blogs))]
     public class BlogCompositeContainer : Composite
@@ -49,7 +51,7 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
         public ReadOnlyCompositeDictionary<long, BlogComposite> Blogs { get; private set; }
 
         [Command]
-        [PresentationStateControl(nameof(CanCreateNewBlog))]
+        [PresentationStateControl(nameof(CanCreateNewBlog), nameof(IsVisible), null, nameof(GetPresentationData), nameof(GetPresentationLabelData))]
         [Help(typeof(Resources), nameof(Resources.BlogCompositeContainer_CreateNewBlogHelp))]
         [return: Help(typeof(Resources), nameof(Resources.BlogCompositeContainer_CreateNewBlog_ReturnValueHelp))]
         public BlogComposite CreateNewBlog(
@@ -76,14 +78,24 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
             return newBlog;
         }
 
+        public bool IsVisible()
+        {
+            return true;
+        }
+
         public bool CanCreateNewBlog()
         {
             return true;
         }
 
+        public object GetPresentationLabelData()
+        {
+            return new { @class = "class-for-current-label-state", onclick = "alert('hi')" };
+        }
+
         public object GetPresentationData()
         {
-            return new { @class = "blag", onclick = "alert('hi')" };
+            return new { @class = "class-for-current-state", onclick = "alert('hi')" };
         }
 
         [Command]

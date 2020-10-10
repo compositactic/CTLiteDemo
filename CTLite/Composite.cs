@@ -96,10 +96,12 @@ namespace CTLite
                             (
                                 pi.Name,
                                 pi.PropertyType,
-                                pi.GetSetMethod(false) == null,
+                                pi.GetSetMethod(false) == null && (pi.GetCustomAttribute<PresentationStateControlAttribute>() == null || GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsReadOnlyMethodName) == null || (bool)GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsReadOnlyMethodName).Invoke(this, null)),
                                 pi.GetCustomAttribute<HelpAttribute>()?.Text,
-                                pi.GetCustomAttribute<PresentationStateControlAttribute>() == null || (GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsVisibleMethodName) == null || (bool)GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsVisibleMethodName).Invoke(this, null)),
-                                pi.GetCustomAttribute<PresentationStateControlAttribute>() == null || (GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsEnabledMethodName) == null || (bool)GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsEnabledMethodName).Invoke(this, null))
+                                pi.GetCustomAttribute<PresentationStateControlAttribute>() == null || GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsVisibleMethodName) == null || (bool)GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsVisibleMethodName).Invoke(this, null),
+                                pi.GetCustomAttribute<PresentationStateControlAttribute>() == null || GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsEnabledMethodName) == null || (bool)GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsEnabledMethodName).Invoke(this, null),
+                                pi.GetCustomAttribute<PresentationStateControlAttribute>() == null || GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().PresentationDataMethodName) == null || (bool)GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().PresentationDataMethodName).Invoke(this, null),
+                                pi.GetCustomAttribute<PresentationStateControlAttribute>() == null || GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().PresentationLabelDataMethodName) == null || (bool)GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().PresentationLabelDataMethodName).Invoke(this, null)
                             )
                         )
                 );
@@ -112,11 +114,17 @@ namespace CTLite
                 PresentationStateControlAttribute psc;
                 var isMethodEnabled = true;
                 var isMethodVisible = true;
+                var presentationData = new object();
+                var presentationLabelData = new object();
 
                 if ((psc = cmi.GetCustomAttribute<PresentationStateControlAttribute>()) != null)
                 {
-                    isMethodVisible = GetType().GetMethod(psc.IsVisibleMethodName) == null || (bool)GetType().GetMethod(psc.IsVisibleMethodName).Invoke(this, null);
-                    isMethodEnabled = GetType().GetMethod(psc.IsEnabledMethodName) == null || (bool)GetType().GetMethod(psc.IsEnabledMethodName).Invoke(this, null);
+                    isMethodVisible = string.IsNullOrEmpty(psc.IsVisibleMethodName) || GetType().GetMethod(psc.IsVisibleMethodName) == null || (bool)GetType().GetMethod(psc.IsVisibleMethodName).Invoke(this, null);
+                    isMethodEnabled = string.IsNullOrEmpty(psc.IsEnabledMethodName) || GetType().GetMethod(psc.IsEnabledMethodName) == null || (bool)GetType().GetMethod(psc.IsEnabledMethodName).Invoke(this, null);
+                    presentationData = !string.IsNullOrEmpty(psc.PresentationDataMethodName) && GetType().GetMethod(psc.PresentationDataMethodName) != null ?
+                                            GetType().GetMethod(psc.PresentationDataMethodName).Invoke(this, null) : null;
+                    presentationLabelData = !string.IsNullOrEmpty(psc.PresentationLabelDataMethodName) && GetType().GetMethod(psc.PresentationLabelDataMethodName) != null ?
+                        GetType().GetMethod(psc.PresentationLabelDataMethodName).Invoke(this, null) : null;
                 }
 
                 foreach (var parameterInfo in cmi.GetParameters().Where(pi => pi.ParameterType != typeof(CompositeRootHttpContext)))
@@ -124,7 +132,18 @@ namespace CTLite
 
                 var returnValueHelpText = cmi.ReturnTypeCustomAttributes.GetCustomAttributes(typeof(HelpAttribute), true).Cast<HelpAttribute>().FirstOrDefault()?.Text;
 
-                compositeCommandInfos.Add(new CompositeCommandInfo(cmi.Name, cmi.GetCustomAttribute<HelpAttribute>()?.Text, compositeCommandParameterInfos, cmi.ReturnType, returnValueHelpText, isMethodVisible, isMethodEnabled));
+                compositeCommandInfos.Add(new CompositeCommandInfo
+                (
+                    cmi.Name,
+                    cmi.GetCustomAttribute<HelpAttribute>()?.Text,
+                    compositeCommandParameterInfos,
+                    cmi.ReturnType, 
+                    returnValueHelpText, 
+                    isMethodVisible,
+                    isMethodEnabled,
+                    presentationData,
+                    presentationLabelData));
+
                 compositeCommandParameterInfos.Clear();
             }
 
