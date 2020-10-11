@@ -26,7 +26,7 @@ namespace CTLite
     [Serializable]
     public class CompositeCommandInfo
     {
-        internal CompositeCommandInfo(string commandName, string helpText, IEnumerable<CompositeCommandParameterInfo> parameter, Type returnType, string returnTypeHelp, bool isVisible, bool isEnabled, object presentationData, object presentationLabelData)
+        internal CompositeCommandInfo(string commandName, string helpText, IEnumerable<CompositeCommandParameterInfo> parameter, Type returnType, string returnTypeHelp, bool isVisible, bool isEnabled, object presentationData, object presentationLabelData, string labelText, string category)
         {
             CommandName = commandName;
             HelpText = helpText;
@@ -37,6 +37,8 @@ namespace CTLite
             IsEnabled = isEnabled;
             PresentationData = presentationData;
             PresentationLabelData = presentationLabelData;
+            Category = category;
+            LabelText = labelText;
         }
 
         [DataMember]
@@ -70,6 +72,10 @@ namespace CTLite
         [DataMember]
         public object PresentationLabelData { get; }
 
+        [DataMember]
+        public string LabelText { get; }
 
+        [DataMember]
+        public string Category { get; }
     }
 }

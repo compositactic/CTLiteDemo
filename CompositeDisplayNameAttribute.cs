@@ -6,21 +6,21 @@ using System.Reflection;
 namespace CTLite
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-    public sealed class CompositeCategory : CategoryAttribute
+    public sealed class CompositeDisplayNameAttribute : DisplayAttribute
     {
-        public CompositeCategory(string category) : base(category)
+        public CompositeCategoryAttribute(string category) : base(category)
         {
             Category = category;
         }
 
-        public CompositeCategory(Type resourceType, string resourceName)
+        public CompositeCategoryAttribute(Type resourceType, string resourceName)
         {
             ResourceName = resourceName ?? throw new ArgumentNullException(nameof(resourceName));
             ResourceType = resourceType ?? throw new ArgumentNullException(nameof(resourceType));
             Category = resourceType.GetProperty(resourceName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)?.GetValue(null) as string;
         }
 
-        public CompositeCategory(Type resourceType, string resourceName, params object[] resourceNameStringArgs)
+        public CompositeCategoryAttribute(Type resourceType, string resourceName, params object[] resourceNameStringArgs)
         {
             ResourceName = resourceName ?? throw new ArgumentNullException(nameof(resourceName));
             ResourceType = resourceType ?? throw new ArgumentNullException(nameof(resourceType));
@@ -40,3 +40,5 @@ namespace CTLite
         }
     }
 }
+
+

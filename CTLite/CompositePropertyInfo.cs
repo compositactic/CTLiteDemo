@@ -25,7 +25,7 @@ namespace CTLite
     [Serializable]
     public class CompositePropertyInfo
     {
-        internal CompositePropertyInfo(string propertyName, Type propertyType, bool isReadOnly, string helpText, bool isVisible, bool isEnabled, object presentationData, object presentationLabelData)
+        internal CompositePropertyInfo(string propertyName, Type propertyType, bool isReadOnly, string helpText, bool isVisible, bool isEnabled, object presentationData, object presentationLabelData, string labelText, string category)
         {
             PropertyName = propertyName;
 
@@ -39,12 +39,12 @@ namespace CTLite
 
             IsReadOnly = isReadOnly;
             HelpText = helpText;
-
             IsVisible = isVisible;
             IsEnabled = isEnabled;
-
             PresentationData = presentationData;
             PresentationLabelData = presentationLabelData;
+            Category = category;
+            LabelText = labelText;
         }
 
         [DataMember]
@@ -68,8 +68,16 @@ namespace CTLite
         [DataMember]
         public bool IsEnabled { get; }
 
+        [DataMember]
         public object PresentationData { get; }
 
+        [DataMember]
         public object PresentationLabelData { get; }
+
+        [DataMember]
+        public string LabelText { get; }
+
+        [DataMember]
+        public string Category { get; }
     }
 }

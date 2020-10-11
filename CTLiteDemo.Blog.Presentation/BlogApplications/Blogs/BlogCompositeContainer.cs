@@ -28,7 +28,6 @@ using System.Runtime.Serialization;
 namespace CTLiteDemo.Presentation.BlogApplications.Blogs
 {
     [DataContract]
-    [Category("Tee")]
     [ParentProperty(nameof(BlogCompositeContainer.BlogApplication))]
     [CompositeContainer(nameof(BlogCompositeContainer.Blogs), nameof(BlogCompositeContainer.Blogs), nameof(BlogCompositeContainer.blogs))]
     public class BlogCompositeContainer : Composite
@@ -48,10 +47,13 @@ namespace CTLiteDemo.Presentation.BlogApplications.Blogs
         internal CompositeDictionary<long, BlogComposite> blogs;
         [DataMember]
         [Help(typeof(Resources), nameof(Resources.BlogCompositeContainer_BlogsHelp))]
+        [PresentationStateControl(null, null, null, nameof(GetPresentationData), nameof(GetPresentationLabelData))]
         public ReadOnlyCompositeDictionary<long, BlogComposite> Blogs { get; private set; }
 
         [Command]
         [PresentationStateControl(nameof(CanCreateNewBlog), nameof(IsVisible), null, nameof(GetPresentationData), nameof(GetPresentationLabelData))]
+        [Category("Test category")]
+        [DisplayName("Create New Blog")]
         [Help(typeof(Resources), nameof(Resources.BlogCompositeContainer_CreateNewBlogHelp))]
         [return: Help(typeof(Resources), nameof(Resources.BlogCompositeContainer_CreateNewBlog_ReturnValueHelp))]
         public BlogComposite CreateNewBlog(

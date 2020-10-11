@@ -77,6 +77,18 @@ namespace CTLite
 
         internal CompositeMemberInfo GetCompositeMemberInfo()
         {
+            PresentationStateControlAttribute presentationStateControlAttribute;
+            CategoryAttribute categoryAttribute;
+            DisplayNameAttribute displayNameAttribute;
+
+            var isMethodEnabled = true;
+            var isMethodVisible = true;
+            var presentationData = new object();
+            var presentationLabelData = new object();
+            var isReadOnly = false;
+            var labelText = (string)null;
+            var category = (string)null;
+
             var compositeMemberInfos =
                 GetType()
                 .GetMembers(_flags)
@@ -84,53 +96,55 @@ namespace CTLite
 
             var compositePropertyInfos = new List<CompositePropertyInfo>();
 
-            compositeMemberInfos
-                .Where(mi => mi.MemberType == MemberTypes.Property)
-                .Cast<PropertyInfo>().ToList()
-                .ForEach
-                (
-                    pi => compositePropertyInfos
-                        .Add
-                        (
-                            new CompositePropertyInfo
-                            (
-                                pi.Name,
-                                pi.PropertyType,
-                                pi.GetSetMethod(false) == null && (pi.GetCustomAttribute<PresentationStateControlAttribute>() == null || GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsReadOnlyMethodName) == null || (bool)GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsReadOnlyMethodName).Invoke(this, null)),
-                                pi.GetCustomAttribute<HelpAttribute>()?.Text,
-                                pi.GetCustomAttribute<PresentationStateControlAttribute>() == null || GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsVisibleMethodName) == null || (bool)GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsVisibleMethodName).Invoke(this, null),
-                                pi.GetCustomAttribute<PresentationStateControlAttribute>() == null || GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsEnabledMethodName) == null || (bool)GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsEnabledMethodName).Invoke(this, null),
-                                pi.GetCustomAttribute<PresentationStateControlAttribute>() == null || GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().PresentationDataMethodName) == null || (bool)GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().PresentationDataMethodName).Invoke(this, null),
-                                pi.GetCustomAttribute<PresentationStateControlAttribute>() == null || GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().PresentationLabelDataMethodName) == null || (bool)GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().PresentationLabelDataMethodName).Invoke(this, null)
-                            )
-                        )
-                );
+            foreach(var pi in compositeMemberInfos.Where(mi => mi.MemberType == MemberTypes.Property).Cast<PropertyInfo>())
+            {
+                if ((presentationStateControlAttribute = pi.GetCustomAttribute<PresentationStateControlAttribute>()) != null)
+                {
+                    GetPresentationControlData(presentationStateControlAttribute, out isMethodEnabled, out isMethodVisible, out presentationData, out presentationLabelData);
+                    isReadOnly = pi.GetSetMethod(false) == null && (string.IsNullOrEmpty(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsReadOnlyMethodName) || GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsReadOnlyMethodName) == null || (bool)GetType().GetMethod(pi.GetCustomAttribute<PresentationStateControlAttribute>().IsReadOnlyMethodName).Invoke(this, null));
+                }
 
+                if((categoryAttribute = pi.GetCustomAttribute<CategoryAttribute>(true)) != null)
+                    category = categoryAttribute.Category;
+
+                if ((displayNameAttribute = pi.GetCustomAttribute<DisplayNameAttribute>(true)) != null)
+                    labelText = displayNameAttribute.DisplayName;
+
+                compositePropertyInfos.Add
+                (
+                    new CompositePropertyInfo
+                    (
+                        pi.Name,
+                        pi.PropertyType,
+                        isReadOnly,
+                        pi.GetCustomAttribute<HelpAttribute>()?.Text,
+                        isMethodVisible,
+                        isMethodEnabled,
+                        presentationData,
+                        presentationLabelData,
+                        labelText,
+                        category
+                    )
+                );
+            }
 
             var compositeCommandInfos = new List<CompositeCommandInfo>();
             var compositeCommandParameterInfos = new List<CompositeCommandParameterInfo>();
             foreach (var cmi in compositeMemberInfos.Where(mi => mi.MemberType == MemberTypes.Method).Cast<MethodInfo>())
             {
-                PresentationStateControlAttribute psc;
-                var isMethodEnabled = true;
-                var isMethodVisible = true;
-                var presentationData = new object();
-                var presentationLabelData = new object();
-
-                if ((psc = cmi.GetCustomAttribute<PresentationStateControlAttribute>()) != null)
-                {
-                    isMethodVisible = string.IsNullOrEmpty(psc.IsVisibleMethodName) || GetType().GetMethod(psc.IsVisibleMethodName) == null || (bool)GetType().GetMethod(psc.IsVisibleMethodName).Invoke(this, null);
-                    isMethodEnabled = string.IsNullOrEmpty(psc.IsEnabledMethodName) || GetType().GetMethod(psc.IsEnabledMethodName) == null || (bool)GetType().GetMethod(psc.IsEnabledMethodName).Invoke(this, null);
-                    presentationData = !string.IsNullOrEmpty(psc.PresentationDataMethodName) && GetType().GetMethod(psc.PresentationDataMethodName) != null ?
-                                            GetType().GetMethod(psc.PresentationDataMethodName).Invoke(this, null) : null;
-                    presentationLabelData = !string.IsNullOrEmpty(psc.PresentationLabelDataMethodName) && GetType().GetMethod(psc.PresentationLabelDataMethodName) != null ?
-                        GetType().GetMethod(psc.PresentationLabelDataMethodName).Invoke(this, null) : null;
-                }
+                if ((presentationStateControlAttribute = cmi.GetCustomAttribute<PresentationStateControlAttribute>()) != null)
+                    GetPresentationControlData(presentationStateControlAttribute, out isMethodEnabled, out isMethodVisible, out presentationData, out presentationLabelData);
 
                 foreach (var parameterInfo in cmi.GetParameters().Where(pi => pi.ParameterType != typeof(CompositeRootHttpContext)))
                     compositeCommandParameterInfos.Add(new CompositeCommandParameterInfo(parameterInfo.Name, parameterInfo.ParameterType, parameterInfo.GetCustomAttribute<HelpAttribute>()?.Text, parameterInfo.ParameterType.GetTypeEnumValues()));
 
                 var returnValueHelpText = cmi.ReturnTypeCustomAttributes.GetCustomAttributes(typeof(HelpAttribute), true).Cast<HelpAttribute>().FirstOrDefault()?.Text;
+
+                if ((categoryAttribute = cmi.GetCustomAttribute<CategoryAttribute>(true)) != null)
+                    category = categoryAttribute.Category;
+
+                if ((displayNameAttribute = cmi.GetCustomAttribute<DisplayNameAttribute>(true)) != null)
+                    labelText = displayNameAttribute.DisplayName;
 
                 compositeCommandInfos.Add(new CompositeCommandInfo
                 (
@@ -142,12 +156,24 @@ namespace CTLite
                     isMethodVisible,
                     isMethodEnabled,
                     presentationData,
-                    presentationLabelData));
+                    presentationLabelData,
+                    labelText,
+                    category));
 
                 compositeCommandParameterInfos.Clear();
             }
 
             return new CompositeMemberInfo(compositePropertyInfos, compositeCommandInfos, this.GetPath());
+        }
+
+        private void GetPresentationControlData(PresentationStateControlAttribute psc, out bool isMethodEnabled, out bool isMethodVisible, out object presentationData, out object presentationLabelData)
+        {
+            isMethodVisible = string.IsNullOrEmpty(psc.IsVisibleMethodName) || GetType().GetMethod(psc.IsVisibleMethodName) == null || (bool)GetType().GetMethod(psc.IsVisibleMethodName).Invoke(this, null);
+            isMethodEnabled = string.IsNullOrEmpty(psc.IsEnabledMethodName) || GetType().GetMethod(psc.IsEnabledMethodName) == null || (bool)GetType().GetMethod(psc.IsEnabledMethodName).Invoke(this, null);
+            presentationData = !string.IsNullOrEmpty(psc.PresentationDataMethodName) && GetType().GetMethod(psc.PresentationDataMethodName) != null ?
+                                    GetType().GetMethod(psc.PresentationDataMethodName).Invoke(this, null) : null;
+            presentationLabelData = !string.IsNullOrEmpty(psc.PresentationLabelDataMethodName) && GetType().GetMethod(psc.PresentationLabelDataMethodName) != null ?
+                GetType().GetMethod(psc.PresentationLabelDataMethodName).Invoke(this, null) : null;
         }
     }
 }
